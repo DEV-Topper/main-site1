@@ -1,0 +1,122 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, CreditCard, Gem } from 'lucide-react';
+import Link from 'next/link';
+
+export function StatsCards() {
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [balance, setBalance] = useState(0);
+  const [referralBalance, setReferralBalance] = useState(0);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Fetch User Data for Balances
+        const userRes = await fetch('/api/auth/me');
+        const userData = await userRes.json();
+
+        if (userData.success && userData.user) {
+          setBalance(userData.user.walletBalance || 0);
+          setReferralBalance(userData.user.referralBalance || 0);
+        }
+
+        // Fetch Purchases for Total Spent
+        const purchasesRes = await fetch('/api/user/purchases');
+        const purchasesData = await purchasesRes.json();
+
+        if (purchasesData.success) {
+          const purchases = purchasesData.purchases || [];
+          const total = purchases.reduce(
+            (acc: number, curr: any) => acc + (curr.totalAmount || 0),
+            0
+          );
+          setTotalSpent(total);
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
+      {/* Total Balance Card */}
+      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
+            <div className="p-2 md:p-3 bg-blue-50 rounded-lg md:rounded-xl flex-shrink-0">
+              <svg
+                className="w-4 h-4 md:w-6 md:h-6 text-primary"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs md:text-sm text-gray-600">
+                Total Balance
+              </div>
+              <div className="text-lg md:text-2xl font-bold text-gray-900">
+                ₦{balance.toLocaleString()}
+              </div>
+            </div>
+          </div>
+          <Button
+            onClick={() => (window.location.href = '/add-funds')}
+            className="bg-primary hover:bg-primary/90 text-white text-xs md:text-sm px-3 md:px-4 h-8 md:h-10 rounded-lg md:rounded-xl flex-shrink-0"
+          >
+            Fund Wallet
+          </Button>
+        </div>
+      </div>
+
+      {/* Total Spent Card */}
+      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm">
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="p-2 md:p-3 bg-blue-50 rounded-lg md:rounded-xl flex-shrink-0">
+            <CreditCard color="blue" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs md:text-sm text-gray-600">Total Spent</div>
+            <div className="text-lg md:text-2xl font-bold text-gray-900">
+              ₦{totalSpent.toLocaleString()}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Referral Balance Card */}
+      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="p-2 md:p-3 bg-blue-50 rounded-lg md:rounded-xl flex-shrink-0">
+              <Gem color="blue" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs md:text-sm text-gray-600">
+                Referral Balance
+              </div>
+              <div className="text-lg md:text-2xl font-bold text-gray-900">
+                ₦{referralBalance.toLocaleString()}
+              </div>
+            </div>
+          </div>
+          <Link href="/referrals">
+            <ChevronDown className="h-5 w-5 text-gray-500" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

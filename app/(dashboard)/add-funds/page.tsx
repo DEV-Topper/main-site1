@@ -1,0 +1,470 @@
+'use client';
+
+import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
+import { useState, useEffect } from 'react';
+import { CiBank, CiCircleInfo, CiCreditCard1 } from 'react-icons/ci';
+import { Wallet, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
+import { Modal } from '@/components/ui/modal';
+import { FaRegCopy, FaUser } from 'react-icons/fa6';
+import Image from 'next/image';
+
+interface UserData {
+  _id: string;
+  email: string;
+  username: string;
+  phone?: string;
+}
+
+export default function AddFundsPage() {
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [virtualAccount, setVirtualAccount] = useState<{
+    id?: string;
+    bankName: string;
+    bank: string;
+    accountNumber: string;
+    accountName: string;
+    status?: string;
+  } | null>(null);
+  const [vaError, setVaError] = useState<string | null>(null);
+
+  // Main initialization — fetch user from MongoDB session
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+
+        if (!data.success || !data.user) {
+          console.log('No user logged in');
+          setLoading(false);
+          return;
+        }
+
+        setUser(data.user);
+        await loadVirtualAccount(data.user);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        setLoading(false);
+      }
+    };
+
+    init();
+  }, []);
+
+  // Core logic: check existing VA → create if needed → show modal if name missing
+  const loadVirtualAccount = async (userData: UserData) => {
+    try {
+      setLoading(true);
+      setVaError(null);
+
+      const nameParts = (userData.username || '').split(' ').filter(Boolean);
+      const initialFirstName = nameParts[0] || '';
+      const initialLastName = nameParts.slice(1).join(' ') || '';
+      const initialPhone = (userData.phone || '').trim();
+
+      if (initialFirstName) setFirstName(initialFirstName);
+      if (initialLastName) setLastName(initialLastName);
+      if (initialPhone) setPhone(initialPhone);
+
+      // 1. Check if user already has a virtual account
+      try {
+        const res = await fetch(
+          `/api/pocketfi/virtual-account?userId=${userData._id}`,
+        );
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.accountNumber && data.bankName && data.accountName) {
+          setVirtualAccount({
+            id: data.id,
+            bank: data.bank,
+            bankName: data.bankName,
+            accountNumber: data.accountNumber,
+            accountName: data.accountName,
+            status: data.status,
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error('Failed to check existing VA', err);
+      }
+
+      // 2. If no VA and we have names → auto-create
+      if (initialFirstName && initialLastName) {
+        const success = await createVirtualAccount(
+          userData._id,
+          initialFirstName,
+          initialLastName,
+          initialPhone,
+        );
+        if (!success) {
+          setShowDetailsModal(true);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // 3. Otherwise: ask user for details
+      setShowDetailsModal(true);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error in loadVirtualAccount:', error);
+      setVaError('Failed to load account details');
+      setLoading(false);
+    }
+  };
+
+  // Shared function to create VA (used both on load and modal submit)
+  const createVirtualAccount = async (
+    userId: string,
+    firstName: string,
+    lastName: string,
+    phone: string,
+  ) => {
+    try {
+      const res = await fetch('/api/pocketfi/virtual-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: phone.trim(),
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const errorMessage = data.details?.message
+          ? `${data.error}: ${data.details.message}`
+          : data.error || 'Failed to create virtual account';
+        throw new Error(errorMessage);
+      }
+
+      if (data.accountNumber && data.bankName && data.accountName) {
+        setVirtualAccount({
+          id: data.id,
+          bank: data.bank,
+          bankName: data.bankName,
+          accountNumber: data.accountNumber,
+          accountName: data.accountName,
+          status: data.status,
+        });
+        setVaError(null);
+        return true;
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (err: any) {
+      console.error('createVirtualAccount error:', err);
+      setVaError(err.message || 'Failed to create virtual account');
+      return false;
+    }
+  };
+
+  // Modal submit handler
+  const handlePocketfiPayment = async () => {
+    if (!user) return toast.error('Please login first');
+
+    const trimmedFirst = firstName.trim();
+    const trimmedLast = lastName.trim();
+    const trimmedPhone = phone.trim();
+
+    if (!trimmedFirst || !trimmedLast || !trimmedPhone) {
+      return toast.error('Please fill in all fields');
+    }
+
+    setProcessing(true);
+    const success = await createVirtualAccount(
+      user._id,
+      trimmedFirst,
+      trimmedLast,
+      trimmedPhone,
+    );
+    setProcessing(false);
+
+    if (success) setShowDetailsModal(false);
+  };
+
+  // Retry button in case of error
+  const handleRetry = async () => {
+    if (!user) return;
+    setVaError(null);
+    setLoading(true);
+    await loadVirtualAccount(user);
+  };
+
+  return (
+    <DashboardLayout>
+      {/* Details Modal */}
+      <Modal
+        isOpen={showDetailsModal}
+        onClose={() => !processing && setShowDetailsModal(false)}
+        title="Confirm your details"
+      >
+        <p className="text-sm text-gray-600 mb-4">
+          Please confirm your details so we can create your PocketFi virtual
+          account.
+        </p>
+
+        {vaError && (
+          <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200">
+            {vaError}
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none"
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none"
+            />
+            <input
+              type="tel"
+              placeholder="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={() => setShowDetailsModal(false)}
+            disabled={processing}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handlePocketfiPayment}
+            disabled={processing}
+            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50"
+          >
+            {processing ? (
+              <>Creating...</>
+            ) : (
+              <>
+                Save & Continue <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
+      </Modal>
+
+      <main className="min-h-screen bg-[#F7F8FC] p-3 sm:p-4">
+        <div className="max-w-md mx-auto mt-2 sm:mt-4 px-2 sm:px-0">
+          {/* Top icon + title */}
+          <div className="text-center mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl mx-auto flex items-center justify-center bg-[#EEF1FF] shadow-sm">
+              <Wallet className="w-6 h-6 sm:w-7 sm:h-7 text-[#5851D3]" />
+            </div>
+
+            <h1 className="text-xl sm:text-2xl font-semibold mt-2 sm:mt-3 text-gray-900">
+              Add Funds
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
+              Top up your virtual wallet instantly with PocketFi
+            </p>
+          </div>
+
+          {/* Loader */}
+          {loading ? (
+            <div className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-10 shadow text-center">
+              <div className="animate-spin rounded-full h-8 w-8 sm:h-9 sm:w-9 border-4 border-[#5851D3] border-t-transparent mx-auto mb-2 sm:mb-3" />
+              <p className="text-gray-600 text-xs sm:text-sm">
+                Setting up your virtual account...
+              </p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow overflow-hidden">
+              {/* Purple header */}
+              <div className="bg-gradient-to-r from-[#5F4BC0] to-[#7A4DF0] p-4 sm:p-5 text-white rounded-t-xl sm:rounded-t-2xl">
+                <h2 className="text-base sm:text-lg font-semibold">
+                  Fund Your Wallet
+                </h2>
+                <p className="text-[11px] sm:text-[13px] opacity-90 mt-1">
+                  You will be charged 0.9% fee for each recharge.
+                </p>
+              </div>
+
+              <div className="p-4 sm:p-6">
+                {virtualAccount ? (
+                  <div className="space-y-4 sm:space-y-5">
+                    {/* Transfer Notice */}
+                    <div className="bg-[#EEF3FF] p-2.5 sm:p-3 rounded-lg sm:rounded-xl text-xs sm:text-[13px] text-gray-700 flex items-center gap-2">
+                      <CiCircleInfo size={22} className="sm:w-6 sm:h-6" />
+                      <span>Transfer to the virtual account number below</span>
+                    </div>
+
+                    {/* ACCOUNT NUMBER */}
+                    <div>
+                      <p className="text-[11px] sm:text-[12px] text-gray-500 font-semibold mb-1">
+                        Account Number
+                      </p>
+
+                      <div className="flex items-center justify-between bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          {/* Left Icon */}
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
+                            <Image
+                              src="/image/DeSocial Plug AW2.png"
+                              alt="Logo"
+                              width={20}
+                              height={20}
+                              className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
+                            />
+                          </div>
+
+                          {/* Number */}
+                          <span className="text-base sm:text-lg tracking-wider font-semibold text-gray-900">
+                            {virtualAccount.accountNumber}
+                          </span>
+                        </div>
+
+                        {/* Copy Button */}
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              virtualAccount.accountNumber,
+                            );
+                            setCopied(true);
+                            toast.success('Copied!');
+
+                            // revert back after 2 seconds
+                            setTimeout(() => setCopied(false), 2000);
+                          }}
+                          className="flex items-center gap-1.5 sm:gap-2 bg-[#EEF1FF] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-[13px] font-medium text-[#4A5FE2] border cursor-pointer transition-all"
+                        >
+                          {copied ? (
+                            <span className="text-[#4A5FE2] font-semibold">
+                              Copied!
+                            </span>
+                          ) : (
+                            <>
+                              <FaRegCopy className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <span className="hidden sm:inline">Copy</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* BANK NAME */}
+                    <div>
+                      <p className="text-[11px] sm:text-[12px] text-gray-500 font-semibold mb-1">
+                        Bank Name
+                      </p>
+
+                      <div className="flex items-center gap-3 sm:gap-4 bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
+                        {/* Bank Icon */}
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
+                          <CiBank size={20} className="sm:w-6 sm:h-6" />
+                        </div>
+
+                        <span className="text-sm sm:text-base font-semibold text-gray-900">
+                          {virtualAccount.bankName}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ACCOUNT NAME */}
+                    <div>
+                      <p className="text-[11px] sm:text-[12px] text-gray-500 font-semibold mb-1">
+                        Account Name
+                      </p>
+
+                      <div className="flex items-center gap-3 sm:gap-4 bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
+                        {/* User icon */}
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
+                          <FaUser className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </div>
+
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                          {virtualAccount.accountName}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-[10px] sm:text-xs text-gray-500 text-center">
+                      Funds reflect instantly after transfer.
+                    </p>
+                  </div>
+                ) : vaError ? (
+                  <div className="text-center py-6 sm:py-8">
+                    <p className="text-red-600 mb-3 sm:mb-4 text-xs sm:text-sm">
+                      {vaError}
+                    </p>
+                    <button
+                      onClick={handleRetry}
+                      className="px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#5F4BC0] to-[#7A4DF0] text-white rounded-lg sm:rounded-xl font-medium text-sm"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-500 text-xs sm:text-sm">
+                    Your virtual account is being prepared...
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Bottom Features */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-5 sm:mt-7">
+            <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
+              <div className="text-base sm:text-lg mb-1">⚡</div>
+              <p className="font-semibold text-xs sm:text-[13px]">Instant</p>
+              <p className="text-[10px] sm:text-[11px] text-gray-500 mt-1">
+                Funds reflect fast
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
+              <div className="text-base sm:text-lg mb-1">🔒</div>
+              <p className="font-semibold text-xs sm:text-[13px]">Secure</p>
+              <p className="text-[10px] sm:text-[11px] text-gray-500 mt-1">
+                Bank-level safety
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm flex flex-col items-center">
+              <div className="mb-1 flex justify-center">
+                <CiCreditCard1 size={25} />
+              </div>
+
+              <p className="font-semibold text-xs sm:text-[13px]">
+                Virtual Acc.
+              </p>
+
+              <p className="text-[10px] sm:text-[11px] text-gray-500 mt-1">
+                Your wallet number
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </DashboardLayout>
+  );
+}
