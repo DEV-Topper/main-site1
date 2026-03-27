@@ -649,6 +649,27 @@ export function AccountsList({
       return;
     }
 
+    // ✅ Track InitiateCheckout event when user clicks "Proceed to Purchase"
+    if (typeof window !== 'undefined' && window.ttq) {
+      try {
+        const totalAmount = selectedAccount.price;
+        window.ttq.track('InitiateCheckout', {
+          contents: [
+            {
+              content_id: selectedAccount.id,
+              content_type: 'product',
+              content_name: `${selectedAccount.platform} Account - ${selectedAccount.followers}+ followers`,
+            },
+          ],
+          value: totalAmount,
+          currency: 'NGN',
+        });
+        console.log('✅ TikTok InitiateCheckout event tracked');
+      } catch (trackError) {
+        console.error('TikTok tracking error:', trackError);
+      }
+    }
+
     setIsPurchaseMode(true);
     setQuantity(1);
   };
@@ -709,6 +730,26 @@ export function AccountsList({
         setPurchasedCredentials(data.purchase.credentials || []);
         setPurchaseSuccess(true);
         setUserBalance(data.newBalance);
+
+        // ✅ Track Purchase event on successful purchase
+        if (typeof window !== 'undefined' && window.ttq) {
+          try {
+            window.ttq.track('Purchase', {
+              contents: [
+                {
+                  content_id: selectedAccount.id,
+                  content_type: 'product',
+                  content_name: `${selectedAccount.platform} Account - ${selectedAccount.followers}+ followers`,
+                },
+              ],
+              value: totalAmount,
+              currency: 'NGN',
+            });
+            console.log('✅ TikTok Purchase event tracked');
+          } catch (trackError) {
+            console.error('TikTok tracking error:', trackError);
+          }
+        }
 
         // Update local stock
         setAccounts((prev) =>

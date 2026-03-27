@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
@@ -34,6 +34,14 @@ export default function RegisterPage() {
     message: '',
   });
   const router = useRouter();
+
+  // TikTok Pixel initialization check
+  useEffect(() => {
+    // Ensure TikTok pixel is loaded
+    if (typeof window !== 'undefined' && !window.ttq) {
+      console.warn('TikTok pixel not loaded');
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -114,6 +122,21 @@ export default function RegisterPage() {
 
       if (!response.ok) {
         throw new Error(data.error || 'Registration failed');
+      }
+
+      // ✅ Track TikTok CompleteRegistration event ONLY on successful signup
+      if (data.success === true && typeof window !== 'undefined' && window.ttq) {
+        try {
+          window.ttq.track('CompleteRegistration', {
+            content_name: 'user_registration',
+            content_type: 'registration',
+            value: 0,
+            currency: 'NGN',
+          });
+          console.log('✅ TikTok CompleteRegistration event tracked');
+        } catch (trackError) {
+          console.error('TikTok tracking error:', trackError);
+        }
       }
 
       setModal({
