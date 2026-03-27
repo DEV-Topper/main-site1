@@ -631,6 +631,26 @@ export function AccountsList({
   const sortedFilteredAccounts = getSortedFilteredAccounts();
 
   const handleBuyClick = (account: Account) => {
+    // ✅ Track ViewContent event when user clicks the Buy button
+    if (typeof window !== 'undefined' && window.ttq) {
+      try {
+        window.ttq.track('ViewContent', {
+          contents: [
+            {
+              content_id: account.id,
+              content_type: 'product',
+              content_name: `${account.platform} Account - ${account.followers}+ followers`,
+            },
+          ],
+          value: account.price,
+          currency: 'NGN',
+        });
+        console.log('✅ TikTok ViewContent event tracked');
+      } catch (trackError) {
+        console.error('TikTok tracking error:', trackError);
+      }
+    }
+    
     setSelectedAccount(account);
     setIsModalOpen(true);
     setIsPurchaseMode(false);
