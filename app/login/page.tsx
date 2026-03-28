@@ -262,6 +262,7 @@ export default function LoginPage() {
           </div>
 
           <Button
+            onClick={() => (window.location.href = '/api/auth/google')}
             variant="outline"
             className="w-full h-14 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl text-base font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
