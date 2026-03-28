@@ -22,6 +22,8 @@ import {
   AlertCircle,
   Calendar,
   ChevronRight,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { BsSnapchat } from 'react-icons/bs';
 import {
@@ -307,6 +309,7 @@ export function AccountsList({
   const [purchasedCredentials, setPurchasedCredentials] = useState<any[]>([]);
   const [userBalance, setUserBalance] = useState(0);
   const [userLoading, setUserLoading] = useState(true);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   // Fetch Accounts
   useEffect(() => {
@@ -717,6 +720,16 @@ export function AccountsList({
       }
     } else {
       if (quantity > 1) setQuantity((p) => p - 1);
+    }
+  };
+
+  const handleCopyToClipboard = async (text: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
     }
   };
 
@@ -1184,31 +1197,37 @@ transition-all
                       </div>
                       Your Credentials ({purchasedCredentials.length} items)
                     </h3>
-                    <div className="bg-white rounded p-2 max-h-32 overflow-y-auto space-y-1 border border-slate-300">
+                    <div className="bg-white rounded p-2 max-h-48 overflow-y-auto space-y-2 border border-slate-300">
                       {purchasedCredentials.map((cred, index) => {
-                        if (typeof cred === 'string') {
-                          return (
-                            <div
-                              key={index}
-                              className="font-mono text-xs bg-green-50 px-2 py-1 rounded border border-green-200 break-all"
-                            >
-                              <div className="text-gray-900 whitespace-pre-wrap">
-                                {cred}
+                        const credentialText = typeof cred === 'string' ? cred : JSON.stringify(cred, null, 2);
+                        return (
+                          <div
+                            key={index}
+                            className="group relative font-mono text-xs bg-green-50 px-3 py-2 rounded border border-green-200 break-all"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="text-gray-900 whitespace-pre-wrap flex-1">
+                                {credentialText}
                               </div>
+                              <button
+                                onClick={() => handleCopyToClipboard(credentialText, index)}
+                                className=" transition-opacity flex-shrink-0 p-1 rounded hover:bg-green-200"
+                                title="Copy to clipboard"
+                              >
+                                {copiedIndex === index ? (
+                                  <Check className="w-3.5 h-3.5 text-green-600" />
+                                ) : (
+                                  <Copy className="w-3.5 h-3.5 text-gray-500" />
+                                )}
+                              </button>
                             </div>
-                          );
-                        } else {
-                          return (
-                            <div
-                              key={index}
-                              className="font-mono text-xs bg-green-50 px-2 py-1 rounded border border-green-200"
-                            >
-                              <div className="text-gray-900 whitespace-pre-wrap">
-                                {JSON.stringify(cred, null, 2)}
+                            {copiedIndex === index && (
+                              <div className="absolute -top-6 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                                Copied!
                               </div>
-                            </div>
-                          );
-                        }
+                            )}
+                          </div>
+                        );
                       })}
                     </div>
                   </div>

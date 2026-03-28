@@ -9,11 +9,11 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 
 const NAV = [
-  { label: "Home", href: "" },
-  { label: "About", href: "#about" },
-  { label: "Features", href: "#features" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Home", href: "home" },
+  { label: "About", href: "about" },
+  { label: "Features", href: "features" },
+  { label: "How it works", href: "how-it-works" },
+  { label: "FAQ", href: "faq" },
 ]
 
 export function Header() {
@@ -28,31 +28,64 @@ export function Header() {
     return () => document.removeEventListener("keydown", onKey)
   }, [])
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      const headerOffset = 80
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      })
+      return true
+    }
+    return false
+  }
+
   const handleScroll = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     href: string
   ) => {
     e.preventDefault()
 
-    // If we are NOT on the home page, navigate to it (with the hash if any)
-    if (pathname !== "/") {
-      router.push(`/${href}`)
+    // If href is "home" or empty, scroll to top
+    if (href === "home" || href === "") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
       setOpen(false)
       return
     }
 
-    // Already on home page — perform smooth scroll
-    if (href.startsWith("#")) {
-      const target = document.querySelector(href)
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" })
-      }
-    } else {
-      router.push("/") // handle "Home"
+    // If we are NOT on the home page, navigate to it with the section hash
+    if (pathname !== "/") {
+      router.push(`/#${href}`)
+      setOpen(false)
+      return
+    }
+
+    // Already on home page — perform smooth scroll to section
+    const scrolled = scrollToSection(href)
+    
+    // If section not found, try to find it after a short delay (for dynamic content)
+    if (!scrolled) {
+      setTimeout(() => {
+        scrollToSection(href)
+      }, 100)
     }
 
     setOpen(false)
   }
+
+  // Handle initial load with hash in URL
+  useEffect(() => {
+    if (pathname === "/" && window.location.hash) {
+      const hash = window.location.hash.substring(1)
+      setTimeout(() => {
+        scrollToSection(hash)
+      }, 100)
+    }
+  }, [pathname])
 
   return (
     <>
@@ -61,8 +94,15 @@ export function Header() {
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           {/* Desktop Header */}
           <div className="hidden lg:flex h-16 items-center justify-between">
-            {/* Logo with scroll */}
-            <a href="/" className="cursor-pointer">
+            {/* Logo with scroll to top */}
+            <a 
+              href="/" 
+              onClick={(e) => {
+                e.preventDefault()
+                window.scrollTo({ top: 0, behavior: "smooth" })
+              }}
+              className="cursor-pointer"
+            >
               <Image
                 src="/image/DeSocial Plug AW2.png"
                 alt="Logo"
@@ -77,7 +117,7 @@ export function Header() {
               {NAV.map(({ label, href }) => (
                 <a
                   key={label}
-                  href={href || "/"}
+                  href={`#${href}`}
                   onClick={(e) => handleScroll(e, href)}
                   className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
                 >
@@ -108,8 +148,12 @@ export function Header() {
           {/* Mobile Header */}
           <div className="flex items-center justify-between h-16 lg:hidden">
             <a
-              href="#home"
-              onClick={(e) => handleScroll(e, "#home")}
+              href="/"
+              onClick={(e) => {
+                e.preventDefault()
+                window.scrollTo({ top: 0, behavior: "smooth" })
+                setOpen(false)
+              }}
               className="cursor-pointer"
             >
               <Image
@@ -122,7 +166,6 @@ export function Header() {
             </a>
 
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="rounded-full"></Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -162,7 +205,15 @@ export function Header() {
         <div className="h-full flex flex-col bg-[#1a49ee] text-white">
           {/* Drawer Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-            <a href="/" className="cursor-pointer">
+            <a 
+              href="/" 
+              onClick={(e) => {
+                e.preventDefault()
+                window.scrollTo({ top: 0, behavior: "smooth" })
+                setOpen(false)
+              }}
+              className="cursor-pointer"
+            >
               <Image
                 src="/image/DeSocial Plug A23.png"
                 width={120}
@@ -186,7 +237,7 @@ export function Header() {
               {NAV.map(({ label, href }) => (
                 <li key={label}>
                   <a
-                    href={href || "/"}
+                    href={`#${href}`}
                     onClick={(e) => handleScroll(e, href)}
                     className="block rounded-md px-3 py-2 text-base font-medium text-white/95 hover:bg-white/10 transition-colors"
                   >
