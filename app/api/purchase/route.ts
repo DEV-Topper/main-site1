@@ -4,14 +4,12 @@ import Account from '@/models/Account';
 import Purchase from '@/models/Purchase';
 import Transaction from '@/models/Transaction';
 import User from '@/models/User';
-import { getSession } from '@/lib/auth-mongo';
-import { cookies } from 'next/headers';
+import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
 
 export async function POST(req: Request) {
   try {
     const { accountId, quantity } = await req.json();
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -24,16 +22,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = session.userId as any; // User document
+    const user = session.userId as any;
     const userId = user._id.toString();
 
-    // 1. Get Account
-    // We explicitly select +bulkLogs to get the hidden field
     const account = await Account.findById(accountId).select(
       '+bulkLogs +vpnType +description +subcategory +type',
     );
-
-    console.debug({account})
 
     if (!account) {
       return NextResponse.json({ error: 'Account not found' }, { status: 404 });
@@ -46,9 +40,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Check Stock
-    // Use the actual array length or the 'logs' counter.
-    // Assuming bulkLogs contains the actual credentials.
     if (!account.bulkLogs || account.bulkLogs.length < quantity) {
       return NextResponse.json(
         { error: 'Insufficient stock' },
@@ -56,7 +47,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Check Balance
     const totalCost = account.price * quantity;
     if (user.walletBalance < totalCost) {
       return NextResponse.json(
@@ -65,13 +55,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4. Perform Transaction (Atomic-ish)
-
-    // Extract credentials to give to user
     const purchasedCredentials = account.bulkLogs.slice(0, quantity);
     const remainingBulkLogs = account.bulkLogs.slice(quantity);
 
-    // Decrement User Balance
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
@@ -80,18 +66,15 @@ export async function POST(req: Request) {
       { new: true },
     );
 
-    // Update Account Stock and status if sold out
     await Account.findByIdAndUpdate(accountId, {
       logs: remainingBulkLogs.length,
       bulkLogs: remainingBulkLogs,
       ...(remainingBulkLogs.length === 0 && { status: 'Sold Out' }),
     });
 
-    // Determine the type value - use vpnType first, then description as fallback
     const accountObj = account.toObject() as any;
     const typeValue = accountObj.vpnType || accountObj.description || accountObj.type || '';
 
-    // Create Purchase Record with credentials
     const purchase = await Purchase.create({
       userUUID: userId,
       quantity,
@@ -105,7 +88,6 @@ export async function POST(req: Request) {
       followers: account.followers || 0,
     });
 
-    // Create Transaction Record
     await Transaction.create({
       userUUID: userId,
       type: 'purchase',
@@ -119,7 +101,7 @@ export async function POST(req: Request) {
       success: true,
       purchase: {
         ...purchase.toObject(),
-        credentials: purchasedCredentials, // Send back credentials immediately
+        credentials: purchasedCredentials,
       },
       newBalance: updatedUser?.walletBalance,
     });

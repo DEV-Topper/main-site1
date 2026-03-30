@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Purchase from '@/models/Purchase';
-import { getSession } from '@/lib/auth-mongo';
-import { cookies } from 'next/headers';
+import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,13 +37,13 @@ export async function GET(req: Request) {
     const formattedPurchases = result.docs.map((p: any) => ({
       id: p._id.toString(),
       platform: p.platform,
-      followers: p.followers || 0, // Use actual followers from database
+      followers: p.followers || 0,
       quantity: p.quantity,
       totalAmount: p.totalAmount,
       purchaseDate: p.purchaseDate,
       status: p.status,
       credentials: p.credentials || [],
-      type: p.type || '', // Include account type
+      type: p.type || '',
     }));
 
     return NextResponse.json({

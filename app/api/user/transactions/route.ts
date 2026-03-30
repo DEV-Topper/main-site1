@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Transaction from '@/models/Transaction';
-import { getSession } from '@/lib/auth-mongo';
-import { cookies } from 'next/headers';
+import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -33,10 +31,8 @@ export async function GET(req: Request) {
     };
 
     const query = { userUUID: userId };
-    console.log(`🔍 Fetching transactions for userId: ${userId}`, { query });
 
     const result = await Transaction.paginate(query, options);
-    console.log(`📊 Found ${result.totalDocs} transactions`);
 
     const formattedTransactions = result.docs.map((tx: any) => ({
       id: tx._id.toString(),

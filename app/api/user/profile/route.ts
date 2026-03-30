@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { getSession } from '@/lib/auth-mongo'; // Assuming we'll rename/use this
-import { cookies } from 'next/headers';
+import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
 
 export async function PUT(req: Request) {
   try {
     const { username, email } = await req.json();
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,7 +19,6 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if username/email already taken by another user
     const existing = await User.findOne({
       $or: [{ username }, { email }],
       _id: { $ne: session.userId._id },

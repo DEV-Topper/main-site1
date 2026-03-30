@@ -1,18 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth-mongo';
-import { cookies } from 'next/headers';
+import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let token = cookieStore.get('session_token')?.value;
-
-    if (!token) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        token = authHeader.substring(7);
-      }
-    }
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ user: null }, { status: 401 });
@@ -24,7 +15,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
 
-    // Return user info (session.userId is populated)
     return NextResponse.json({
       user: session.userId,
       success: true,

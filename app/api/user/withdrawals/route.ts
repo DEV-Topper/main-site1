@@ -2,13 +2,11 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import WithdrawRequest from '@/models/WithdrawRequest';
 import User from '@/models/User';
-import { getSession } from '@/lib/auth-mongo';
-import { cookies } from 'next/headers';
+import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,8 +62,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const { amount, bank, accountNumber, accountName } = await req.json();
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -99,13 +96,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // Deduct referral balance immediately to prevent double-spending
     user.referralBalance = Number(
       (user.referralBalance - withdrawAmount).toFixed(2),
     );
     await user.save();
 
-    // Create request
     const request = await WithdrawRequest.create({
       userId: user._id,
       email: user.email,
@@ -114,7 +109,7 @@ export async function POST(req: Request) {
       accountNumber,
       accountName,
       status: 'pending',
-      referralBalanceAtRequest: user.referralBalance + withdrawAmount, // Store original balance before deduction
+      referralBalanceAtRequest: user.referralBalance + withdrawAmount,
     });
 
     return NextResponse.json({

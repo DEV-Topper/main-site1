@@ -3,14 +3,12 @@ import connectDB from '@/lib/mongodb';
 import Notification from '@/models/Notification';
 import Account from '@/models/Account';
 import Purchase from '@/models/Purchase';
-import User from '@/models/User'; // Add this import
-import { getSession } from '@/lib/auth-mongo';
-import { cookies } from 'next/headers';
+import User from '@/models/User';
+import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -25,7 +23,6 @@ export async function GET(req: Request) {
 
     const userId = session.userId._id.toString();
 
-    // Get user's creation date
     const user = await User.findById(userId).select('createdAt').lean();
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -35,13 +32,12 @@ export async function GET(req: Request) {
 
     const LIMIT = 20;
 
-    // 1. Fetch Notifications - only those created AFTER user joined OR targeted to this user
     const notificationsPromise = Notification.find({
       $or: [
         { userUUID: userId },
         {
-          userUUID: null, // Global notifications
-          createdAt: { $gte: userCreatedAt }, // Only show global notifications created after user joined
+          userUUID: null,
+          createdAt: { $gte: userCreatedAt },
         },
       ],
     })
@@ -49,7 +45,6 @@ export async function GET(req: Request) {
       .limit(LIMIT)
       .lean();
 
-    // 2. Fetch Recent Uploads (New Accounts) - only those created AFTER user joined
     const uploadsPromise = Account.find({
       createdAt: { $gte: userCreatedAt },
     })
@@ -57,7 +52,6 @@ export async function GET(req: Request) {
       .limit(5)
       .lean();
 
-    // 3. Fetch Purchases - Targeted to this user
     const purchasesPromise = Purchase.find({ userUUID: userId })
       .sort({ purchaseDate: -1 })
       .limit(10)
@@ -123,8 +117,7 @@ export async function GET(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    const token = await getTokenFromRequest(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

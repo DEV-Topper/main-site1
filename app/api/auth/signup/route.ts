@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       path: '/',
     });
 
-    return NextResponse.json({ success: true, user });
+    return NextResponse.json({ success: true, token: session.token, user });
   } catch (error: any) {
     console.error('Signup error:', error);
     return NextResponse.json(

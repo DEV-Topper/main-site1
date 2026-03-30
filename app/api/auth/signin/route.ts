@@ -28,6 +28,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
+      token: session.token,
       user: { id: user._id, email: user.email, username: user.username }
     });
   } catch (error: any) {

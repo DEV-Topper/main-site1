@@ -148,3 +148,17 @@ export async function getUserById(userId: string) {
   delete userObj.password;
   return userObj;
 }
+
+export async function getTokenFromRequest(req: Request): Promise<string | null> {
+  const { cookies } = await import('next/headers');
+  const cookieStore = await cookies();
+  const token = cookieStore.get('session_token')?.value;
+  if (token) return token;
+
+  const authHeader = req.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
+}
