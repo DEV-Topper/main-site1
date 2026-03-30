@@ -43,14 +43,9 @@ export function PaymentMethodSelector({
 
         {/* Crypto Option (Coming Soon) */}
         <div className="relative">
-          {/* Coming Soon Badge */}
-          <div className="absolute top-3 right-3 z-10 bg-orange-600 text-white text-xs px-2 py-1 rounded-full">
-            Coming Soon
-          </div>
-
           <button
             onClick={onSelectCrypto}
-            className="group relative w-full rounded-lg sm:rounded-2xl p-3 sm:p-6 border-2 border-orange-200 bg-orange-50 opacity-60 blur-[1px] cursor-not-allowed"
+            className="group relative w-full rounded-lg sm:rounded-2xl p-3 sm:p-6 border-2 border-orange-200 bg-orange-50 cursor-not-allowed"
           >
             <div className="flex flex-col items-center">
               <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl flex items-center justify-center bg-orange-200 mb-2 sm:mb-3 text-2xl">
