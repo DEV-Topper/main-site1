@@ -17,9 +17,9 @@ export function PaymentMethodSelector({
   return (
     <div className="w-full space-y-3 sm:space-y-4">
       <div className="text-center mb-4 sm:mb-6">
-        <h2 className="text-base sm:text-xl font-semibold text-gray-900 mb-1">
+        {/* <h2 className="text-base sm:text-xl font-semibold text-gray-900 mb-1">
           Choose Payment Method
-        </h2>
+        </h2> */}
         <p className="text-[10px] sm:text-sm text-gray-600">
           Select how you'd like to fund your wallet
         </p>

@@ -313,7 +313,7 @@ export default function AddFundsPage() {
           <Modal
             isOpen={showSelectorModal}
             onClose={() => setShowSelectorModal(false)}
-          // title="Choose Payment Method"
+            title="Choose Payment Method"
           >
             <PaymentMethodSelector
               onSelectBank={() => {
