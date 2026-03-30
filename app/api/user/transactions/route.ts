@@ -33,13 +33,17 @@ export async function GET(req: Request) {
     };
 
     const query = { userUUID: userId };
+    console.log(`🔍 Fetching transactions for userId: ${userId}`, { query });
 
     const result = await Transaction.paginate(query, options);
+    console.log(`📊 Found ${result.totalDocs} transactions`);
 
     const formattedTransactions = result.docs.map((tx: any) => ({
       id: tx._id.toString(),
       type: tx.type,
       amount: tx.amount,
+      amountUSD: tx.amountUSD,
+      currency: tx.currency,
       status: tx.status,
       reference: tx.reference,
       description: tx.description,

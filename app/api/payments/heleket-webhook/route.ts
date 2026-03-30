@@ -164,18 +164,20 @@ export async function POST(req: Request) {
           ? ' (Wrong amount paid)'
           : '';
 
-      const desc = `Crypto deposit via Heleket (USD) $${depositAmountUSD.toFixed(2)} => ₦${depositAmountNaira.toLocaleString()}${suffix}`;
+      const desc = `Crypto deposit via Heleket: $${depositAmountUSD.toFixed(2)} USD => ₦${depositAmountNaira.toLocaleString()}${suffix}`;
 
       await Transaction.create({
         userUUID: userId,
         type: 'deposit',
         amount: depositAmountNaira,
+        amountUSD: depositAmountUSD,
+        currency: 'USD',
         status: 'successful',
         description: desc,
         reference: uuid,
       });
 
-      console.log(`✅ Credited +₦${depositAmountNaira.toLocaleString()} to user ${userId} (${user.email})`);
+      console.log(`✅ Credited +₦${depositAmountNaira.toLocaleString()} ($${depositAmountUSD} USD) to user ${userId} (${user.email})`);
       return NextResponse.json({ success: true }, { status: 200 });
     }
 
@@ -184,12 +186,14 @@ export async function POST(req: Request) {
       userUUID: userId,
       type: 'deposit',
       amount: depositAmountNaira,
+      amountUSD: depositAmountUSD,
+      currency: 'USD',
       status: 'failed',
-      description: `Crypto deposit failed (${status})`,
+      description: `Crypto deposit failed (${status}) for $${depositAmountUSD.toFixed(2)} USD`,
       reference: uuid,
     });
 
-    console.log(`❌ Payment failed for user ${userId} — status: ${status}`);
+    console.log(`❌ Payment failed for user ${userId} — status: ${status} ($${depositAmountUSD} USD)`);
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error('Webhook error:', error);

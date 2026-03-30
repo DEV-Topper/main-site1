@@ -164,15 +164,22 @@ export function verifyHeleketeSignature(
     const calculatedSignature = crypto.createHash('md5').update(signString).digest('hex');
 
     const isValid = calculatedSignature === signature;
-    console.log('Webhook signature verification:', {
-      isValid,
-      received: signature?.substring(0, 8) + '...',
-      calculated: calculatedSignature.substring(0, 8) + '...',
-    });
+
+    if (!isValid) {
+      console.warn('⚠️  Signature mismatch details:', {
+        signString,
+        base64Length: base64Data.length,
+        jsonLength: jsonData.length,
+      });
+    }
+
+    console.log(`🔐 Webhook signature check: ${isValid ? '✅ VALID' : '❌ INVALID'}`);
+    console.log(`Received: ${signature?.substring(0, 8)}...`);
+    console.log(`Calculated: ${calculatedSignature.substring(0, 8)}...`);
 
     return isValid;
-  } catch (error) {
-    console.error('Signature verification error:', error);
+  } catch (error: any) {
+    console.error('❌ Signature verification ERROR:', error.message);
     return false;
   }
 }

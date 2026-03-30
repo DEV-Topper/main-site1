@@ -9,6 +9,8 @@ interface Transaction {
   date?: string;
   description?: string;
   amount?: number;
+  amountUSD?: number;
+  currency?: string;
   status?: string;
   type?: string;
   reference?: string;
@@ -168,6 +170,11 @@ export default function TransactionsPage() {
                     </td>
                     <td className="py-2 sm:py-3 px-2 sm:px-4 text-right font-semibold text-gray-900">
                       ₦{(tx.amount || 0).toLocaleString()}
+                      {tx.amountUSD && tx.amountUSD > 0 && (
+                        <p className="text-[10px] sm:text-xs text-gray-500 font-normal mt-0.5">
+                          ${tx.amountUSD.toFixed(2)} USD
+                        </p>
+                      )}
                     </td>
                     <td className="py-2 sm:py-3 px-2 sm:px-4 text-right">
                       <span

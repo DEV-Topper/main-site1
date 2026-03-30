@@ -5,6 +5,8 @@ export interface ITransaction extends Document {
   userUUID: string;
   type: 'deposit' | 'purchase' | 'refund' | 'referral_bonus';
   amount: number;
+  amountUSD?: number;
+  currency?: string;
   status: 'pending' | 'successful' | 'failed';
   reference?: string;
   description?: string;
@@ -21,6 +23,8 @@ const TransactionSchema: Schema<ITransaction> = new Schema(
       required: true,
     },
     amount: { type: Number, required: true },
+    amountUSD: { type: Number },
+    currency: { type: String, default: 'NGN' },
     status: {
       type: String,
       enum: ['pending', 'successful', 'failed'],

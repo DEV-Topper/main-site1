@@ -49,93 +49,58 @@ export async function POST(req: Request) {
 
     console.log(`👤 User found: ${user.email}`);
 
-    // Convert payment_amount to number
-    const depositAmount = parseFloat(payment_amount);
+    // ── Determine the USD amount ──────────────────────────────────────────
+    // In Heleket:
+    // payment_amount_usd = USD value of what payer paid
+    // merchant_amount    = USD merchant receives
+    // amount             = original invoice amount
+    const depositAmountUSD =
+      parseFloat(body.payment_amount_usd) ||
+      parseFloat(body.merchant_amount) ||
+      parseFloat(body.amount) ||
+      0;
 
-    // Handle different payment statuses
-    if (status === 'paid' || status === 'confirm_check' || status === 'paid_over') {
+    // ── Convert USD → Naira ───────────────────────────────────────────────
+    // For test mode, we'll use a fixed rate or fetch it
+    const exchangeRate = 1383; 
+    const depositAmountNaira = Math.round(depositAmountUSD * exchangeRate * 100) / 100;
+
+    console.log(`Processing with: $${depositAmountUSD} USD => ₦${depositAmountNaira}`);
+
+    // Handle success statuses
+    if (['paid', 'confirm_check', 'paid_over', 'wrong_amount'].includes(status)) {
       console.log(`Processing successful payment...`);
 
       // Add funds to user wallet
       const previousBalance = user.walletBalance || 0;
-      user.walletBalance = previousBalance + depositAmount;
+      user.walletBalance = previousBalance + depositAmountNaira;
       await user.save();
 
-      console.log(
-        `💰 Wallet updated: ${previousBalance} → ${user.walletBalance}`,
-      );
+      const desc = `[TEST] Crypto deposit via Heleket: $${depositAmountUSD.toFixed(2)} USD => ₦${depositAmountNaira.toLocaleString()}${status === 'paid_over' ? ' (Overpaid)' : ''}`;
 
       // Create transaction record
       const transaction = await Transaction.create({
         userUUID: userId,
         type: 'deposit',
-        amount: depositAmount,
+        amount: depositAmountNaira,
+        amountUSD: depositAmountUSD,
+        currency: 'USD',
         status: 'successful',
-        description: `Crypto deposit via Heleket (${currency})${status === 'paid_over' ? ' - Overpaid' : ''}`,
-        reference: uuid,
+        description: desc,
+        reference: uuid || `test-${Date.now()}`,
       });
 
-      console.log(`✅ Transaction created:`, {
-        id: transaction._id,
-        amount: depositAmount,
-        status: 'successful',
+      return NextResponse.json({
+        success: true,
+        message: 'Payment processed (TEST MODE)',
+        user: { email: user.email, newBalance: user.walletBalance },
+        transaction
       });
-
-      return NextResponse.json(
-        {
-          success: true,
-          message: 'Payment processed',
-          user: {
-            id: user._id,
-            email: user.email,
-            newBalance: user.walletBalance,
-          },
-          transaction: {
-            id: transaction._id,
-            amount: depositAmount,
-          },
-        },
-        { status: 200 },
-      );
-    } else if (status === 'wrong_amount') {
-      user.walletBalance = (user.walletBalance || 0) + depositAmount;
-      await user.save();
-
-      await Transaction.create({
-        userUUID: userId,
-        type: 'deposit',
-        amount: depositAmount,
-        status: 'successful',
-        description: `Crypto deposit via Heleket - wrong amount paid`,
-        reference: uuid,
-      });
-
-      return NextResponse.json(
-        { success: true, message: 'Payment processed (wrong amount)' },
-        { status: 200 },
-      );
-    } else if (status === 'fail' || status === 'system_fail') {
-      await Transaction.create({
-        userUUID: userId,
-        type: 'deposit',
-        amount: depositAmount,
-        status: 'failed',
-        description: `Crypto deposit failed (${status})`,
-        reference: uuid,
-      });
-
-      console.log(`❌ Payment failed for user ${userId}: ${status}`);
-
-      return NextResponse.json({ success: true, message: 'Payment failed' }, { status: 200 });
     }
 
-    console.log(`Webhook with status "${status}" processed`);
-    return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error) {
+    return NextResponse.json({ success: true, message: 'Status skipped in test' });
+  } catch (error: any) {
     console.error('Test webhook error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

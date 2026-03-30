@@ -53,7 +53,7 @@ export function PaymentMethodSelector({
 
           <button
             onClick={onSelectCrypto}
-            disabled
+            // disabled
             className="group relative w-full rounded-xl sm:rounded-2xl p-6 border-2 border-orange-200 bg-orange-50 opacity-60 blur-[1px] cursor-not-allowed"
           >
             <div className="flex flex-col items-center">
