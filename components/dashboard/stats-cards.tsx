@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
 
 export function StatsCards() {
-  const { currency, formatAmount } = useCurrency();
+  const { currency, formatAmount, usdRate } = useCurrency();
   const [totalSpent, setTotalSpent] = useState(0);
   const [balance, setBalance] = useState(0);
   const [referralBalance, setReferralBalance] = useState(0);
@@ -75,9 +75,13 @@ export function StatsCards() {
               <div className="text-lg md:text-2xl font-bold text-gray-900 leading-tight">
                 {formatAmount(balance)}
               </div>
-              {/* <div className="text-[10px] md:text-xs text-gray-500 font-medium">
-                ≈ ${(balance / usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
-              </div> */}
+              <div className="text-[10px] md:text-xs text-gray-500 font-medium mt-0.5">
+                {currency === 'NGN' ? (
+                  `≈ $${(balance / usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
+                ) : (
+                  `≈ ₦${balance.toLocaleString()} NGN`
+                )}
+              </div>
             </div>
           </div>
           <Button
@@ -100,6 +104,13 @@ export function StatsCards() {
             <div className="text-lg md:text-2xl font-bold text-gray-900">
               {formatAmount(totalSpent)}
             </div>
+            {/* <div className="text-[10px] md:text-xs text-gray-500 font-medium mt-0.5">
+              {currency === 'NGN' ? (
+                `≈ $${(totalSpent / usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
+              ) : (
+                `≈ ₦${totalSpent.toLocaleString()} NGN`
+              )}
+            </div> */}
           </div>
         </div>
       </div>
@@ -118,6 +129,13 @@ export function StatsCards() {
               <div className="text-lg md:text-2xl font-bold text-gray-900">
                 {formatAmount(referralBalance)}
               </div>
+              {/* <div className="text-[10px] md:text-xs text-gray-500 font-medium mt-0.5">
+                {currency === 'NGN' ? (
+                  `≈ $${(referralBalance / usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
+                ) : (
+                  `≈ ₦${referralBalance.toLocaleString()} NGN`
+                )}
+              </div> */}
             </div>
           </div>
           <Link href="/referrals">
