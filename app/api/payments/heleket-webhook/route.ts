@@ -49,24 +49,20 @@ async function getExchangeRate(): Promise<number> {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as HeleketeWebhook;
+    // ── Get Raw Body for Signature Verification ──────────────────────────
+    // We must use the raw body because re-stringifying the JSON can change
+    // formatting (spaces, numeric precision) which breaks the signature.
+    const rawBody = await req.text();
+    const body = JSON.parse(rawBody) as HeleketeWebhook;
 
-    console.log('📨 Heleket webhook received:', {
-      orderId: body.order_id,
-      status: body.status,
-      uuid: body.uuid,
-      // Log all amount fields for debugging
-      amount: body.amount,
-      payment_amount: body.payment_amount,
-      payment_amount_usd: body.payment_amount_usd,
-      merchant_amount: body.merchant_amount,
-      payer_currency: body.payer_currency,
-      currency: body.currency,
-      is_final: body.is_final,
-    });
+    console.log('📨 Heleket webhook received (RAW):', rawBody.substring(0, 500) + '...');
 
     // ── Verify webhook signature ──────────────────────────────────────────
-    const { sign, ...dataWithoutSign } = body;
+    const { sign } = body;
+    
+    // We need the JSON without the 'sign' field, sorted alphabetically
+    const dataWithoutSign = { ...body };
+    delete (dataWithoutSign as any).sign;
 
     const isValid = verifyHeleketeSignature(dataWithoutSign, sign);
 
