@@ -18,9 +18,12 @@ export async function signUp(
 ) {
   await connectDB();
 
-  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+  // Normalize email to lowercase for case-insensitive comparison
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const existingUser = await User.findOne({ $or: [{ email: normalizedEmail }, { username }] });
   if (existingUser) {
-    if (existingUser.email === email) throw new Error('Email already in use');
+    if (existingUser.email === normalizedEmail) throw new Error('Email already in use');
     if (existingUser.username === username)
       throw new Error('Username already taken');
   }
@@ -43,7 +46,7 @@ export async function signUp(
   }
 
   const user = await User.create({
-    email,
+    email: normalizedEmail,
     username,
     password: hashedPassword,
     phone,
@@ -81,7 +84,10 @@ export async function signUp(
 export async function signIn(email: string, password: string) {
   await connectDB();
 
-  const user = await User.findOne({ email }).select('+password');
+  // Normalize email to lowercase for case-insensitive lookup
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
   if (!user) {
     throw new Error('Invalid credentials');
