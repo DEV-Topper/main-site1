@@ -3,11 +3,13 @@
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { useState, useEffect } from 'react';
 import { CiBank, CiCircleInfo, CiCreditCard1 } from 'react-icons/ci';
-import { Wallet, ArrowRight } from 'lucide-react';
+import { Wallet, ArrowRight, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Modal } from '@/components/ui/modal';
 import { FaRegCopy, FaUser } from 'react-icons/fa6';
 import Image from 'next/image';
+import { PaymentMethodSelector } from '@/components/PaymentMethodSelector';
+import { CryptoPayment } from '@/components/CryptoPayment';
 
 interface UserData {
   _id: string;
@@ -25,6 +27,7 @@ export default function AddFundsPage() {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'bank' | 'crypto' | null>(null);
   const [virtualAccount, setVirtualAccount] = useState<{
     id?: string;
     bankName: string;
@@ -49,6 +52,7 @@ export default function AddFundsPage() {
         }
 
         setUser(data.user);
+        setPaymentMethod(null);
         await loadVirtualAccount(data.user);
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -284,7 +288,7 @@ export default function AddFundsPage() {
               Add Funds
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              Top up your virtual wallet instantly with PocketFi
+              {paymentMethod ? 'Complete your payment' : 'Choose your payment method'}
             </p>
           </div>
 
@@ -293,19 +297,36 @@ export default function AddFundsPage() {
             <div className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-10 shadow text-center">
               <div className="animate-spin rounded-full h-8 w-8 sm:h-9 sm:w-9 border-4 border-[#5851D3] border-t-transparent mx-auto mb-2 sm:mb-3" />
               <p className="text-gray-600 text-xs sm:text-sm">
-                Setting up your virtual account...
+                Loading your account...
               </p>
             </div>
-          ) : (
+          ) : !paymentMethod ? (
+            // PAYMENT METHOD SELECTOR
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow p-4 sm:p-6">
+              <PaymentMethodSelector
+                onSelectBank={() => setPaymentMethod('bank')}
+                onSelectCrypto={() => setPaymentMethod('crypto')}
+              />
+            </div>
+          ) : paymentMethod === 'bank' ? (
+            // BANK TRANSFER VIEW
             <div className="bg-white rounded-xl sm:rounded-2xl shadow overflow-hidden">
-              {/* Purple header */}
-              <div className="bg-gradient-to-r from-[#5F4BC0] to-[#7A4DF0] p-4 sm:p-5 text-white rounded-t-xl sm:rounded-t-2xl">
-                <h2 className="text-base sm:text-lg font-semibold">
-                  Fund Your Wallet
-                </h2>
-                <p className="text-[11px] sm:text-[13px] opacity-90 mt-1">
-                  You will be charged 0.9% fee for each recharge.
-                </p>
+              <div className="bg-gradient-to-r from-[#5F4BC0] to-[#7A4DF0] p-4 sm:p-5 text-white flex items-center justify-between rounded-t-xl sm:rounded-t-2xl">
+                <div>
+                  <h2 className="text-base sm:text-lg font-semibold">
+                    Bank Transfer
+                  </h2>
+                  <p className="text-[11px] sm:text-[13px] opacity-90 mt-1">
+                    Virtual Account
+                  </p>
+                </div>
+                <button
+                  onClick={() => setPaymentMethod(null)}
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  title="Back to payment methods"
+                >
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
               </div>
 
               <div className="p-4 sm:p-6">
@@ -325,7 +346,6 @@ export default function AddFundsPage() {
 
                       <div className="flex items-center justify-between bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
                         <div className="flex items-center gap-3 sm:gap-4">
-                          {/* Left Icon */}
                           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
                             <Image
                               src="/image/DeSocial Plug AW2.png"
@@ -336,13 +356,11 @@ export default function AddFundsPage() {
                             />
                           </div>
 
-                          {/* Number */}
                           <span className="text-base sm:text-lg tracking-wider font-semibold text-gray-900">
                             {virtualAccount.accountNumber}
                           </span>
                         </div>
 
-                        {/* Copy Button */}
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(
@@ -350,8 +368,6 @@ export default function AddFundsPage() {
                             );
                             setCopied(true);
                             toast.success('Copied!');
-
-                            // revert back after 2 seconds
                             setTimeout(() => setCopied(false), 2000);
                           }}
                           className="flex items-center gap-1.5 sm:gap-2 bg-[#EEF1FF] px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-[13px] font-medium text-[#4A5FE2] border cursor-pointer transition-all"
@@ -377,7 +393,6 @@ export default function AddFundsPage() {
                       </p>
 
                       <div className="flex items-center gap-3 sm:gap-4 bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
-                        {/* Bank Icon */}
                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
                           <CiBank size={20} className="sm:w-6 sm:h-6" />
                         </div>
@@ -395,7 +410,6 @@ export default function AddFundsPage() {
                       </p>
 
                       <div className="flex items-center gap-3 sm:gap-4 bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
-                        {/* User icon */}
                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
                           <FaUser className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </div>
@@ -407,7 +421,7 @@ export default function AddFundsPage() {
                     </div>
 
                     <p className="text-[10px] sm:text-xs text-gray-500 text-center">
-                      Funds reflect instantly after transfer.
+                      Funds reflect instantly after transfer. 0.9% fee applies.
                     </p>
                   </div>
                 ) : vaError ? (
@@ -416,7 +430,13 @@ export default function AddFundsPage() {
                       {vaError}
                     </p>
                     <button
-                      onClick={handleRetry}
+                      onClick={async () => {
+                        if (user) {
+                          setVaError(null);
+                          setLoading(true);
+                          await loadVirtualAccount(user);
+                        }
+                      }}
                       className="px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-[#5F4BC0] to-[#7A4DF0] text-white rounded-lg sm:rounded-xl font-medium text-sm"
                     >
                       Try Again
@@ -429,7 +449,16 @@ export default function AddFundsPage() {
                 )}
               </div>
             </div>
-          )}
+          ) : paymentMethod === 'crypto' && user ? (
+            // CRYPTO PAYMENT VIEW
+            <CryptoPayment
+              userId={user._id}
+              userName={user.username}
+              userEmail={user.email}
+              onBack={() => setPaymentMethod(null)}
+            />
+          ) : null
+          }
 
           {/* Bottom Features */}
           <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-5 sm:mt-7">
@@ -455,11 +484,11 @@ export default function AddFundsPage() {
               </div>
 
               <p className="font-semibold text-xs sm:text-[13px]">
-                Virtual Acc.
+                Dual Payment
               </p>
 
               <p className="text-[10px] sm:text-[11px] text-gray-500 mt-1">
-                Your wallet number
+                Bank & Crypto
               </p>
             </div>
           </div>

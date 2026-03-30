@@ -5,7 +5,14 @@ import { cookies } from 'next/headers';
 export async function GET(req: Request) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('session_token')?.value;
+    let token = cookieStore.get('session_token')?.value;
+
+    if (!token) {
+      const authHeader = req.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
 
     if (!token) {
       return NextResponse.json({ user: null }, { status: 401 });
