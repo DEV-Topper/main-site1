@@ -44,30 +44,34 @@ export function PaymentMethodSelector({
           </div>
         </button>
 
-        {/* Crypto Option */}
-        <button
-          onClick={onSelectCrypto}
-          disabled={isLoading}
-          className="group relative rounded-xl sm:rounded-2xl p-6 border-2 border-orange-300 bg-orange-50 hover:border-orange-600 hover:bg-orange-100 transition-all duration-300 disabled:opacity-50"
-        >
-          <div className="flex flex-col items-center">
-            <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-orange-200 mb-3 group-hover:bg-orange-300 transition-colors text-3xl">
-              ₿
-            </div>
-            <h3 className="font-semibold text-gray-900 text-lg">Cryptocurrency</h3>
-            <p className="text-sm text-gray-600 mt-2">Bitcoin, Ethereum, etc.</p>
-            <div className="mt-4 flex items-center gap-2 text-orange-600 font-medium">
-              Select <ArrowRight className="w-4 h-4" />
-            </div>
+        {/* Crypto Option (Coming Soon) */}
+        <div className="relative">
+          {/* Coming Soon Badge */}
+          <div className="absolute top-3 right-3 z-10 bg-orange-600 text-white text-xs px-2 py-1 rounded-full">
+            Coming Soon
           </div>
-        </button>
-      </div>
 
-      {/* Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-6">
-        <p className="text-sm text-blue-900">
-          <span className="font-semibold">ℹ️ Info:</span> You can switch payment methods anytime. We charge 0.9% fee for bank transfers and network fees for crypto.
-        </p>
+          <button
+            onClick={onSelectCrypto}
+            disabled
+            className="group relative w-full rounded-xl sm:rounded-2xl p-6 border-2 border-orange-200 bg-orange-50 opacity-60 blur-[1px] cursor-not-allowed"
+          >
+            <div className="flex flex-col items-center">
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-orange-200 mb-3 text-3xl">
+                ₿
+              </div>
+              <h3 className="font-semibold text-gray-900 text-lg">
+                Cryptocurrency
+              </h3>
+              <p className="text-sm text-gray-600 mt-2">
+                Bitcoin, Ethereum, etc.
+              </p>
+              <div className="mt-4 flex items-center gap-2 text-orange-600 font-medium">
+                Select <ArrowRight className="w-4 h-4" />
+              </div>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   );

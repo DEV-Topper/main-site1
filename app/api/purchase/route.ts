@@ -102,6 +102,7 @@ export async function POST(req: Request) {
       accountId: accountId,
       subcategory: account.subcategory || '',
       type: typeValue,
+      followers: account.followers || 0,
     });
 
     // Create Transaction Record

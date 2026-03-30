@@ -12,6 +12,7 @@ export interface IPurchase extends Document {
   accountId?: string;
   subcategory?: string;
   type?: string;
+  followers?: number;
 }
 
 const PurchaseSchema: Schema<IPurchase> = new Schema(
@@ -26,6 +27,7 @@ const PurchaseSchema: Schema<IPurchase> = new Schema(
     accountId: { type: String },
     subcategory: { type: String },
     type: { type: String },
+    followers: { type: Number, default: 0 },
   },
   {
     timestamps: { createdAt: 'purchaseDate', updatedAt: false },

@@ -39,12 +39,13 @@ export async function GET(req: Request) {
     const formattedPurchases = result.docs.map((p: any) => ({
       id: p._id.toString(),
       platform: p.platform,
-      followers: 0, // Migrated logic
+      followers: p.followers || 0, // Use actual followers from database
       quantity: p.quantity,
       totalAmount: p.totalAmount,
       purchaseDate: p.purchaseDate,
       status: p.status,
       credentials: p.credentials || [],
+      type: p.type || '', // Include account type
     }));
 
     return NextResponse.json({

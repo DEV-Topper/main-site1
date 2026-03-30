@@ -13,6 +13,7 @@ interface Purchase {
   purchaseDate: string;
   credentials: string[] | any[];
   status?: string;
+  type?: string;
 }
 
 export default function PurchasesPage() {
@@ -247,6 +248,11 @@ export default function PurchasesPage() {
                       {selectedPurchase.platform} — {selectedPurchase.quantity}{' '}
                       log(s)
                     </p>
+                    {selectedPurchase.type && (
+                      <p className="text-xs sm:text-sm text-blue-600 font-medium">
+                        Type: {selectedPurchase.type}
+                      </p>
+                    )}
                     <p className="text-xs text-gray-400 mt-1">
                       {formatDate(selectedPurchase.purchaseDate)}
                     </p>
