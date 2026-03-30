@@ -6,6 +6,7 @@ import { GeistMono } from 'geist/font/mono';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { Suspense } from 'react';
+import { CurrencyProvider } from '@/context/CurrencyContext';
 
 // ✅ Global SEO Metadata
 export const metadata: Metadata = {
@@ -126,7 +127,8 @@ export default function RootLayout({
       <body
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
-        <Suspense fallback={null}>
+        <CurrencyProvider>
+          <Suspense fallback={null}>
           {children}
 
           {/* 🔒 Maintenance Overlay */}
@@ -143,6 +145,7 @@ export default function RootLayout({
           data-test-mode="false"
           async
         ></script>
+        </CurrencyProvider>
       </body>
     </html>
   );

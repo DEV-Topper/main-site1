@@ -37,6 +37,7 @@ import {
   FaYoutube,
 } from 'react-icons/fa6';
 import { FaTelegramPlane } from 'react-icons/fa';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface Account {
   id: string;
@@ -298,6 +299,7 @@ export function AccountsList({
   selectedPlatform,
   selectedCategory,
 }: AccountsListProps) {
+  const { currency, formatAmount } = useCurrency();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
@@ -646,7 +648,7 @@ export function AccountsList({
             },
           ],
           value: account.price,
-          currency: 'NGN',
+          currency: 'NGN', // Always track base currency
         });
         console.log('✅ TikTok ViewContent event tracked');
       } catch (trackError) {
@@ -667,7 +669,7 @@ export function AccountsList({
 
     if (userBalance < selectedAccount.price) {
       alert(
-        `Insufficient balance! You need at least ₦${selectedAccount.price.toLocaleString()} to purchase 1 log.\n\nYour current balance: ₦${userBalance.toLocaleString()}\n\nPlease add funds to your wallet.`,
+        `Insufficient balance! You need at least ${formatAmount(selectedAccount.price)} to purchase 1 log.\n\nYour current balance: ${formatAmount(userBalance)}\n\nPlease add funds to your wallet.`,
       );
       return;
     }
@@ -706,7 +708,7 @@ export function AccountsList({
 
       if (newTotal > userBalance) {
         alert(
-          `Insufficient balance!\n\nCost for ${newQuantity} logs: ₦${newTotal.toLocaleString()}\nYour balance: ₦${userBalance.toLocaleString()}\n\nMaximum you can buy: ${Math.floor(
+          `Insufficient balance!\n\nCost for ${newQuantity} logs: ${formatAmount(newTotal)}\nYour balance: ${formatAmount(userBalance)}\n\nMaximum you can buy: ${Math.floor(
             userBalance / (selectedAccount.price || 1),
           )} logs`,
         );
@@ -740,7 +742,7 @@ export function AccountsList({
 
     if (totalAmount > userBalance) {
       alert(
-        `Insufficient balance!\n\nTotal cost: ₦${totalAmount.toLocaleString()}\nYour balance: ₦${userBalance.toLocaleString()}\n\nPlease add funds to your wallet.`,
+        `Insufficient balance!\n\nTotal cost: ${formatAmount(totalAmount)}\nYour balance: ${formatAmount(userBalance)}\n\nPlease add funds to your wallet.`,
       );
       return;
     }
@@ -901,7 +903,7 @@ export function AccountsList({
                               {account.logs || 0}pcs
                             </div>
                             <div className="text-sm md:text-base font-medium md:font-semibold text-gray-900 min-w-[80px] md:min-w-[100px] text-right">
-                              ₦{account.price.toLocaleString()}
+                              {formatAmount(account.price)}
                             </div>
                             <Button
                               onClick={() => handleBuyClick(account)}
@@ -992,7 +994,7 @@ export function AccountsList({
                           {account.logs || 0}pcs
                         </div>
                         <div className="text-sm md:text-base font-medium md:font-semibold text-gray-900 min-w-[80px] md:min-w-[100px] text-right">
-                          ₦{account.price.toLocaleString()}
+                          {formatAmount(account.price)}
                         </div>
                         <Button
                           onClick={() => handleBuyClick(account)}
@@ -1076,7 +1078,7 @@ export function AccountsList({
                               {account.logs || 0}pcs
                             </div>
                             <div className="text-sm md:text-base font-medium md:font-semibold text-gray-900 min-w-[80px] md:min-w-[100px] text-right">
-                              ₦{account.price.toLocaleString()}
+                              {formatAmount(account.price)}
                             </div>
                             <Button
                               onClick={() => handleBuyClick(account)}
@@ -1167,7 +1169,7 @@ transition-all
                     <span className="font-medium">Your Balance:</span>
                   </div>
                   <span className="text-base font-bold">
-                    ₦{userBalance.toLocaleString()}
+                    {formatAmount(userBalance)}
                   </span>
                 </div>
               </div>
@@ -1182,11 +1184,11 @@ transition-all
                       Purchase Successful!
                     </h3>
                     <p className="text-green-700 text-xs mb-1">
-                      You purchased {quantity} log(s) for ₦
-                      {totalPrice.toLocaleString()}
+                      You purchased {quantity} log(s) for 
+                      {formatAmount(totalPrice)}
                     </p>
                     <p className="text-xs text-green-600">
-                      New Balance: ₦{userBalance.toLocaleString()}
+                      New Balance: {formatAmount(userBalance)}
                     </p>
                   </div>
 
@@ -1281,7 +1283,7 @@ transition-all
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-600">Price per log:</span>
                         <span className="font-medium text-gray-900">
-                          ₦{selectedAccount.price.toLocaleString()}
+                          {formatAmount(selectedAccount.price)}
                         </span>
                       </div>
                       <div className="flex justify-between text-xs">
@@ -1299,7 +1301,7 @@ transition-all
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-600">Your Balance:</span>
                         <span className="font-medium text-blue-600">
-                          ₦{userBalance.toLocaleString()}
+                          {formatAmount(userBalance)}
                         </span>
                       </div>
                       <div className="border-t pt-2 mt-2 flex justify-between text-sm">
@@ -1310,7 +1312,7 @@ transition-all
                             canAfford ? 'text-green-600' : 'text-red-600',
                           )}
                         >
-                          ₦{totalPrice.toLocaleString()}
+                          {formatAmount(totalPrice)}
                         </span>
                       </div>
                     </div>
@@ -1321,8 +1323,8 @@ transition-all
                         <div className="text-xs text-red-800">
                           <p className="font-medium">Insufficient balance!</p>
                           <p>
-                            You need ₦
-                            {(totalPrice - userBalance).toLocaleString()} more.
+                            You need 
+                            {formatAmount(totalPrice - userBalance).replace('₦', '').replace('$', '')} more.
                           </p>
                         </div>
                       </div>
@@ -1344,7 +1346,7 @@ transition-all
                     >
                       {purchasing
                         ? 'Processing...'
-                        : `Pay ₦${totalPrice.toLocaleString()}`}
+                        : `Pay ${formatAmount(totalPrice)}`}
                     </Button>
                   </div>
                 </div>
@@ -1373,7 +1375,7 @@ transition-all
                         </span>
                       </div>
                       <p className="text-base font-bold text-green-900">
-                        ₦{selectedAccount.price.toLocaleString()}
+                        {formatAmount(selectedAccount.price)}
                       </p>
                     </div>
 

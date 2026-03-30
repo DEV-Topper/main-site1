@@ -1,7 +1,10 @@
 'use client';
 
-import { Bell, X, Moon, Sun } from 'lucide-react';
+import { Bell, X, Moon, Sun, Globe } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+// ... existing imports ...
+import { useCurrency } from '@/context/CurrencyContext';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +30,7 @@ interface Notification {
 }
 
 export function DashboardHeader() {
+  const { currency, setCurrency } = useCurrency();
   const { setTheme, theme } = useTheme();
   const [user, setUser] = useState<{
     username?: string;
@@ -206,6 +210,32 @@ export function DashboardHeader() {
     <div className="sticky top-0 z-50 bg-white border-b px-4 md:px-6 py-3 md:py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
+          {/* Currency Switcher */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1 mr-1 md:mr-2">
+            <button
+              onClick={() => setCurrency('NGN')}
+              className={cn(
+                "px-2 py-1 text-[10px] md:text-xs font-bold rounded-md transition-all",
+                currency === 'NGN' 
+                  ? "bg-white text-primary shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+              )}
+            >
+              NGN
+            </button>
+            <button
+              onClick={() => setCurrency('USD')}
+              className={cn(
+                "px-2 py-1 text-[10px] md:text-xs font-bold rounded-md transition-all",
+                currency === 'USD' 
+                  ? "bg-white text-primary shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+              )}
+            >
+              USD
+            </button>
+          </div>
+
           {/* Notifications dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, CreditCard, Gem } from 'lucide-react';
 import Link from 'next/link';
+import { useCurrency } from '@/context/CurrencyContext';
 
 export function StatsCards() {
+  const { currency, formatAmount } = useCurrency();
   const [totalSpent, setTotalSpent] = useState(0);
   const [balance, setBalance] = useState(0);
   const [referralBalance, setReferralBalance] = useState(0);
-  const [usdRate, setUsdRate] = useState(1383); // Default rate
 
   useEffect(() => {
     async function fetchData() {
@@ -35,18 +36,9 @@ export function StatsCards() {
           );
           setTotalSpent(total);
         }
-        // Optionally fetch current exchange rate
-        try {
-          const rateRes = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-          if (rateRes.ok) {
-            const rateData = await rateRes.json();
-            if (rateData.rates?.NGN) {
-              setUsdRate(rateData.rates.NGN);
-            }
-          }
-        } catch (e) {
-          console.warn('Could not fetch latest exchange rate for UI');
-        }
+        /* 
+          Exchange rate is now managed globally by CurrencyProvider
+        */
       } catch (error) {
         console.error('Error fetching stats:', error);
       }
@@ -81,11 +73,11 @@ export function StatsCards() {
                 Total Balance
               </div>
               <div className="text-lg md:text-2xl font-bold text-gray-900 leading-tight">
-                ₦{balance.toLocaleString()}
+                {formatAmount(balance)}
               </div>
-              <div className="text-[10px] md:text-xs text-gray-500 font-medium">
-                ≈ ${ (balance / usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) } USD
-              </div>
+              {/* <div className="text-[10px] md:text-xs text-gray-500 font-medium">
+                ≈ ${(balance / usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+              </div> */}
             </div>
           </div>
           <Button
@@ -106,7 +98,7 @@ export function StatsCards() {
           <div className="flex-1 min-w-0">
             <div className="text-xs md:text-sm text-gray-600">Total Spent</div>
             <div className="text-lg md:text-2xl font-bold text-gray-900">
-              ₦{totalSpent.toLocaleString()}
+              {formatAmount(totalSpent)}
             </div>
           </div>
         </div>
@@ -124,7 +116,7 @@ export function StatsCards() {
                 Referral Balance
               </div>
               <div className="text-lg md:text-2xl font-bold text-gray-900">
-                ₦{referralBalance.toLocaleString()}
+                {formatAmount(referralBalance)}
               </div>
             </div>
           </div>

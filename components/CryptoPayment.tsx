@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ArrowRight, Loader2, ExternalLink, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface CryptoPaymentProps {
   userId: string;
@@ -19,6 +20,7 @@ export function CryptoPayment({
   onSuccess,
   onBack,
 }: CryptoPaymentProps) {
+  const { usdRate, currency } = useCurrency();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
@@ -113,7 +115,14 @@ export function CryptoPayment({
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
             />
           </div>
-          <p className="text-xs text-gray-500 mt-2">Minimum: $1.00</p>
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-xs text-gray-500">Minimum: $1.00</p>
+            {amount && parseFloat(amount) > 0 && (
+              <p className="text-xs font-medium text-blue-600">
+                ≈ ₦{(parseFloat(amount) * usdRate).toLocaleString()} NGN
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Provider Info */}

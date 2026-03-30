@@ -20,6 +20,8 @@ import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCurrency } from '@/context/CurrencyContext';
+import { cn } from '@/lib/utils';
 
 interface Notification {
   id: string;
@@ -52,6 +54,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     useState<Notification | null>(null);
 
   const router = useRouter();
+  const { currency, setCurrency } = useCurrency();
 
   useEffect(() => {
     fetchUser();
@@ -247,7 +250,33 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
 
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-2.5">
+            {/* Currency Switcher */}
+            <div className="flex items-center bg-gray-100 rounded-lg p-1 mr-1">
+              <button
+                onClick={() => setCurrency('NGN')}
+                className={cn(
+                  "px-2 py-1 text-[10px] font-bold rounded-md transition-all",
+                  currency === 'NGN' 
+                    ? "bg-white text-primary shadow-sm" 
+                    : "text-gray-500 hover:text-gray-700"
+                )}
+              >
+                NGN
+              </button>
+              <button
+                onClick={() => setCurrency('USD')}
+                className={cn(
+                  "px-2 py-1 text-[10px] font-bold rounded-md transition-all",
+                  currency === 'USD' 
+                    ? "bg-white text-primary shadow-sm" 
+                    : "text-gray-500 hover:text-gray-700"
+                )}
+              >
+                USD
+              </button>
+            </div>
+
             {/* Notifications */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

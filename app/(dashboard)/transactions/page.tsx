@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface Transaction {
   id: string;
@@ -28,6 +29,7 @@ interface PaginationInfo {
 }
 
 export default function TransactionsPage() {
+  const { currency, formatAmount } = useCurrency();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -168,14 +170,20 @@ export default function TransactionsPage() {
                     <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-600">
                       {tx.description || tx.type || ''}
                     </td>
-                    <td className="py-2 sm:py-3 px-2 sm:px-4 text-right font-semibold text-gray-900">
-                      ₦{(tx.amount || 0).toLocaleString()}
-                      {tx.amountUSD && tx.amountUSD > 0 && (
-                        <p className="text-[10px] sm:text-xs text-gray-500 font-normal mt-0.5">
-                          ${tx.amountUSD.toFixed(2)} USD
-                        </p>
-                      )}
-                    </td>
+    <td className="py-2 sm:py-3 px-2 sm:px-4 text-right font-semibold text-gray-900">
+      {formatAmount(tx.amount || 0)}
+      {/* Show the alternative currency as sub-text for additional context */}
+      {currency === 'NGN' && tx.amountUSD && tx.amountUSD > 0 && (
+        <p className="text-[10px] sm:text-xs text-gray-500 font-normal mt-0.5">
+          ≈ ${tx.amountUSD.toFixed(2)} USD
+        </p>
+      )}
+      {currency === 'USD' && tx.amount && tx.amount > 0 && (
+        <p className="text-[10px] sm:text-xs text-gray-500 font-normal mt-0.5">
+          ≈ ₦{(tx.amount).toLocaleString()} NGN
+        </p>
+      )}
+    </td>
                     <td className="py-2 sm:py-3 px-2 sm:px-4 text-right">
                       <span
                         className={`inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${
