@@ -28,6 +28,7 @@ export default function AddFundsPage() {
   const [phone, setPhone] = useState('');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'bank' | 'crypto' | null>(null);
+  const [showSelectorModal, setShowSelectorModal] = useState(false);
   const [virtualAccount, setVirtualAccount] = useState<{
     id?: string;
     bankName: string;
@@ -53,7 +54,14 @@ export default function AddFundsPage() {
 
         setUser(data.user);
         setPaymentMethod(null);
-        await loadVirtualAccount(data.user);
+
+        // Pre-populate details from user object
+        const nameParts = (data.user.username || '').split(' ').filter(Boolean);
+        if (nameParts[0]) setFirstName(nameParts[0]);
+        if (nameParts.length > 1) setLastName(nameParts.slice(1).join(' '));
+        if (data.user.phone) setPhone(data.user.phone);
+
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching user:', error);
         setLoading(false);
@@ -62,6 +70,15 @@ export default function AddFundsPage() {
 
     init();
   }, []);
+
+  // Update showSelectorModal based on paymentMethod
+  useEffect(() => {
+    if (!paymentMethod && !loading) {
+      setShowSelectorModal(true);
+    } else {
+      setShowSelectorModal(false);
+    }
+  }, [paymentMethod, loading]);
 
   // Core logic: check existing VA → create if needed → show modal if name missing
   const loadVirtualAccount = async (userData: UserData) => {
@@ -292,6 +309,27 @@ export default function AddFundsPage() {
             </p>
           </div>
 
+          {/* Selector Modal */}
+          <Modal
+            isOpen={showSelectorModal}
+            onClose={() => setShowSelectorModal(false)}
+          // title="Choose Payment Method"
+          >
+            <PaymentMethodSelector
+              onSelectBank={() => {
+                setShowSelectorModal(false);
+                setPaymentMethod('bank');
+                if (!virtualAccount && user) {
+                  loadVirtualAccount(user);
+                }
+              }}
+              onSelectCrypto={() => {
+                setShowSelectorModal(false);
+                setPaymentMethod('crypto');
+              }}
+            />
+          </Modal>
+
           {/* Loader */}
           {loading ? (
             <div className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-10 shadow text-center">
@@ -301,12 +339,17 @@ export default function AddFundsPage() {
               </p>
             </div>
           ) : !paymentMethod ? (
-            // PAYMENT METHOD SELECTOR
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow p-4 sm:p-6">
-              <PaymentMethodSelector
-                onSelectBank={() => setPaymentMethod('bank')}
-                onSelectCrypto={() => setPaymentMethod('crypto')}
-              />
+            // FALLBACK / TRIGGER VIEW
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow p-8 text-center">
+              <CiCreditCard1 size={48} className="mx-auto text-gray-400 mb-4" />
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">No Method Selected</h2>
+              <p className="text-sm text-gray-600 mb-6">Please select a payment method to proceed.</p>
+              <button
+                onClick={() => setShowSelectorModal(true)}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium shadow-md transition-all hover:shadow-lg active:scale-[0.98]"
+              >
+                Select Payment Method
+              </button>
             </div>
           ) : paymentMethod === 'bank' ? (
             // BANK TRANSFER VIEW

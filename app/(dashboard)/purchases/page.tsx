@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { X, Copy, Check } from 'lucide-react';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface Purchase {
   id: string;
@@ -17,6 +18,7 @@ interface Purchase {
 }
 
 export default function PurchasesPage() {
+  const { formatAmount } = useCurrency();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [totalSpent, setTotalSpent] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -177,7 +179,7 @@ export default function PurchasesPage() {
             <div className="bg-white rounded-xl p-4 shadow-sm">
               <h3 className="text-sm text-gray-500">Total Spent</h3>
               <div className="mt-2 text-xl font-semibold">
-                ₦{totalSpent.toLocaleString()}
+                {formatAmount(totalSpent)}
               </div>
             </div>
             <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -218,7 +220,7 @@ export default function PurchasesPage() {
                         {purchase.status || 'Completed'}
                       </div>
                       <div className="font-semibold text-gray-900">
-                        ₦{purchase.totalAmount?.toLocaleString() || '0'}
+                        {formatAmount(purchase.totalAmount || 0)}
                       </div>
                     </div>
                   </div>

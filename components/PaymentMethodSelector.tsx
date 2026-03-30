@@ -15,32 +15,29 @@ export function PaymentMethodSelector({
   isLoading = false,
 }: PaymentMethodSelectorProps) {
   return (
-    <div className="w-full space-y-4">
-      <div className="text-center mb-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+    <div className="w-full space-y-3 sm:space-y-4">
+      <div className="text-center mb-4 sm:mb-6">
+        <h2 className="text-base sm:text-xl font-semibold text-gray-900 mb-1">
           Choose Payment Method
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-[10px] sm:text-sm text-gray-600">
           Select how you'd like to fund your wallet
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {/* Bank Transfer Option */}
         <button
           onClick={onSelectBank}
           disabled={isLoading}
-          className="group relative rounded-xl sm:rounded-2xl p-6 border-2 border-blue-300 bg-blue-50 hover:border-blue-600 hover:bg-blue-100 transition-all duration-300 disabled:opacity-50"
+          className="group relative rounded-lg sm:rounded-2xl p-3 sm:p-6 border-2 border-blue-300 bg-blue-50 hover:border-blue-600 hover:bg-blue-100 transition-all duration-300 disabled:opacity-50"
         >
           <div className="flex flex-col items-center">
-            <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-blue-200 mb-3 group-hover:bg-blue-300 transition-colors">
-              <CiBank className="w-8 h-8 text-blue-600" />
+            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl flex items-center justify-center bg-blue-200 mb-2 sm:mb-3 group-hover:bg-blue-300 transition-colors">
+              <CiBank className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
             </div>
-            <h3 className="font-semibold text-gray-900 text-lg">Bank Transfer</h3>
-            <p className="text-sm text-gray-600 mt-2">Virtual Account</p>
-            <div className="mt-4 flex items-center gap-2 text-blue-600 font-medium">
-              Select <ArrowRight className="w-4 h-4" />
-            </div>
+            <h3 className="font-semibold text-gray-900 text-xs sm:text-lg">Bank</h3>
+            <p className="text-[10px] sm:text-sm text-gray-600 mt-1 sm:mt-2">Virtual Account</p>
           </div>
         </button>
 
@@ -53,22 +50,18 @@ export function PaymentMethodSelector({
 
           <button
             onClick={onSelectCrypto}
-            // disabled
-            className="group relative w-full rounded-xl sm:rounded-2xl p-6 border-2 border-orange-200 bg-orange-50 opacity-60 blur-[1px] cursor-not-allowed"
+            className="group relative w-full rounded-lg sm:rounded-2xl p-3 sm:p-6 border-2 border-orange-200 bg-orange-50 opacity-60 blur-[1px] cursor-not-allowed"
           >
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-orange-200 mb-3 text-3xl">
+              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl flex items-center justify-center bg-orange-200 mb-2 sm:mb-3 text-2xl">
                 ₿
               </div>
-              <h3 className="font-semibold text-gray-900 text-lg">
-                Cryptocurrency
+              <h3 className="font-semibold text-gray-900 text-xs sm:text-lg">
+                Crypto
               </h3>
-              <p className="text-sm text-gray-600 mt-2">
-                Bitcoin, Ethereum, etc.
+              <p className="text-[10px] sm:text-sm text-gray-600 mt-1 sm:mt-2">
+                BTC, ETH, etc.
               </p>
-              <div className="mt-4 flex items-center gap-2 text-orange-600 font-medium">
-                Select <ArrowRight className="w-4 h-4" />
-              </div>
             </div>
           </button>
         </div>

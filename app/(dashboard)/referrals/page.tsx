@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { Copy, Users } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { toast } from 'sonner';
+import { useCurrency } from '@/context/CurrencyContext';
 
 export default function ReferralsPage() {
+  const { formatAmount } = useCurrency();
   const [copied, setCopied] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,7 @@ export default function ReferralsPage() {
       return;
     }
     if (amount < 1000) {
-      toast.error('Minimum withdrawal amount is ₦1,000.');
+      toast.error(`Minimum withdrawal amount is ${formatAmount(1000)}.`);
       return;
     }
     const available = Number(userData?.referralBalance || 0);
@@ -169,7 +171,7 @@ export default function ReferralsPage() {
             <div>
               <h3 className="text-gray-500 mb-2">Total Earnings</h3>
               <p className="text-3xl font-bold">
-                ₦{(userData.referralBalance || 0).toLocaleString()}
+                {formatAmount(userData.referralBalance || 0)}
               </p>
             </div>
             <div className="mt-4">
@@ -186,7 +188,7 @@ export default function ReferralsPage() {
               </button>
               {Number(userData.referralBalance || 0) < 1000 && (
                 <p className="text-xs text-gray-500 mt-2 text-center">
-                  Minimum withdrawal: ₦1,000</p>
+                  Minimum withdrawal: {formatAmount(1000)}</p>
               )}
             </div>
           </div>
@@ -279,7 +281,9 @@ export default function ReferralsPage() {
                               {referral.earnings > 0 ? 'Active' : 'Pending'}
                             </span>
                           </td>
-                          <td className="py-4">₦{referral.earnings}</td>
+                          <td className="py-4">
+                            {formatAmount(referral.earnings || 0)}
+                          </td>
                         </tr>
                       ))
                     )}
@@ -323,7 +327,7 @@ export default function ReferralsPage() {
                             className="border-b last:border-b-0"
                           >
                             <td className="py-4 font-semibold">
-                              ₦{request.amount.toLocaleString()}
+                              {formatAmount(request.amount || 0)}
                             </td>
                             <td className="py-4">{request.bank}</td>
                             <td className="py-4">
@@ -397,7 +401,7 @@ export default function ReferralsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium">Amount (₦)</label>
+                  <label className="block text-sm font-medium">Amount</label>
                   <input
                     required
                     value={withdrawAmount}
@@ -405,8 +409,7 @@ export default function ReferralsPage() {
                     className="w-full mt-1 p-2 border rounded"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Available: ₦
-                    {(userData?.referralBalance || 0).toLocaleString()}
+                    Available: {formatAmount(userData?.referralBalance || 0)}
                   </p>
                 </div>
                 <div className="flex gap-2 mt-3">
