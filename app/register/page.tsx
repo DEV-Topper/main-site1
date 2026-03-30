@@ -14,10 +14,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function RegisterPage() {
+function RegisterContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
@@ -34,6 +34,18 @@ export default function RegisterPage() {
     message: '',
   });
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Handle referral code from URL
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setFormData((prev) => ({
+        ...prev,
+        referralCode: ref,
+      }));
+    }
+  }, [searchParams]);
 
   // TikTok Pixel initialization check
   useEffect(() => {
@@ -370,5 +382,12 @@ export default function RegisterPage() {
         </div>
       </Modal>
     </div>
+  );
+}
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }

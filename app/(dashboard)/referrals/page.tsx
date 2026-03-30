@@ -9,7 +9,9 @@ import { useCurrency } from '@/context/CurrencyContext';
 export default function ReferralsPage() {
   const { formatAmount } = useCurrency();
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [userData, setUserData] = useState<any>(null);
+  const [origin, setOrigin] = useState('');
   const [loading, setLoading] = useState(true);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawBank, setWithdrawBank] = useState('');
@@ -29,6 +31,7 @@ export default function ReferralsPage() {
   };
 
   useEffect(() => {
+    setOrigin(window.location.origin);
     fetchUserData();
     fetchWithdrawals();
   }, []);
@@ -208,6 +211,32 @@ export default function ReferralsPage() {
             >
               <Copy className="w-4 h-4" />
               {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+        </div>
+
+        {/* Referral Link */}
+        <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
+          <h2 className="text-xl font-semibold mb-4">Your Referral Link</h2>
+          <div className="flex items-center gap-4">
+            <div className="flex-1 bg-gray-50 p-4 rounded-lg font-mono text-sm truncate">
+              {userData.referralCode
+                ? `${origin}/register?ref=${userData.referralCode}`
+                : 'Not generated'}
+            </div>
+            <button
+              onClick={() => {
+                const link = `${origin}/register?ref=${userData.referralCode}`;
+                navigator.clipboard.writeText(link);
+                setLinkCopied(true);
+                setTimeout(() => setLinkCopied(false), 2000);
+                toast.success('Referral link copied!');
+              }}
+              disabled={!userData.referralCode}
+              className="bg-[#1a49ee] text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:bg-gray-400 whitespace-nowrap"
+            >
+              <Copy className="w-4 h-4" />
+              {linkCopied ? 'Copied!' : 'Copy Link'}
             </button>
           </div>
         </div>
