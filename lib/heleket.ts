@@ -146,16 +146,12 @@ export function verifyHeleketeSignature(
   signature: string,
 ): boolean {
   try {
-    // Sort keys alphabetically — this is what Heleket does before signing
-    const sortedData = Object.keys(data)
-      .sort()
-      .reduce((acc: Record<string, any>, key) => {
-        acc[key] = data[key];
-        return acc;
-      }, {});
+    // We use the original key order from the parsed JSON, 
+    // as Heleket's PHP server likely signs the JSON in its original received order.
+    // Sorting alphabetically is removed as it caused mismatches in live tests.
 
-    // Stringify the sorted object
-    const jsonData = JSON.stringify(sortedData);
+    // Stringify the object as it is
+    const jsonData = JSON.stringify(data);
     // Base64 encode
     const base64Data = Buffer.from(jsonData).toString('base64');
     // Concatenate with API key
@@ -166,16 +162,13 @@ export function verifyHeleketeSignature(
     const isValid = calculatedSignature === signature;
 
     if (!isValid) {
-      console.warn('⚠️  Signature mismatch details:', {
-        signString,
-        base64Length: base64Data.length,
-        jsonLength: jsonData.length,
-      });
+      console.warn('🔐 Webhook signature check: ❌ INVALID');
+      console.log(`   Received: ${signature}`);
+      console.log(`   Calculated: ${calculatedSignature}`);
+      console.log(`   JSON used: ${jsonData.substring(0, 100)}...`);
+    } else {
+      console.log('🔐 Webhook signature check: ✅ VALID');
     }
-
-    console.log(`🔐 Webhook signature check: ${isValid ? '✅ VALID' : '❌ INVALID'}`);
-    console.log(`Received: ${signature?.substring(0, 8)}...`);
-    console.log(`Calculated: ${calculatedSignature.substring(0, 8)}...`);
 
     return isValid;
   } catch (error: any) {
