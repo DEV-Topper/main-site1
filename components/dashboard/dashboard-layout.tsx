@@ -219,7 +219,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden">
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -237,7 +237,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* MOBILE HEADER with full logic */}
-        <div className="lg:hidden p-4 bg-white border-b flex items-center justify-between">
+        <div className="lg:hidden p-4 bg-background/80 backdrop-blur-md border-b flex items-center justify-between sticky top-0 z-30">
           <div className="ml-4">
             <Link href="/dashboard">
               <Image
@@ -252,14 +252,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-2.5">
             {/* Currency Switcher */}
-            <div className="flex items-center bg-gray-100 rounded-lg p-1 mr-1">
+            <div className="flex items-center bg-muted/50 rounded-lg p-1 mr-1">
               <button
                 onClick={() => setCurrency('NGN')}
                 className={cn(
                   "px-2 py-1 text-[10px] font-bold rounded-md transition-all",
                   currency === 'NGN' 
-                    ? "bg-white text-primary shadow-sm" 
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-background text-primary shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 NGN
@@ -269,8 +269,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "px-2 py-1 text-[10px] font-bold rounded-md transition-all",
                   currency === 'USD' 
-                    ? "bg-white text-primary shadow-sm" 
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-background text-primary shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 USD
@@ -353,7 +353,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-10 w-10 rounded-full border border-gray-200 p-0"
+                  className="h-10 w-10 rounded-full border border-border p-0"
                 >
                   <Avatar className="h-7 w-7">
                     <AvatarImage
@@ -401,8 +401,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       onClick={() => setTheme('light')}
                       className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
                         theme === 'light'
-                          ? 'bg-blue-50 border-blue-500 text-blue-600'
-                          : 'bg-white border-gray-200 text-gray-600'
+                          ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
+                          : 'bg-background border-border text-muted-foreground'
                       }`}
                     >
                       <div className="flex flex-col items-center gap-1">
@@ -426,8 +426,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       onClick={() => setTheme('dark')}
                       className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
                         theme === 'dark'
-                          ? 'bg-blue-50 border-blue-500 text-blue-600'
-                          : 'bg-white border-gray-200 text-gray-600'
+                          ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
+                          : 'bg-background border-border text-muted-foreground'
                       }`}
                     >
                       <div className="flex flex-col items-center gap-1">

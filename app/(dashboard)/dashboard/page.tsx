@@ -22,7 +22,7 @@ export default function DashboardPage() {
   return (
     <AuthGuard>
       <DashboardLayout>
-        <main className="p-6 lg:p-8 bg-gray-50">
+        <main className="p-6 lg:p-8 bg-background">
           {/* Stats section */}
           <StatsCards />
 

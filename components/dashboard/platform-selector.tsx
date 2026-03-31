@@ -25,7 +25,7 @@ interface PlatformSelectorProps {
 export function PlatformSelector({ selectedPlatform, onPlatformChange }: PlatformSelectorProps) {
   return (
     <div>
-      <h2 className="text-sm md:text-base font-semibold text-gray-900 mb-3 md:mb-4 pb-2 border-b">Shop by Categories</h2>
+      <h2 className="text-sm md:text-base font-semibold text-foreground mb-3 md:mb-4 pb-2 border-b border-border">Shop by Categories</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
         {platforms.map((platform) => {
           const Icon = platform.icon
@@ -37,7 +37,7 @@ export function PlatformSelector({ selectedPlatform, onPlatformChange }: Platfor
                 "h-auto py-2 md:py-3 px-3 md:px-4 flex items-center justify-center gap-2 rounded-lg md:rounded-xl transition-all font-medium text-xs md:text-sm",
                 selectedPlatform === platform.id
                   ? "bg-primary text-white border-primary hover:bg-primary/90 hover:text-white"
-                  : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50",
+                  : "bg-background text-muted-foreground border-border hover:bg-muted/50",
               )}
               onClick={() => onPlatformChange(platform.id)}
             >

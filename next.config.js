@@ -8,8 +8,8 @@ module.exports = {
             key: 'Access-Control-Allow-Origin',
             value: 'http://localhost:8081',
           },
-          { key: 'Access-Control-Allow-Origin', value: 'expo://*' },
-          { key: 'Access-Control-Allow-Origin', value: 'com.desocialplug://*' },
+          // { key: 'Access-Control-Allow-Origin', value: 'expo://*' },
+          // { key: 'Access-Control-Allow-Origin', value: 'com.desocialplug://*' },
           {
             key: 'Access-Control-Allow-Methods',
             value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT',

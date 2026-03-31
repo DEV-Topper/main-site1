@@ -207,18 +207,18 @@ export function DashboardHeader() {
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-white border-b px-4 md:px-6 py-3 md:py-4">
+    <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b px-4 md:px-6 py-3 md:py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
           {/* Currency Switcher */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1 mr-1 md:mr-2">
+          <div className="flex items-center bg-muted/50 rounded-lg p-1 mr-1 md:mr-2">
             <button
               onClick={() => setCurrency('NGN')}
               className={cn(
                 "px-2 py-1 text-[10px] md:text-xs font-bold rounded-md transition-all",
                 currency === 'NGN' 
-                  ? "bg-white text-primary shadow-sm" 
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-background text-primary shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               NGN
@@ -228,8 +228,8 @@ export function DashboardHeader() {
               className={cn(
                 "px-2 py-1 text-[10px] md:text-xs font-bold rounded-md transition-all",
                 currency === 'USD' 
-                  ? "bg-white text-primary shadow-sm" 
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-background text-primary shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               USD
@@ -317,7 +317,7 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="relative h-10 w-10 md:h-12 md:w-12 rounded-full p-0 border border-gray-200"
+                className="relative h-10 w-10 md:h-12 md:w-12 rounded-full p-0 border border-border"
               >
                 <Avatar className="h-9 w-9 md:h-10 md:w-10">
                   <AvatarImage
@@ -412,7 +412,11 @@ export function DashboardHeader() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setTheme('light')}
-                    className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${theme === 'light' ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-200 text-gray-600'}`}
+                    className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
+                      theme === 'light'
+                        ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'bg-background border-border text-muted-foreground'
+                    }`}
                   >
                     <div className="flex flex-col items-center gap-1">
                       <Sun className="w-5 h-5" />
@@ -421,7 +425,11 @@ export function DashboardHeader() {
                   </button>
                   <button
                     onClick={() => setTheme('dark')}
-                    className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${theme === 'dark' ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-200 text-gray-600'}`}
+                    className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
+                      theme === 'dark'
+                        ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'bg-background border-border text-muted-foreground'
+                    }`}
                   >
                     <div className="flex flex-col items-center gap-1">
                       <Moon className="w-5 h-5" />

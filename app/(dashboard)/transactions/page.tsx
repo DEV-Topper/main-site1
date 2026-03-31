@@ -126,23 +126,23 @@ export default function TransactionsPage() {
 
   return (
     <DashboardLayout>
-      <main className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
+      <main className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-4 sm:mb-6">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
               Transactions
             </h1>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
               All account activity and payments.
             </p>
           </div>
 
           {/* Table Container */}
-          <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm overflow-x-auto">
+          <div className="bg-card border border-border rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm overflow-x-auto">
             <table className="w-full min-w-[600px] text-left text-xs sm:text-sm">
               <thead>
-                <tr className="text-gray-500 border-b">
+                <tr className="text-muted-foreground border-b border-border">
                   <th className="py-2 sm:py-3 px-2 sm:px-4">Reference</th>
                   <th className="py-2 sm:py-3 px-2 sm:px-4">Date</th>
                   <th className="py-2 sm:py-3 px-2 sm:px-4">Description</th>
@@ -155,11 +155,11 @@ export default function TransactionsPage() {
                 </tr>
               </thead>
 
-              <tbody className="text-gray-700">
+              <tbody className="text-foreground">
                 {transactions.map((tx) => (
                   <tr
                     key={tx.id}
-                    className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
+                    className="border-b border-border last:border-b-0 hover:bg-muted/50 transition-colors"
                   >
                     <td className="py-2 sm:py-3 px-2 sm:px-4 font-medium">
                       {tx.reference || tx.id.slice(0, 8)}
@@ -167,19 +167,19 @@ export default function TransactionsPage() {
                     <td className="py-2 sm:py-3 px-2 sm:px-4">
                       {formatDate(tx.date)}
                     </td>
-                    <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-600">
+                    <td className="py-2 sm:py-3 px-2 sm:px-4 text-muted-foreground">
                       {tx.description || tx.type || ''}
                     </td>
-    <td className="py-2 sm:py-3 px-2 sm:px-4 text-right font-semibold text-gray-900">
+    <td className="py-2 sm:py-3 px-2 sm:px-4 text-right font-semibold text-foreground">
       {formatAmount(tx.amount || 0)}
       {/* Show the alternative currency as sub-text for additional context */}
       {currency === 'NGN' && tx.amountUSD && tx.amountUSD > 0 && (
-        <p className="text-[10px] sm:text-xs text-gray-500 font-normal mt-0.5">
+        <p className="text-[10px] sm:text-xs text-muted-foreground font-normal mt-0.5">
           ≈ ${tx.amountUSD.toFixed(2)} USD
         </p>
       )}
       {currency === 'USD' && tx.amount && tx.amount > 0 && (
-        <p className="text-[10px] sm:text-xs text-gray-500 font-normal mt-0.5">
+        <p className="text-[10px] sm:text-xs text-muted-foreground font-normal mt-0.5">
           ≈ ₦{(tx.amount).toLocaleString()} NGN
         </p>
       )}
@@ -205,7 +205,7 @@ export default function TransactionsPage() {
 
             {/* Empty State */}
             {transactions.length === 0 && (
-              <div className="p-6 text-center text-xs sm:text-sm text-gray-500">
+              <div className="p-6 text-center text-xs sm:text-sm text-muted-foreground">
                 No transactions found.
               </div>
             )}
@@ -214,7 +214,7 @@ export default function TransactionsPage() {
           {/* Pagination Controls */}
           {pagination && pagination.totalPages > 1 && (
             <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-xs sm:text-sm text-gray-600">
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 Showing {startItem} to {endItem} of {pagination.totalDocs}{' '}
                 transactions
               </div>
@@ -222,7 +222,7 @@ export default function TransactionsPage() {
                 <button
                   onClick={() => handlePageChange(pagination.prevPage ?? 1)}
                   disabled={!pagination.hasPrevPage}
-                  className="flex items-center gap-1 px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1 px-3 py-1 text-sm bg-card border border-border rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Previous
@@ -237,7 +237,7 @@ export default function TransactionsPage() {
                     )
                   }
                   disabled={!pagination.hasNextPage}
-                  className="flex items-center gap-1 px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1 px-3 py-1 text-sm bg-card border border-border rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
                 >
                   Next
                   <ChevronRight className="w-4 h-4" />

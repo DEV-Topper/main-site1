@@ -50,10 +50,10 @@ export function StatsCards() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
       {/* Total Balance Card */}
-      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm">
+      <div className="bg-card rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-border">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
-            <div className="p-2 md:p-3 bg-blue-50 rounded-lg md:rounded-xl flex-shrink-0">
+            <div className="p-2 md:p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg md:rounded-xl flex-shrink-0">
               <svg
                 className="w-4 h-4 md:w-6 md:h-6 text-primary"
                 fill="none"
@@ -69,10 +69,10 @@ export function StatsCards() {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs md:text-sm text-gray-600">
+              <div className="text-xs md:text-sm text-muted-foreground">
                 Total Balance
               </div>
-              <div className="text-lg md:text-2xl font-bold text-gray-900 leading-tight">
+              <div className="text-lg md:text-2xl font-bold text-foreground leading-tight">
                 {formatAmount(balance)}
               </div>
               <div className="text-[10px] md:text-xs text-gray-500 font-medium mt-0.5">
@@ -86,7 +86,7 @@ export function StatsCards() {
           </div>
           <Button
             onClick={() => (window.location.href = '/add-funds')}
-            className="bg-primary hover:bg-primary/90 text-white text-xs md:text-sm px-3 md:px-4 h-8 md:h-10 rounded-lg md:rounded-xl flex-shrink-0"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs md:text-sm px-3 md:px-4 h-8 md:h-10 rounded-lg md:rounded-xl flex-shrink-0"
           >
             Fund Wallet
           </Button>
@@ -94,17 +94,17 @@ export function StatsCards() {
       </div>
 
       {/* Total Spent Card */}
-      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm">
+      <div className="bg-card rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-border">
         <div className="flex items-center gap-2 md:gap-4">
-          <div className="p-2 md:p-3 bg-blue-50 rounded-lg md:rounded-xl flex-shrink-0">
-            <CreditCard color="blue" />
+          <div className="p-2 md:p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg md:rounded-xl flex-shrink-0">
+            <CreditCard color="currentColor" className="text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs md:text-sm text-gray-600">Total Spent</div>
-            <div className="text-lg md:text-2xl font-bold text-gray-900">
+            <div className="text-xs md:text-sm text-muted-foreground">Total Spent</div>
+            <div className="text-lg md:text-2xl font-bold text-foreground">
               {formatAmount(totalSpent)}
             </div>
-            {/* <div className="text-[10px] md:text-xs text-gray-500 font-medium mt-0.5">
+            {/* <div className="text-[10px] md:text-xs text-muted-foreground font-medium mt-0.5">
               {currency === 'NGN' ? (
                 `≈ $${(totalSpent / usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
               ) : (
@@ -116,20 +116,20 @@ export function StatsCards() {
       </div>
 
       {/* Referral Balance Card */}
-      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm">
+      <div className="bg-card rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-border">
         <div className="flex items-center justify-between gap-2 md:gap-4">
           <div className="flex items-center gap-2 md:gap-4">
-            <div className="p-2 md:p-3 bg-blue-50 rounded-lg md:rounded-xl flex-shrink-0">
-              <Gem color="blue" />
+            <div className="p-2 md:p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg md:rounded-xl flex-shrink-0">
+              <Gem color="currentColor" className="text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs md:text-sm text-gray-600">
+              <div className="text-xs md:text-sm text-muted-foreground">
                 Referral Balance
               </div>
-              <div className="text-lg md:text-2xl font-bold text-gray-900">
+              <div className="text-lg md:text-2xl font-bold text-foreground">
                 {formatAmount(referralBalance)}
               </div>
-              {/* <div className="text-[10px] md:text-xs text-gray-500 font-medium mt-0.5">
+              {/* <div className="text-[10px] md:text-xs text-muted-foreground font-medium mt-0.5">
                 {currency === 'NGN' ? (
                   `≈ $${(referralBalance / usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
                 ) : (
@@ -139,7 +139,7 @@ export function StatsCards() {
             </div>
           </div>
           <Link href="/referrals">
-            <ChevronDown className="h-5 w-5 text-gray-500" />
+            <ChevronDown className="h-5 w-5 text-muted-foreground" />
           </Link>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Instagram,
   Facebook,
@@ -821,10 +822,10 @@ export function AccountsList({
 
   if (filteredAccounts.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-muted-foreground">
         No accounts available for this selection
         {accounts.length > 0 && (
-          <div className="text-sm text-gray-400 mt-2">
+          <div className="text-sm text-muted-foreground/60 mt-2">
             Total accounts in database: {accounts.length}
           </div>
         )}
@@ -845,10 +846,10 @@ export function AccountsList({
                   {/* Subcategory Header - Fixed size to match "All" view */}
                   {subcategory !== 'Uncategorized' && (
                     <div className="flex items-center gap-2">
-                      <h4 className="text-base md:text-lg font-bold text-gray-800">
+                      <h4 className="text-base md:text-lg font-bold text-foreground">
                         {subcategory}
                       </h4>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
                         {accounts.length} item(s)
                       </span>
                     </div>
@@ -864,7 +865,7 @@ export function AccountsList({
                       return (
                         <div
                           key={account.id}
-                          className="bg-white rounded-lg p-3 md:p-4 shadow-sm flex flex-col md:flex-row md:items-center gap-3 md:gap-4"
+                          className="bg-card rounded-lg p-3 md:p-4 shadow-sm border border-border flex flex-col md:flex-row md:items-center gap-3 md:gap-4"
                         >
                           <div className="flex items-center gap-3 flex-1">
                             <div
@@ -876,7 +877,7 @@ export function AccountsList({
                               <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-medium md:font-medium text-gray-900 text-xs md:text-sm">
+                              <h3 className="font-medium md:font-medium text-foreground text-xs md:text-sm">
                                 {account.vpnType
                                   ? `${account.vpnType}`
                                   : `${account.platform} | ${account.followers.toLocaleString()}+ followers | ${
@@ -902,7 +903,7 @@ export function AccountsList({
                             >
                               {account.logs || 0}pcs
                             </div>
-                            <div className="text-sm md:text-base font-medium md:font-semibold text-gray-900 min-w-[80px] md:min-w-[100px] text-right">
+                            <div className="text-sm md:text-base font-medium md:font-semibold text-foreground min-w-[80px] md:min-w-[100px] text-right">
                               {formatAmount(account.price)}
                             </div>
                             <Button
@@ -937,10 +938,10 @@ export function AccountsList({
               {/* Subcategory Header - Fixed size to match "All" view */}
               {subcategory !== 'Uncategorized' && (
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base md:text-lg font-bold text-gray-800">
+                  <h3 className="text-base md:text-lg font-bold text-foreground">
                     {subcategory}
                   </h3>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
                     {accounts.length} item(s)
                   </span>
                 </div>
@@ -956,7 +957,7 @@ export function AccountsList({
                   return (
                     <div
                       key={account.id}
-                      className="bg-white rounded-lg p-3 md:p-4 shadow-sm flex flex-col md:flex-row md:items-center gap-3 md:gap-4"
+                      className="bg-card rounded-lg p-3 md:p-4 shadow-sm border border-border flex flex-col md:flex-row md:items-center gap-3 md:gap-4"
                     >
                       <div className="flex items-center gap-3 flex-1">
                         <div
@@ -968,7 +969,7 @@ export function AccountsList({
                           <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium md:font-medium text-gray-900 text-xs md:text-sm">
+                          <h3 className="font-medium md:font-medium text-foreground text-xs md:text-sm">
                             {account.vpnType
                               ? `${account.vpnType}`
                               : `${account.platform} | ${account.followers.toLocaleString()}+ followers | ${
@@ -993,7 +994,7 @@ export function AccountsList({
                         >
                           {account.logs || 0}pcs
                         </div>
-                        <div className="text-sm md:text-base font-medium md:font-semibold text-gray-900 min-w-[80px] md:min-w-[100px] text-right">
+                        <div className="text-sm md:text-base font-medium md:font-semibold text-foreground min-w-[80px] md:min-w-[100px] text-right">
                           {formatAmount(account.price)}
                         </div>
                         <Button
@@ -1039,7 +1040,7 @@ export function AccountsList({
                       return (
                         <div
                           key={account.id}
-                          className="bg-white rounded-lg p-3 md:p-4 shadow-sm flex flex-col md:flex-row md:items-center gap-3 md:gap-4"
+                          className="bg-card rounded-lg p-3 md:p-4 shadow-sm border border-border flex flex-col md:flex-row md:items-center gap-3 md:gap-4"
                         >
                           <div className="flex items-center gap-3 flex-1">
                             <div
@@ -1051,7 +1052,7 @@ export function AccountsList({
                               <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-medium md:font-medium text-gray-900 text-xs md:text-sm">
+                              <h3 className="font-medium md:font-medium text-foreground text-xs md:text-sm">
                                 {account.vpnType
                                   ? `${account.vpnType}`
                                   : `${account.platform} | ${account.followers.toLocaleString()}+ followers | ${
@@ -1077,7 +1078,7 @@ export function AccountsList({
                             >
                               {account.logs || 0}pcs
                             </div>
-                            <div className="text-sm md:text-base font-medium md:font-semibold text-gray-900 min-w-[80px] md:min-w-[100px] text-right">
+                            <div className="text-sm md:text-base font-medium md:font-semibold text-foreground min-w-[80px] md:min-w-[100px] text-right">
                               {formatAmount(account.price)}
                             </div>
                             <Button
@@ -1095,9 +1096,15 @@ export function AccountsList({
       </div>
 
       {/* Modal for account details and purchase - SLIGHTLY WIDER ON LAPTOP */}
+      <AnimatePresence>
       {isModalOpen && selectedAccount && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+        <motion.div
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           exit={{ opacity: 0 }}
+           transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/10 dark:bg-black/30"
+          style={{ perspective: 1200 }}
           onClick={() => {
             if (!purchasing) {
               setIsModalOpen(false);
@@ -1106,15 +1113,50 @@ export function AccountsList({
             }
           }}
         >
-          <div
+          <motion.div
+            initial={{ 
+              y: "60vh", 
+              scale: 0.01, 
+              scaleX: 0.1, 
+              skewX: -30, 
+              skewY: 15,
+              opacity: 0, 
+              filter: "blur(20px)" 
+            }}
+            animate={{ 
+              y: 0, 
+              scale: 1, 
+              scaleX: 1, 
+              skewX: 0, 
+              skewY: 0,
+              opacity: 1, 
+              filter: "blur(0px)" 
+            }}
+            exit={{ 
+              y: "60vh", 
+              scale: 0.01, 
+              scaleX: 0.1, 
+              skewX: 20,
+              opacity: 0, 
+              filter: "blur(15px)" 
+            }}
+            transition={{ 
+              type: "spring", 
+              damping: 17, 
+              stiffness: 85,
+              mass: 1 
+            }}
+            style={{ transformOrigin: "bottom center" }}
             className="
-bg-white
+bg-card
 rounded-2xl
 shadow-2xl
+border border-border
 w-[clamp(340px,65vw,650px)]
 max-h-[92vh]
 overflow-y-auto
-transition-all
+dark:bg-slate-900/90
+dark:backdrop-blur-xl
 "
             onClick={(e) => e.stopPropagation()}
           >
@@ -1133,10 +1175,10 @@ transition-all
                     })()}
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-gray-900 leading-tight">
+                    <h2 className="text-base font-semibold text-foreground leading-tight">
                       {selectedAccount.platform} Account
                     </h2>
-                    <p className="text-gray-600 text-xs mt-0.5">
+                    <p className="text-muted-foreground text-xs mt-0.5">
                       {purchaseSuccess
                         ? 'Purchase Complete!'
                         : isPurchaseMode
@@ -1162,7 +1204,7 @@ transition-all
               </div>
 
               {/* Wallet Balance in Modal */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-3 text-white text-xs">
+              <div className="bg-gradient-to-r from-primary to-purple-600 rounded-lg p-3 text-white text-xs shadow-md">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Wallet className="w-4 h-4" />
@@ -1176,39 +1218,39 @@ transition-all
 
               {purchaseSuccess && (
                 <div className="space-y-4">
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <ShoppingCart className="w-5 h-5 text-white" />
-                    </div>
-                    <h3 className="text-sm font-bold text-green-900 mb-1">
-                      Purchase Successful!
-                    </h3>
-                    <p className="text-green-700 text-xs mb-1">
-                      You purchased {quantity} log(s) for 
-                      {formatAmount(totalPrice)}
-                    </p>
-                    <p className="text-xs text-green-600">
-                      New Balance: {formatAmount(userBalance)}
-                    </p>
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 text-center">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <ShoppingCart className="w-5 h-5 text-white" />
                   </div>
+                  <h3 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+                    Purchase Successful!
+                  </h3>
+                  <p className="text-emerald-700 dark:text-emerald-500 text-xs mb-1">
+                    You purchased {quantity} log(s) for 
+                    {formatAmount(totalPrice)}
+                  </p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400/80">
+                    New Balance: {formatAmount(userBalance)}
+                  </p>
+                </div>
 
-                  <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-3 border border-slate-200">
-                    <h3 className="font-bold text-gray-900 text-sm mb-2 flex items-center gap-1.5">
+                  <div className="bg-muted/30 rounded-lg p-3 border border-border">
+                    <h3 className="font-bold text-foreground text-sm mb-2 flex items-center gap-1.5">
                       <div className="w-5 h-5 rounded bg-slate-600 flex items-center justify-center">
                         <Package className="w-3 h-3 text-white" />
                       </div>
                       Your Credentials ({purchasedCredentials.length} items)
                     </h3>
-                    <div className="bg-white rounded p-2 max-h-48 overflow-y-auto space-y-2 border border-slate-300">
+                    <div className="bg-background rounded p-2 max-h-48 overflow-y-auto space-y-2 border border-border">
                       {purchasedCredentials.map((cred, index) => {
                         const credentialText = typeof cred === 'string' ? cred : JSON.stringify(cred, null, 2);
                         return (
                           <div
                             key={index}
-                            className="group relative font-mono text-xs bg-green-50 px-3 py-2 rounded border border-green-200 break-all"
+                            className="group relative font-mono text-xs bg-emerald-500/10 px-3 py-2 rounded border border-emerald-500/20 break-all"
                           >
                             <div className="flex items-start justify-between gap-2">
-                              <div className="text-gray-900 whitespace-pre-wrap flex-1">
+                              <div className="text-foreground whitespace-pre-wrap flex-1">
                                 {credentialText}
                               </div>
                               <button
@@ -1245,8 +1287,8 @@ transition-all
 
               {isPurchaseMode && !purchaseSuccess && (
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                    <h3 className="font-bold text-gray-900 text-sm mb-3 text-center">
+                  <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-4 border border-primary/20">
+                    <h3 className="font-bold text-foreground text-sm mb-3 text-center">
                       Select Quantity
                     </h3>
 
@@ -1254,15 +1296,15 @@ transition-all
                       <Button
                         onClick={() => handleQuantityChange(false)}
                         disabled={quantity <= 1 || purchasing}
-                        className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white disabled:bg-gray-300"
+                        className="w-8 h-8 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:bg-muted"
                       >
                         <Minus className="w-3 h-3" />
                       </Button>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-900">
+                        <div className="text-2xl font-bold text-primary">
                           {quantity}
                         </div>
-                        <div className="text-xs text-blue-700 mt-0.5">
+                        <div className="text-xs text-primary/80 mt-0.5">
                           log(s)
                         </div>
                       </div>
@@ -1273,39 +1315,39 @@ transition-all
                           purchasing ||
                           !canAfford
                         }
-                        className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white disabled:bg-gray-300"
+                        className="w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white disabled:bg-muted"
                       >
                         <Plus className="w-3 h-3" />
                       </Button>
                     </div>
 
-                    <div className="bg-white rounded-lg p-3 space-y-1">
+                    <div className="bg-background/50 rounded-lg p-3 space-y-1">
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-600">Price per log:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground">Price per log:</span>
+                        <span className="font-medium text-foreground">
                           {formatAmount(selectedAccount.price)}
                         </span>
                       </div>
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-600">Quantity:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground">Quantity:</span>
+                        <span className="font-medium text-foreground">
                           {quantity}
                         </span>
                       </div>
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-600">Available:</span>
-                        <span className="font-medium text-green-600">
+                        <span className="text-muted-foreground">Available:</span>
+                        <span className="font-medium text-emerald-600">
                           {selectedAccount.logs} logs
                         </span>
                       </div>
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-600">Your Balance:</span>
-                        <span className="font-medium text-blue-600">
+                        <span className="text-muted-foreground">Your Balance:</span>
+                        <span className="font-medium text-primary">
                           {formatAmount(userBalance)}
                         </span>
                       </div>
                       <div className="border-t pt-2 mt-2 flex justify-between text-sm">
-                        <span className="font-bold text-gray-900">Total:</span>
+                        <span className="font-bold text-foreground">Total:</span>
                         <span
                           className={cn(
                             'font-bold',
@@ -1335,14 +1377,14 @@ transition-all
                     <Button
                       onClick={() => setIsPurchaseMode(false)}
                       disabled={purchasing}
-                      className="flex-1 h-9 rounded-lg font-medium bg-gray-200 hover:bg-gray-300 text-gray-800"
+                      className="flex-1 h-9 rounded-lg font-medium bg-muted hover:bg-muted/80 text-foreground"
                     >
                       Back
                     </Button>
                     <Button
                       onClick={handleCompletePurchase}
                       disabled={purchasing || quantity < 1 || !canAfford}
-                      className="flex-1 h-9 rounded-lg font-medium bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-md disabled:opacity-50"
+                      className="flex-1 h-9 rounded-lg font-medium bg-primary hover:bg-primary/90 text-primary-foreground shadow-md disabled:opacity-50"
                     >
                       {purchasing
                         ? 'Processing...'
@@ -1357,48 +1399,48 @@ transition-all
                 <>
                   {/* Account Overview */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
-                      <div className="flex items-center gap-1.5 text-blue-700 mb-1">
+                    <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-3 border border-primary/20">
+                      <div className="flex items-center gap-1.5 text-primary mb-1">
                         <Users className="w-3.5 h-3.5" />
                         <span className="text-xs font-medium">Followers</span>
                       </div>
-                      <p className="text-base font-bold text-blue-900">
+                      <p className="text-base font-bold text-foreground">
                         {selectedAccount.followers.toLocaleString()}+
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-                      <div className="flex items-center gap-1.5 text-green-700 mb-1">
+                    <div className="bg-emerald-500/5 dark:bg-emerald-500/10 rounded-lg p-3 border border-emerald-500/20">
+                      <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 mb-1">
                         <DollarSign className="w-3.5 h-3.5" />
                         <span className="text-xs font-medium">
                           Price per log
                         </span>
                       </div>
-                      <p className="text-base font-bold text-green-900">
+                      <p className="text-base font-bold text-foreground">
                         {formatAmount(selectedAccount.price)}
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-3 border border-purple-200">
-                      <div className="flex items-center gap-1.5 text-purple-700 mb-1">
+                    <div className="bg-purple-500/5 dark:bg-purple-500/10 rounded-lg p-3 border border-purple-500/20">
+                      <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 mb-1">
                         <Package className="w-3.5 h-3.5" />
                         <span className="text-xs font-medium">
                           Available Stock
                         </span>
                       </div>
-                      <p className="text-base font-bold text-purple-900">
+                      <p className="text-base font-bold text-foreground">
                         {selectedAccount.logs || 0} pcs
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-3 border border-orange-200">
-                      <div className="flex items-center gap-1.5 text-orange-700 mb-1">
+                    <div className="bg-orange-500/5 dark:bg-orange-500/10 rounded-lg p-3 border border-orange-500/20">
+                      <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400 mb-1">
                         <Mail className="w-3.5 h-3.5" />
                         <span className="text-xs font-medium">
                           Email Access
                         </span>
                       </div>
-                      <p className="text-xs font-bold text-orange-900">
+                      <p className="text-xs font-bold text-foreground">
                         {selectedAccount.mailIncluded
                           ? 'Included ✓'
                           : 'Not Included'}
@@ -1407,46 +1449,46 @@ transition-all
                   </div>
 
                   {/* Account Details */}
-                  <div className="bg-gray-50 rounded-lg p-3 space-y-2 border border-gray-200">
-                    <h3 className="font-bold text-gray-900 text-sm mb-2">
+                  <div className="bg-muted/30 rounded-lg p-3 space-y-2 border border-border">
+                    <h3 className="font-bold text-foreground text-sm mb-2">
                       Account Information
                     </h3>
 
                     <div className="flex items-start gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                        <Package className="w-3 h-3 text-indigo-600" />
+                      <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Package className="w-3 h-3 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs font-medium text-gray-700">
+                        <p className="text-xs font-medium text-muted-foreground">
                           Status
                         </p>
-                        <p className="text-sm font-medium text-gray-900 mt-0.5">
+                        <div className="mt-0.5">
                           <span
                             className={cn(
                               'px-2 py-0.5 rounded-full text-xs font-medium',
                               getAccountStatus(selectedAccount) === 'Available'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-red-100 text-red-800',
+                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                : 'bg-destructive/10 text-destructive',
                             )}
                           >
                             {getAccountStatus(selectedAccount)}
                           </span>
-                        </p>
+                        </div>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-3 h-3 text-pink-600" />
+                      <div className="w-7 h-7 rounded-lg bg-pink-500/10 flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-3 h-3 text-pink-500" />
                       </div>
                       <div className="flex-1 min-w-0 max-w-full">
-                        <p className="text-xs font-medium text-gray-700">
+                        <p className="text-xs font-medium text-muted-foreground">
                           Description
                         </p>
 
                         <p
                           className="
-      text-sm font-medium text-gray-900 mt-0.5
+      text-sm font-medium text-foreground mt-0.5
       whitespace-pre-wrap
       [overflow-wrap:anywhere]
       leading-relaxed
@@ -1463,7 +1505,7 @@ transition-all
                   {selectedAccount.files &&
                     selectedAccount.files.length > 0 && (
                       <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg p-3 border border-cyan-200">
-                        <h3 className="font-bold text-gray-900 text-sm mb-2 flex items-center gap-1.5">
+                        <h3 className="font-bold text-foreground text-sm mb-2 flex items-center gap-1.5">
                           <div className="w-5 h-5 rounded bg-cyan-600 flex items-center justify-center">
                             <Package className="w-3 h-3 text-white" />
                           </div>
@@ -1473,7 +1515,7 @@ transition-all
                           {selectedAccount.files.map((file, index) => (
                             <div
                               key={index}
-                              className="bg-white px-2 py-1 rounded text-xs text-gray-700 border border-cyan-200 hover:border-cyan-400 break-all"
+                              className="bg-card px-2 py-1 rounded text-xs text-muted-foreground border border-cyan-200/50 hover:border-cyan-400 break-all"
                             >
                               📎 {file}
                             </div>
@@ -1485,14 +1527,14 @@ transition-all
                   <div className="flex gap-2 pt-3 border-t">
                     <Button
                       onClick={() => setIsModalOpen(false)}
-                      className="flex-1 h-9 rounded-lg font-medium bg-gray-200 hover:bg-gray-300 text-gray-800"
+                      className="flex-1 h-9 rounded-lg font-medium bg-muted hover:bg-muted/80 text-foreground"
                     >
                       Close
                     </Button>
                     <Button
                       onClick={handleProceedToPurchase}
                       disabled={selectedAccount.logs === 0}
-                      className="flex-1 h-9 rounded-lg font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-md disabled:opacity-50"
+                      className="flex-1 h-9 rounded-lg font-medium bg-primary hover:bg-primary/90 text-primary-foreground shadow-md disabled:opacity-50"
                     >
                       Proceed to Purchase
                     </Button>
@@ -1500,9 +1542,10 @@ transition-all
                 </>
               )}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </>
   );
 }

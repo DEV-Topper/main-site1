@@ -7,6 +7,7 @@ import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { Suspense } from 'react';
 import { CurrencyProvider } from '@/context/CurrencyContext';
+import { ThemeProvider } from '@/components/theme-provider';
 
 // ✅ Global SEO Metadata
 export const metadata: Metadata = {
@@ -91,7 +92,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Google verification */}
         <meta
@@ -127,25 +128,25 @@ export default function RootLayout({
       <body
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
-        <CurrencyProvider>
-          <Suspense fallback={null}>
-          {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <CurrencyProvider>
+            <Suspense fallback={null}>{children}</Suspense>
+            <Analytics />
 
-          {/* 🔒 Maintenance Overlay */}
-          {/* <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center px-6">
-            <MaintenanceCountdown />
-          </div> */}
-        </Suspense>
-        <Analytics />
-
-        {/* Apitiny Script (duplicate - consider removing if not needed) */}
-        <script
-          src="https://cdn.apitiny.net/scripts/v2.0/main.js"
-          data-site-id="69934e6d8a5300329524ac7c"
-          data-test-mode="false"
-          async
-        ></script>
-        </CurrencyProvider>
+            {/* Apitiny Script */}
+            <script
+              src="https://cdn.apitiny.net/scripts/v2.0/main.js"
+              data-site-id="69934e6d8a5300329524ac7c"
+              data-test-mode="false"
+              async
+            ></script>
+          </CurrencyProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

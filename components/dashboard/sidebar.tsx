@@ -27,7 +27,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
 
   return (
-    <div className="h-full bg-[#1a49ee] flex flex-col">
+    <div className="h-full bg-[#1a49ee] dark:bg-blue-950/50 dark:backdrop-blur-xl border-r border-blue-600 dark:border-blue-900/50 flex flex-col">
       {/* Profile section */}
       <div className="p-6 flex items-center justify-between border-b border-blue-600">
         <div className="flex items-center gap-3">

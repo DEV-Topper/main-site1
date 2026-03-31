@@ -161,19 +161,19 @@ export default function ReferralsPage() {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8 relative">
-        <h1 className="text-2xl font-bold mb-8">Referral Program</h1>
+      <div className="container mx-auto px-4 py-8 relative bg-background min-h-screen">
+        <h1 className="text-2xl font-bold mb-8 text-foreground">Referral Program</h1>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="text-gray-500 mb-2">Total Referrals</h3>
-            <p className="text-3xl font-bold">{userData.referrals.length}</p>
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <h3 className="text-muted-foreground mb-2">Total Referrals</h3>
+            <p className="text-3xl font-bold text-foreground">{userData.referrals.length}</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm flex flex-col justify-between">
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-gray-500 mb-2">Total Earnings</h3>
-              <p className="text-3xl font-bold">
+              <h3 className="text-muted-foreground mb-2">Total Earnings</h3>
+              <p className="text-3xl font-bold text-foreground">
                 {formatAmount(userData.referralBalance || 0)}
               </p>
             </div>
@@ -189,7 +189,7 @@ export default function ReferralsPage() {
                 Withdraw Referral Balance
               </button>
               {Number(userData.referralBalance || 0) < 1000 && (
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-xs text-muted-foreground mt-2 text-center">
                   Minimum withdrawal: {formatAmount(1000)}</p>
               )}
             </div>
@@ -197,16 +197,16 @@ export default function ReferralsPage() {
         </div>
 
         {/* Referral Code */}
-        <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-          <h2 className="text-xl font-semibold mb-4">Your Referral Code</h2>
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-foreground">Your Referral Code</h2>
           <div className="flex items-center gap-4">
-            <div className="flex-1 bg-gray-50 p-4 rounded-lg font-mono">
+            <div className="flex-1 bg-muted p-4 rounded-lg font-mono text-foreground border border-border">
               {userData.referralCode || 'Not generated'}
             </div>
             <button
               onClick={() => copyToClipboard(userData.referralCode || '')}
               disabled={!userData.referralCode}
-              className="bg-[#1a49ee] text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:bg-gray-400"
+              className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:bg-muted disabled:text-muted-foreground"
             >
               <Copy className="w-4 h-4" />
               {copied ? 'Copied!' : 'Copy'}
@@ -241,13 +241,13 @@ export default function ReferralsPage() {
         </div> */}
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm mb-8">
-          <div className="flex border-b">
+        <div className="bg-card border border-border rounded-xl shadow-sm mb-8 overflow-hidden">
+          <div className="flex border-b border-border bg-muted/30">
             <button
               onClick={() => setActiveTab('referrals')}
               className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${activeTab === 'referrals'
-                  ? 'border-b-2 border-[#1a49ee] text-[#1a49ee]'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               Referrals History
@@ -255,8 +255,8 @@ export default function ReferralsPage() {
             <button
               onClick={() => setActiveTab('withdrawals')}
               className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${activeTab === 'withdrawals'
-                  ? 'border-b-2 border-[#1a49ee] text-[#1a49ee]'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               Withdrawal Requests
@@ -269,29 +269,31 @@ export default function ReferralsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="text-left border-b">
+                    <tr className="text-left border-b border-border text-muted-foreground">
                       <th className="pb-4">User</th>
                       <th className="pb-4">Date</th>
                       <th className="pb-4">Status</th>
                       <th className="pb-4">Earnings</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="text-foreground">
                     {userData.referrals.length === 0 ? (
                       <tr>
                         <td
                           colSpan={4}
-                          className="text-center py-8 text-gray-500"
+                          className="text-center py-8 text-muted-foreground"
                         >
                           No referrals yet
                         </td>
                       </tr>
                     ) : (
                       userData.referrals.map((referral: any, index: number) => (
-                        <tr key={index} className="border-b last:border-b-0">
-                          <td className="py-4 flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            {referral.username}
+                        <tr key={index} className="border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors">
+                          <td className="py-4">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-primary" />
+                              <span className="font-medium">{referral.username}</span>
+                            </div>
                           </td>
                           <td className="py-4">
                             {new Date(referral.date).toLocaleDateString()}
@@ -327,7 +329,7 @@ export default function ReferralsPage() {
                 ) : (
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left border-b">
+                      <tr className="text-left border-b border-border text-muted-foreground">
                         <th className="pb-4">Amount</th>
                         <th className="pb-4">Bank</th>
                         <th className="pb-4">Account</th>
@@ -335,12 +337,12 @@ export default function ReferralsPage() {
                         <th className="pb-4">Status</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="text-foreground">
                       {withdrawalRequests.length === 0 ? (
                         <tr>
                           <td
                             colSpan={5}
-                            className="text-center py-8 text-gray-500"
+                            className="text-center py-8 text-muted-foreground"
                           >
                             No withdrawal requests yet
                           </td>
@@ -349,7 +351,7 @@ export default function ReferralsPage() {
                         withdrawalRequests.map((request: any) => (
                           <tr
                             key={request._id || request.id}
-                            className="border-b last:border-b-0"
+                            className="border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors"
                           >
                             <td className="py-4 font-semibold">
                               {formatAmount(request.amount || 0)}
@@ -388,30 +390,30 @@ export default function ReferralsPage() {
 
         {/* Withdraw Modal */}
         {showWithdrawModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-lg w-full max-w-md p-6">
-              <h3 className="text-lg font-semibold mb-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-card border border-border rounded-xl w-full max-w-md p-6 shadow-2xl">
+              <h3 className="text-lg font-semibold mb-4 text-foreground">
                 Withdraw Referral Balance
               </h3>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium">Bank</label>
+                  <label className="block text-sm font-medium text-foreground">Bank</label>
                   <input
                     required
                     value={withdrawBank}
                     onChange={(e) => setWithdrawBank(e.target.value)}
-                    className="w-full mt-1 p-2 border rounded"
+                    className="w-full mt-1 p-2 bg-background border border-border rounded text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium">
+                  <label className="block text-sm font-medium text-foreground">
                     Account Number
                   </label>
                   <input
                     required
                     value={withdrawAccountNumber}
                     onChange={(e) => setWithdrawAccountNumber(e.target.value)}
-                    className="w-full mt-1 p-2 border rounded"
+                    className="w-full mt-1 p-2 bg-background border border-border rounded text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                   />
                 </div>
                 <div>
@@ -426,14 +428,14 @@ export default function ReferralsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium">Amount</label>
+                  <label className="block text-sm font-medium text-foreground">Amount</label>
                   <input
                     required
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    className="w-full mt-1 p-2 border rounded"
+                    className="w-full mt-1 p-2 bg-background border border-border rounded text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Available: {formatAmount(userData?.referralBalance || 0)}
                   </p>
                 </div>
@@ -450,7 +452,7 @@ export default function ReferralsPage() {
                   </button>
                   <button
                     onClick={() => setShowWithdrawModal(false)}
-                    className="flex-1 bg-gray-200 px-4 py-2 rounded"
+                    className="flex-1 bg-muted hover:bg-muted/80 text-foreground px-4 py-2 rounded transition-colors"
                   >
                     Cancel
                   </button>

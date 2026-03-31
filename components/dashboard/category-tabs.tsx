@@ -166,7 +166,7 @@ export function CategoryTabs({
     <div
       role="tablist"
       aria-label="Categories"
-      className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide items-center border-b border-gray-100 mt-2"
+      className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide items-center border-b border-border mt-2"
     >
       {categoriesForDisplay.map((categoryLabel) => {
         const isActive = visibleActiveLabel === categoryLabel;
@@ -184,10 +184,10 @@ export function CategoryTabs({
               }
             }}
             className={cn(
-              'rounded-full px-1.5 py-[2px] text-[12px] whitespace-nowrap transition-all mt-1.5 duration-150 ease-in-out focus:outline-none',
+              'rounded-full px-2.5 py-[4px] text-[12px] whitespace-nowrap transition-all mt-1.5 duration-150 ease-in-out focus:outline-none',
               isActive
-                ? 'text-blue-600 bg-[#DBEBFE] ring-1 ring-blue-200/70 shadow-[0_1px_0_rgba(0,0,0,0.02)]'
-                : 'text-gray-400 hover:text-gray-600'
+                ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 ring-1 ring-blue-200/70 dark:ring-blue-500/30'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             <span

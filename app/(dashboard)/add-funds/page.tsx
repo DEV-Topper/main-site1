@@ -232,7 +232,7 @@ export default function AddFundsPage() {
         onClose={() => !processing && setShowDetailsModal(false)}
         title="Confirm your details"
       >
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-muted-foreground mb-4">
           Please confirm your details so we can create your PocketFi virtual
           account.
         </p>
@@ -249,7 +249,7 @@ export default function AddFundsPage() {
             placeholder="First Name"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none"
+            className="w-full px-3 py-2 border-2 border-border bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
           />
           <div className="grid grid-cols-2 gap-3">
             <input
@@ -257,14 +257,14 @@ export default function AddFundsPage() {
               placeholder="Last Name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none"
+              className="px-3 py-2 border-2 border-border bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
             />
             <input
               type="tel"
               placeholder="Phone Number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-600 outline-none"
+              className="px-3 py-2 border-2 border-border bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
             />
           </div>
         </div>
@@ -273,14 +273,14 @@ export default function AddFundsPage() {
           <button
             onClick={() => setShowDetailsModal(false)}
             disabled={processing}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="px-4 py-2 border border-border rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handlePocketfiPayment}
             disabled={processing}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50"
+            className="px-6 py-2 bg-gradient-to-r from-primary to-purple-600 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 shadow-md hover:shadow-lg active:scale-95 transition-all"
           >
             {processing ? (
               <>Creating...</>
@@ -293,18 +293,18 @@ export default function AddFundsPage() {
         </div>
       </Modal>
 
-      <main className="min-h-screen bg-[#F7F8FC] p-3 sm:p-4">
+      <main className="min-h-screen bg-background p-3 sm:p-4">
         <div className="max-w-md mx-auto mt-2 sm:mt-4 px-2 sm:px-0">
           {/* Top icon + title */}
           <div className="text-center mb-4 sm:mb-6">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl mx-auto flex items-center justify-center bg-[#EEF1FF] shadow-sm">
-              <Wallet className="w-6 h-6 sm:w-7 sm:h-7 text-[#5851D3]" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl mx-auto flex items-center justify-center bg-muted shadow-sm">
+              <Wallet className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-semibold mt-2 sm:mt-3 text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-semibold mt-2 sm:mt-3 text-foreground">
               Add Funds
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
               {paymentMethod ? 'Complete your payment' : 'Choose your payment method'}
             </p>
           </div>
@@ -332,29 +332,29 @@ export default function AddFundsPage() {
 
           {/* Loader */}
           {loading ? (
-            <div className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-10 shadow text-center">
-              <div className="animate-spin rounded-full h-8 w-8 sm:h-9 sm:w-9 border-4 border-[#5851D3] border-t-transparent mx-auto mb-2 sm:mb-3" />
-              <p className="text-gray-600 text-xs sm:text-sm">
+            <div className="bg-card rounded-xl sm:rounded-2xl p-6 sm:p-10 shadow-sm border border-border text-center">
+              <div className="animate-spin rounded-full h-8 w-8 sm:h-9 sm:w-9 border-4 border-primary border-t-transparent mx-auto mb-2 sm:mb-3" />
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Loading your account...
               </p>
             </div>
           ) : !paymentMethod ? (
             // FALLBACK / TRIGGER VIEW
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow p-8 text-center">
-              <CiCreditCard1 size={48} className="mx-auto text-gray-400 mb-4" />
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">No Method Selected</h2>
-              <p className="text-sm text-gray-600 mb-6">Please select a payment method to proceed.</p>
+            <div className="bg-card rounded-xl sm:rounded-2xl shadow-sm border border-border p-8 text-center">
+              <CiCreditCard1 size={48} className="mx-auto text-muted-foreground/40 mb-4" />
+              <h2 className="text-lg font-semibold text-foreground mb-2">No Method Selected</h2>
+              <p className="text-sm text-muted-foreground mb-6">Please select a payment method to proceed.</p>
               <button
                 onClick={() => setShowSelectorModal(true)}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium shadow-md transition-all hover:shadow-lg active:scale-[0.98]"
+                className="w-full py-3 bg-gradient-to-r from-primary to-purple-600 text-white rounded-lg font-medium shadow-md transition-all hover:shadow-lg active:scale-[0.98]"
               >
                 Select Payment Method
               </button>
             </div>
           ) : paymentMethod === 'bank' ? (
             // BANK TRANSFER VIEW
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow overflow-hidden">
-              <div className="bg-gradient-to-r from-[#5F4BC0] to-[#7A4DF0] p-4 sm:p-5 text-white flex items-center justify-between rounded-t-xl sm:rounded-t-2xl">
+            <div className="bg-card rounded-xl sm:rounded-2xl shadow-sm border border-border overflow-hidden">
+              <div className="bg-gradient-to-r from-primary/90 to-primary p-4 sm:p-5 text-primary-foreground flex items-center justify-between rounded-t-xl sm:rounded-t-2xl">
                 <div>
                   <h2 className="text-base sm:text-lg font-semibold">
                     Bank Transfer
@@ -376,20 +376,20 @@ export default function AddFundsPage() {
                 {virtualAccount ? (
                   <div className="space-y-4 sm:space-y-5">
                     {/* Transfer Notice */}
-                    <div className="bg-[#EEF3FF] p-2.5 sm:p-3 rounded-lg sm:rounded-xl text-xs sm:text-[13px] text-gray-700 flex items-center gap-2">
+                    <div className="bg-muted p-2.5 sm:p-3 rounded-lg sm:rounded-xl text-xs sm:text-[13px] text-muted-foreground flex items-center gap-2 border border-border">
                       <CiCircleInfo size={22} className="sm:w-6 sm:h-6" />
                       <span>Transfer to the virtual account number below</span>
                     </div>
 
                     {/* ACCOUNT NUMBER */}
                     <div>
-                      <p className="text-[11px] sm:text-[12px] text-gray-500 font-semibold mb-1">
+                      <p className="text-[11px] sm:text-[12px] text-muted-foreground font-semibold mb-1">
                         Account Number
                       </p>
 
-                      <div className="flex items-center justify-between bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
+                      <div className="flex items-center justify-between bg-card mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border border-border">
                         <div className="flex items-center gap-3 sm:gap-4">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center">
                             <Image
                               src="/image/DeSocial Plug AW2.png"
                               alt="Logo"
@@ -399,7 +399,7 @@ export default function AddFundsPage() {
                             />
                           </div>
 
-                          <span className="text-base sm:text-lg tracking-wider font-semibold text-gray-900">
+                          <span className="text-base sm:text-lg tracking-wider font-semibold text-foreground">
                             {virtualAccount.accountNumber}
                           </span>
                         </div>
@@ -431,16 +431,16 @@ export default function AddFundsPage() {
 
                     {/* BANK NAME */}
                     <div>
-                      <p className="text-[11px] sm:text-[12px] text-gray-500 font-semibold mb-1">
+                      <p className="text-[11px] sm:text-[12px] text-muted-foreground font-semibold mb-1">
                         Bank Name
                       </p>
 
-                      <div className="flex items-center gap-3 sm:gap-4 bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
+                      <div className="flex items-center gap-3 sm:gap-4 bg-card mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border border-border">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center">
                           <CiBank size={20} className="sm:w-6 sm:h-6" />
                         </div>
 
-                        <span className="text-sm sm:text-base font-semibold text-gray-900">
+                        <span className="text-sm sm:text-base font-semibold text-foreground">
                           {virtualAccount.bankName}
                         </span>
                       </div>
@@ -448,16 +448,16 @@ export default function AddFundsPage() {
 
                     {/* ACCOUNT NAME */}
                     <div>
-                      <p className="text-[11px] sm:text-[12px] text-gray-500 font-semibold mb-1">
+                      <p className="text-[11px] sm:text-[12px] text-muted-foreground font-semibold mb-1">
                         Account Name
                       </p>
 
-                      <div className="flex items-center gap-3 sm:gap-4 bg-white mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F1F4FF] flex items-center justify-center">
+                      <div className="flex items-center gap-3 sm:gap-4 bg-card mt-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl shadow-sm border border-border">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-muted flex items-center justify-center">
                           <FaUser className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </div>
 
-                        <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                        <span className="text-xs sm:text-sm font-semibold text-foreground">
                           {virtualAccount.accountName}
                         </span>
                       </div>
@@ -505,32 +505,32 @@ export default function AddFundsPage() {
 
           {/* Bottom Features */}
           <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-5 sm:mt-7">
-            <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
+            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
               <div className="text-base sm:text-lg mb-1">⚡</div>
-              <p className="font-semibold text-xs sm:text-[13px]">Instant</p>
-              <p className="text-[10px] sm:text-[11px] text-gray-500 mt-1">
+              <p className="font-semibold text-xs sm:text-[13px] text-foreground">Instant</p>
+              <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1">
                 Funds reflect fast
               </p>
             </div>
 
-            <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
+            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm">
               <div className="text-base sm:text-lg mb-1">🔒</div>
-              <p className="font-semibold text-xs sm:text-[13px]">Secure</p>
-              <p className="text-[10px] sm:text-[11px] text-gray-500 mt-1">
+              <p className="font-semibold text-xs sm:text-[13px] text-foreground">Secure</p>
+              <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1">
                 Bank-level safety
               </p>
             </div>
 
-            <div className="bg-white rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm flex flex-col items-center">
-              <div className="mb-1 flex justify-center">
+            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center shadow-sm flex flex-col items-center">
+              <div className="mb-1 flex justify-center text-foreground">
                 <CiCreditCard1 size={25} />
               </div>
 
-              <p className="font-semibold text-xs sm:text-[13px]">
+              <p className="font-semibold text-xs sm:text-[13px] text-foreground">
                 Dual Payment
               </p>
 
-              <p className="text-[10px] sm:text-[11px] text-gray-500 mt-1">
+              <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1">
                 Bank & Crypto
               </p>
             </div>
