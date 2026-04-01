@@ -215,10 +215,10 @@ export default function ReferralsPage() {
         </div>
 
         {/* Referral Link */}
-        <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-          <h2 className="text-xl font-semibold mb-4">Your Referral Link</h2>
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-foreground">Your Referral Link</h2>
           <div className="flex items-center gap-4">
-            <div className="flex-1 bg-gray-50 p-4 rounded-lg font-mono text-sm truncate">
+            <div className="flex-1 bg-muted p-4 rounded-lg font-mono text-sm truncate">
               {userData.referralCode
                 ? `${origin}/register?ref=${userData.referralCode}`
                 : 'Not generated'}
@@ -232,7 +232,7 @@ export default function ReferralsPage() {
                 toast.success('Referral link copied!');
               }}
               disabled={!userData.referralCode}
-              className="bg-[#1a49ee] text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:bg-gray-400 whitespace-nowrap"
+              className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:bg-gray-400 whitespace-nowrap"
             >
               <Copy className="w-4 h-4" />
               {linkCopied ? 'Copied!' : 'Copy Link'}
