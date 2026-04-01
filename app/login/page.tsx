@@ -156,15 +156,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="min-h-screen flex bg-background">
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:mb-12">
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-3 lg:mb-4 animate-fade-in">
+            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3 lg:mb-4 animate-fade-in">
               Login
             </h1>
-            <p className="text-gray-600 text-base lg:text-lg leading-relaxed">
+            <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
               Welcome back! Sign in to access your premium social media
               accounts.
             </p>
@@ -182,7 +182,7 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="pl-12 h-14 bg-gray-50 border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-base transition-all disabled:opacity-50"
+                className="pl-12 h-14 bg-muted/40 border border-border focus:border-primary focus:bg-background rounded-xl text-base transition-all disabled:opacity-50"
               />
             </div>
 
@@ -197,7 +197,7 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="pl-12 pr-12 h-14 bg-gray-50 border border-gray-200 focus:border-primary focus:bg-white rounded-xl text-base transition-all disabled:opacity-50"
+                className="pl-12 pr-12 h-14 bg-muted/40 border border-border focus:border-primary focus:bg-background rounded-xl text-base transition-all disabled:opacity-50"
               />
               <button
                 type="button"
@@ -218,9 +218,9 @@ export default function LoginPage() {
                 <input
                   type="checkbox"
                   disabled={isLoading}
-                  className="rounded border-gray-300 text-primary focus:ring-primary transition-all disabled:opacity-50"
+                  className="rounded border-border text-primary focus:ring-primary transition-all disabled:opacity-50"
                 />
-                <span className="text-gray-600 group-hover:text-gray-900">
+                <span className="text-muted-foreground group-hover:text-foreground">
                   Remember me
                 </span>
               </label>
@@ -254,17 +254,17 @@ export default function LoginPage() {
 
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">OR</span>
+              <span className="px-4 bg-background text-muted-foreground">OR</span>
             </div>
           </div>
 
           <Button
             onClick={() => (window.location.href = '/api/auth/google')}
             variant="outline"
-            className="w-full h-14 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl text-base font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full h-14 bg-background hover:bg-muted/40 border border-border rounded-xl text-base font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -287,7 +287,7 @@ export default function LoginPage() {
             Sign in with Google
           </Button>
 
-          <p className="text-center mt-8 text-base text-gray-600">
+          <p className="text-center mt-8 text-base text-muted-foreground">
             {"Don't have an account? "}
             <Link
               href="/register"
@@ -325,7 +325,7 @@ export default function LoginPage() {
               <XCircle className="w-16 h-16 text-red-500 mx-auto" />
             )}
           </div>
-          <p className="text-gray-600 mb-6">{modal.message}</p>
+          <p className="text-muted-foreground mb-6">{modal.message}</p>
           <div className="flex gap-3">
             <Button
               onClick={closeModal}

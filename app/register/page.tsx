@@ -186,14 +186,14 @@ function RegisterContent() {
   const closeModal = () => setModal((prev) => ({ ...prev, isOpen: false }));
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="min-h-screen flex bg-background">
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:mb-12">
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-3 lg:mb-4">
+            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3 lg:mb-4">
               Register
             </h1>
-            <p className="text-gray-600 text-base lg:text-lg">
+            <p className="text-muted-foreground text-base lg:text-lg">
               Create an account and unlock a vast selection of premium social
               media accounts.
             </p>
@@ -212,7 +212,7 @@ function RegisterContent() {
                 value={formData.username}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="pl-12 h-14 bg-gray-50 border border-gray-200 focus:border-primary rounded-xl"
+                className="pl-12 h-14 bg-muted/40 border border-border focus:border-primary rounded-xl"
               />
             </div>
 
@@ -228,7 +228,7 @@ function RegisterContent() {
                 value={formData.email}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="pl-12 h-14 bg-gray-50 border border-gray-200 focus:border-primary rounded-xl"
+                className="pl-12 h-14 bg-muted/40 border border-border focus:border-primary rounded-xl"
               />
             </div>
 
@@ -244,7 +244,7 @@ function RegisterContent() {
                 value={formData.phone}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="pl-12 h-14 bg-gray-50 border border-gray-200 focus:border-primary rounded-xl"
+                className="pl-12 h-14 bg-muted/40 border border-border focus:border-primary rounded-xl"
               />
             </div>
 
@@ -260,7 +260,7 @@ function RegisterContent() {
                 value={formData.password}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="pl-12 pr-12 h-14 bg-gray-50 border border-gray-200 focus:border-primary rounded-xl"
+                className="pl-12 pr-12 h-14 bg-muted/40 border border-border focus:border-primary rounded-xl"
               />
               <button
                 type="button"
@@ -288,7 +288,7 @@ function RegisterContent() {
                 value={formData.referralCode}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="pl-12 h-14 bg-gray-50 border border-gray-200 focus:border-primary rounded-xl"
+                className="pl-12 h-14 bg-muted/40 border border-border focus:border-primary rounded-xl"
               />
             </div>
 
@@ -303,17 +303,17 @@ function RegisterContent() {
 
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">OR</span>
+              <span className="px-4 bg-background text-muted-foreground">OR</span>
             </div>
           </div>
 
           <Button
             onClick={() => (window.location.href = '/api/auth/google')}
             variant="outline"
-            className="w-full h-14 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl text-base font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full h-14 bg-background hover:bg-muted/40 border border-border rounded-xl text-base font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -336,7 +336,7 @@ function RegisterContent() {
             Sign up with Google
           </Button>
 
-          <p className="text-center mt-8 text-base text-gray-600">
+          <p className="text-center mt-8 text-base text-muted-foreground">
             Already have an account?{' '}
             <Link
               href="/login"
@@ -375,7 +375,7 @@ function RegisterContent() {
               <XCircle className="w-16 h-16 text-red-500 mx-auto" />
             )}
           </div>
-          <p className="text-gray-600 mb-6">{modal.message}</p>
+          <p className="text-muted-foreground mb-6">{modal.message}</p>
           <Button onClick={closeModal} className="w-full">
             OK
           </Button>
@@ -386,7 +386,7 @@ function RegisterContent() {
 }
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>}>
       <RegisterContent />
     </Suspense>
   );
