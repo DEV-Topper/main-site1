@@ -182,8 +182,8 @@ export default function ReferralsPage() {
                 onClick={openWithdrawModal}
                 disabled={Number(userData.referralBalance || 0) < 1000}
                 className={`w-full px-4 py-2 rounded-lg text-white ${Number(userData.referralBalance || 0) >= 1000
-                    ? 'bg-green-600 hover:bg-green-700'
-                    : 'bg-gray-300 cursor-not-allowed'
+                  ? 'bg-green-600 hover:bg-green-700'
+                  : 'bg-gray-300 cursor-not-allowed'
                   }`}
               >
                 Withdraw Referral Balance
@@ -215,7 +215,7 @@ export default function ReferralsPage() {
         </div>
 
         {/* Referral Link */}
-        {/* <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
+        <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
           <h2 className="text-xl font-semibold mb-4">Your Referral Link</h2>
           <div className="flex items-center gap-4">
             <div className="flex-1 bg-gray-50 p-4 rounded-lg font-mono text-sm truncate">
@@ -238,7 +238,7 @@ export default function ReferralsPage() {
               {linkCopied ? 'Copied!' : 'Copy Link'}
             </button>
           </div>
-        </div> */}
+        </div>
 
         {/* Tabs */}
         <div className="bg-card border border-border rounded-xl shadow-sm mb-8 overflow-hidden">
@@ -246,8 +246,8 @@ export default function ReferralsPage() {
             <button
               onClick={() => setActiveTab('referrals')}
               className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${activeTab === 'referrals'
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               Referrals History
@@ -255,8 +255,8 @@ export default function ReferralsPage() {
             <button
               onClick={() => setActiveTab('withdrawals')}
               className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${activeTab === 'withdrawals'
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               Withdrawal Requests
@@ -301,8 +301,8 @@ export default function ReferralsPage() {
                           <td className="py-4">
                             <span
                               className={`px-2 py-1 rounded-full text-sm ${referral.earnings > 0
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-yellow-100 text-yellow-800'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
                                 }`}
                             >
                               {referral.earnings > 0 ? 'Active' : 'Pending'}
