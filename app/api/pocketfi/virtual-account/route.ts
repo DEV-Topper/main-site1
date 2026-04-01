@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import PocketfiVirtualAccount from '@/models/PocketfiVirtualAccount';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
+
 const POCKETFI_API_BASE = 'https://api.pocketfi.ng/api/v1';
 
 interface CreateVaRequestBody {
@@ -24,7 +26,7 @@ export async function GET(req: Request) {
 
     await connectDB();
 
-    const existing = await PocketfiVirtualAccount.findOne({ userId });
+    const existing = await PocketfiVirtualAccount.findOne({ userId }).sort({ createdAt: -1 });
 
     if (!existing) {
       return NextResponse.json({ exists: false }, { status: 200 });
@@ -69,8 +71,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // If a VA already exists, just return it
-    const existing = await PocketfiVirtualAccount.findOne({ userId });
+    // If a VA already exists, just return it (always returning the latest one if duplicates exist)
+    const existing = await PocketfiVirtualAccount.findOne({ userId }).sort({ createdAt: -1 });
     if (existing) {
       return NextResponse.json(
         { created: false, id: existing._id.toString(), ...existing.toObject() },

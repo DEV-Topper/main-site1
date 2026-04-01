@@ -240,45 +240,14 @@ export default function PurchasesPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-md bg-black/10 dark:bg-black/30"
-              style={{ perspective: 1200 }}
               onClick={closeModal}
             >
               <motion.div
-                initial={{ 
-                  y: "60vh", 
-                  scale: 0.01, 
-                  scaleX: 0.1, 
-                  skewX: -30, 
-                  skewY: 15,
-                  opacity: 0, 
-                  filter: "blur(20px)" 
-                }}
-                animate={{ 
-                  y: 0, 
-                  scale: 1, 
-                  scaleX: 1, 
-                  skewX: 0, 
-                  skewY: 0,
-                  opacity: 1, 
-                  filter: "blur(0px)" 
-                }}
-                exit={{ 
-                  y: "60vh", 
-                  scale: 0.01, 
-                  scaleX: 0.1, 
-                  skewX: 20,
-                  opacity: 0, 
-                  filter: "blur(15px)" 
-                }}
-                transition={{ 
-                  type: "spring", 
-                  damping: 17, 
-                  stiffness: 85,
-                  mass: 1 
-                }}
-                style={{ transformOrigin: "bottom center" }}
+                initial={{ y: 50, opacity: 0, scale: 0.95 }}
+                animate={{ y: 0, opacity: 1, scale: 1 }}
+                exit={{ y: 50, opacity: 0, scale: 0.95 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 className="bg-card dark:bg-slate-900/90 dark:backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-border"
                 onClick={(e) => e.stopPropagation()}
               >

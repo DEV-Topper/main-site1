@@ -6,17 +6,17 @@ export default function Rules() {
   return (
       <>
            <Header />
-       <div className="bg-gray-50 min-h-screen py-10 px-4 md:px-10 lg:px-20 text-gray-800">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-8 md:p-12">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-6">
+       <div className="bg-background min-h-screen py-10 px-4 md:px-10 lg:px-20 text-foreground">
+      <div className="max-w-4xl mx-auto bg-card border border-border shadow-lg rounded-2xl p-8 md:p-12">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-center text-foreground mb-6">
           DE’SOCIALPLUG – Rules and Regulations
         </h1>
-        <p className="text-center text-gray-500 mb-8 italic">
+        <p className="text-center text-muted-foreground mb-8 italic">
           Please read and follow these rules carefully to ensure a smooth experience.
         </p>
 
-        <section className="space-y-6 leading-relaxed text-gray-700">
-          <p className="text-gray-800">
+        <section className="space-y-6 leading-relaxed text-muted-foreground">
+          <p className="text-foreground">
             The following rules are established to maintain order, fairness, and
             quality service for all customers using our platform. Violation of
             any of these may result in denial of service or account replacement
@@ -103,14 +103,14 @@ export default function Rules() {
             <h3 className="text-lg font-semibold text-blue-800 mb-2">
               Important Reminder
             </h3>
-            <p className="text-gray-800">
+            <p className="text-foreground">
               Please take the time to review and understand these rules before
               making any purchase. Adherence ensures fair service, better
               communication, and smoother transactions for everyone involved.
             </p>
           </div>
 
-          <div className="border-t pt-6 mt-10 text-sm text-gray-600 text-center">
+          <div className="border-t pt-6 mt-10 text-sm text-muted-foreground text-center">
             <p>© {new Date().getFullYear()} DE’SOCIALPLUG. All Rights Reserved.</p>
           </div>
         </section>

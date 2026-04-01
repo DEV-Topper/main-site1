@@ -73,12 +73,12 @@ export default function AddFundsPage() {
 
   // Update showSelectorModal based on paymentMethod
   useEffect(() => {
-    if (!paymentMethod && !loading) {
+    if (!paymentMethod) {
       setShowSelectorModal(true);
     } else {
       setShowSelectorModal(false);
     }
-  }, [paymentMethod, loading]);
+  }, [paymentMethod]);
 
   // Core logic: check existing VA → create if needed → show modal if name missing
   const loadVirtualAccount = async (userData: UserData) => {
@@ -87,9 +87,14 @@ export default function AddFundsPage() {
       setVaError(null);
 
       const nameParts = (userData.username || '').split(' ').filter(Boolean);
-      const initialFirstName = nameParts[0] || '';
-      const initialLastName = nameParts.slice(1).join(' ') || '';
-      const initialPhone = (userData.phone || '').trim();
+      let initialFirstName = nameParts[0] || '';
+      let initialLastName = nameParts.slice(1).join(' ') || '';
+      let initialPhone = (userData.phone || '').trim();
+
+      // Auto-fill missing data to ensure seamless VA creation
+      if (!initialFirstName) initialFirstName = 'Desocial';
+      if (!initialLastName) initialLastName = 'User';
+      if (!initialPhone) initialPhone = '09000000000';
 
       if (initialFirstName) setFirstName(initialFirstName);
       if (initialLastName) setLastName(initialLastName);
@@ -118,24 +123,20 @@ export default function AddFundsPage() {
         console.error('Failed to check existing VA', err);
       }
 
-      // 2. If no VA and we have names → auto-create
-      if (initialFirstName && initialLastName) {
-        const success = await createVirtualAccount(
-          userData._id,
-          initialFirstName,
-          initialLastName,
-          initialPhone,
-        );
-        if (!success) {
-          setShowDetailsModal(true);
-        }
-        setLoading(false);
-        return;
+      // 2. Auto-create since we filled the missing details
+      const success = await createVirtualAccount(
+        userData._id,
+        initialFirstName,
+        initialLastName,
+        initialPhone,
+      );
+      
+      if (!success) {
+        // Only show modal if API explicitly rejects the auto-generation
+        setShowDetailsModal(true);
       }
-
-      // 3. Otherwise: ask user for details
-      setShowDetailsModal(true);
       setLoading(false);
+
     } catch (error) {
       console.error('Error in loadVirtualAccount:', error);
       setVaError('Failed to load account details');
@@ -330,12 +331,12 @@ export default function AddFundsPage() {
             />
           </Modal>
 
-          {/* Loader */}
-          {loading ? (
+          {/* Loader (Only show when creating virtual account) */}
+          {loading && paymentMethod === 'bank' ? (
             <div className="bg-card rounded-xl sm:rounded-2xl p-6 sm:p-10 shadow-sm border border-border text-center">
               <div className="animate-spin rounded-full h-8 w-8 sm:h-9 sm:w-9 border-4 border-primary border-t-transparent mx-auto mb-2 sm:mb-3" />
               <p className="text-muted-foreground text-xs sm:text-sm">
-                Loading your account...
+                Generating your virtual account...
               </p>
             </div>
           ) : !paymentMethod ? (

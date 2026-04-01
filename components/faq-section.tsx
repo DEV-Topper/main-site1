@@ -39,7 +39,7 @@ export function FAQSection() {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="item-2" className="rounded-2xl border-2 bg-white px-6">
+                <AccordionItem value="item-2" className="rounded-2xl border-2 bg-white dark:bg-card dark:border-border px-6">
                   <AccordionTrigger className="text-left font-semibold hover:no-underline">
                     How long does it take to receive my account after payment?
                   </AccordionTrigger>
@@ -49,7 +49,7 @@ export function FAQSection() {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="item-3" className="rounded-2xl border-2 bg-white px-6">
+                <AccordionItem value="item-3" className="rounded-2xl border-2 bg-white dark:bg-card dark:border-border px-6">
                   <AccordionTrigger className="text-left font-semibold hover:no-underline">
                     What happens if I don't check my account right away?
                   </AccordionTrigger>
@@ -59,7 +59,7 @@ export function FAQSection() {
                   </AccordionContent>
                 </AccordionItem>
 
-             <AccordionItem value="item-4" className="rounded-2xl border-2 bg-white px-6">
+             <AccordionItem value="item-4" className="rounded-2xl border-2 bg-white dark:bg-card dark:border-border px-6">
   <AccordionTrigger className="text-left font-semibold hover:no-underline">
     Can I resell the accounts I buy from De’socialPlug?
   </AccordionTrigger>
@@ -87,7 +87,7 @@ export function FAQSection() {
 </AccordionItem> */}
 
 
-                <AccordionItem value="item-5" className="rounded-2xl border-2 bg-white px-6">
+                <AccordionItem value="item-5" className="rounded-2xl border-2 bg-white dark:bg-card dark:border-border px-6">
                   <AccordionTrigger className="text-left font-semibold hover:no-underline">
                     What payment methods does De’socialPlug accept?
                   </AccordionTrigger>
@@ -97,7 +97,7 @@ export function FAQSection() {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="item-6" className="rounded-2xl border-2 bg-white px-6">
+                <AccordionItem value="item-6" className="rounded-2xl border-2 bg-white dark:bg-card dark:border-border px-6">
                   <AccordionTrigger className="text-left font-semibold hover:no-underline">
                     What is the De’socialPlug pre-order system?
                   </AccordionTrigger>

@@ -215,10 +215,10 @@ export function DashboardHeader() {
             <button
               onClick={() => setCurrency('NGN')}
               className={cn(
-                "px-2 py-1 text-[10px] md:text-xs font-bold rounded-md transition-all",
-                currency === 'NGN' 
-                  ? "bg-background text-primary shadow-sm" 
-                  : "text-muted-foreground hover:text-foreground"
+                "px-2 py-1 text-[10px] md:text-xs font-bold rounded-md transition-all duration-300 ease-in-out transform",
+                currency === 'NGN'
+                  ? "bg-background text-primary shadow-sm scale-105"
+                  : "text-muted-foreground hover:text-foreground hover:scale-105"
               )}
             >
               NGN
@@ -226,10 +226,10 @@ export function DashboardHeader() {
             <button
               onClick={() => setCurrency('USD')}
               className={cn(
-                "px-2 py-1 text-[10px] md:text-xs font-bold rounded-md transition-all",
-                currency === 'USD' 
-                  ? "bg-background text-primary shadow-sm" 
-                  : "text-muted-foreground hover:text-foreground"
+                "px-2 py-1 text-[10px] md:text-xs font-bold rounded-md transition-all duration-300 ease-in-out transform",
+                currency === 'USD'
+                  ? "bg-background text-primary shadow-sm scale-105"
+                  : "text-muted-foreground hover:text-foreground hover:scale-105"
               )}
             >
               USD
@@ -412,11 +412,10 @@ export function DashboardHeader() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setTheme('light')}
-                    className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
-                      theme === 'light'
+                    className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${theme === 'light'
                         ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
                         : 'bg-background border-border text-muted-foreground'
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-1">
                       <Sun className="w-5 h-5" />
@@ -425,11 +424,10 @@ export function DashboardHeader() {
                   </button>
                   <button
                     onClick={() => setTheme('dark')}
-                    className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
-                      theme === 'dark'
+                    className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${theme === 'dark'
                         ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
                         : 'bg-background border-border text-muted-foreground'
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-1">
                       <Moon className="w-5 h-5" />

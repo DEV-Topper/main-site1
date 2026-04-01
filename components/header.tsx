@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Sun, Moon } from "lucide-react"
+import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
@@ -21,6 +22,7 @@ export function Header() {
   const drawerRef = useRef<HTMLDivElement | null>(null)
   const router = useRouter()
   const pathname = usePathname()
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false)
@@ -50,9 +52,13 @@ export function Header() {
   ) => {
     e.preventDefault()
 
-    // If href is "home" or empty, scroll to top
+    // If href is "home" or empty
     if (href === "home" || href === "") {
-      window.scrollTo({ top: 0, behavior: "smooth" })
+      if (pathname !== "/") {
+        router.push("/")
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" })
+      }
       setOpen(false)
       return
     }
@@ -98,6 +104,11 @@ export function Header() {
             <a 
               href="/" 
               onClick={(e) => {
+                if (pathname !== "/") {
+                  // Let the default link navigation handle it or explicitly push
+                  // We'll let the standard href="/" operate smoothly
+                  return
+                }
                 e.preventDefault()
                 window.scrollTo({ top: 0, behavior: "smooth" })
               }}
@@ -127,7 +138,17 @@ export function Header() {
             </nav>
 
             {/* Right Side */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="rounded-full"
+              >
+                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
               <Link href="/login">
                 <Button
                   variant="ghost"
@@ -150,6 +171,10 @@ export function Header() {
             <a
               href="/"
               onClick={(e) => {
+                if (pathname !== "/") {
+                  setOpen(false)
+                  return
+                }
                 e.preventDefault()
                 window.scrollTo({ top: 0, behavior: "smooth" })
                 setOpen(false)
@@ -165,7 +190,17 @@ export function Header() {
               />
             </a>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="rounded-full"
+              >
+                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -208,6 +243,10 @@ export function Header() {
             <a 
               href="/" 
               onClick={(e) => {
+                if (pathname !== "/") {
+                  setOpen(false)
+                  return
+                }
                 e.preventDefault()
                 window.scrollTo({ top: 0, behavior: "smooth" })
                 setOpen(false)

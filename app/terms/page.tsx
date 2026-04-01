@@ -6,12 +6,12 @@ export default function TermsOfUse() {
   return (
       <>
           <Header/>
-       <div className="bg-gray-50 min-h-screen py-10 px-4 md:px-10 lg:px-20 text-gray-800">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-8 md:p-12">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-6">
+       <div className="bg-background min-h-screen py-10 px-4 md:px-10 lg:px-20 text-foreground">
+      <div className="max-w-4xl mx-auto bg-card border border-border shadow-lg rounded-2xl p-8 md:p-12">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-center text-foreground mb-6">
           DE’SOCIALPLUG – Terms of Use
         </h1>
-        <p className="text-center text-gray-500 mb-8 italic">
+        <p className="text-center text-muted-foreground mb-8 italic">
           Please read carefully before accessing or using our services.
         </p>
 
@@ -39,15 +39,15 @@ export default function TermsOfUse() {
             </p>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-10">
+          <h2 className="text-2xl font-bold text-foreground mt-10">
             Most Recommended VPN for Facebook
           </h2>
-          <ul className="list-disc list-inside space-y-2 mt-2 text-gray-700">
+          <ul className="list-disc list-inside space-y-2 mt-2 text-muted-foreground">
             <li>SURFSHARK VPN</li>
             <li>HMA VPN</li>
           </ul>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-10">
+          <h2 className="text-2xl font-bold text-foreground mt-10">
             Account Unlock Policy
           </h2>
           <p>
@@ -62,7 +62,7 @@ export default function TermsOfUse() {
             the future, causing unnecessary losses.
           </p>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-10">
+          <h2 className="text-2xl font-bold text-foreground mt-10">
             Marketplace Disclaimer
           </h2>
           <p>
@@ -76,13 +76,13 @@ export default function TermsOfUse() {
             <h3 className="text-lg font-semibold text-red-700 uppercase mb-2">
               Important Notice
             </h3>
-            <p className="text-gray-800">
+            <p className="text-foreground">
               Do not use Safari browser to log in to any account purchased on
               this site. Never use the Facebook app for your first login.
             </p>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-10">
+          <h2 className="text-2xl font-bold text-foreground mt-10">
             Validity and Warranty
           </h2>
           <p>
@@ -92,7 +92,7 @@ export default function TermsOfUse() {
             because its date of birth cannot be changed.
           </p>
 
-          <h2 className="text-2xl font-bold text-gray-900 mt-10">Final Notice</h2>
+          <h2 className="text-2xl font-bold text-foreground mt-10">Final Notice</h2>
           <p>
             You are required to use{" "}
             <span className="font-semibold text-blue-600">
@@ -103,7 +103,7 @@ export default function TermsOfUse() {
             that gets checkpointed or locked due to violation of these rules.
           </p>
 
-          <div className="border-t pt-6 mt-10 text-sm text-gray-600 text-center">
+          <div className="border-t pt-6 mt-10 text-sm text-muted-foreground text-center">
             <p>
               © {new Date().getFullYear()} DE’SOCIALPLUG. All Rights Reserved.
             </p>

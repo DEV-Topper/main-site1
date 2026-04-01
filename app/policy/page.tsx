@@ -6,20 +6,20 @@ const PrivacyPolicy = () => {
   return (
       <>
           <Header/>
-       <div className="bg-gray-50 min-h-screen py-12 px-4 md:px-12 lg:px-24">
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-8 md:p-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 border-b pb-4">
+       <div className="bg-background min-h-screen py-12 px-4 md:px-12 lg:px-24">
+      <div className="max-w-5xl mx-auto bg-card border border-border rounded-2xl shadow-lg p-8 md:p-12">
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8 border-b pb-4">
           Privacy Policy
         </h1>
 
-        <div className="space-y-10 text-gray-700 leading-relaxed">
+        <div className="space-y-10 text-muted-foreground leading-relaxed">
           {/* INTERPRETATION AND DEFINITIONS */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Interpretation and Definitions
             </h2>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-4 mb-2">
+            <h3 className="text-xl font-semibold text-foreground mt-4 mb-2">
               Interpretation
             </h3>
             <p>
@@ -28,7 +28,7 @@ const PrivacyPolicy = () => {
               of whether they appear in singular or in plural.
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-2">
+            <h3 className="text-xl font-semibold text-foreground mt-6 mb-2">
               Definitions
             </h3>
             <p>For the purposes of this Privacy Policy:</p>
@@ -95,11 +95,11 @@ const PrivacyPolicy = () => {
 
           {/* COLLECTING AND USING YOUR PERSONAL DATA */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Collecting and Using Your Personal Data
             </h2>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-4 mb-2">
+            <h3 className="text-xl font-semibold text-foreground mt-4 mb-2">
               Types of Data Collected
             </h3>
 
@@ -128,7 +128,7 @@ const PrivacyPolicy = () => {
               ID, IP address, operating system, browser type, and other diagnostic data.
             </p>
 
-            <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-2">
+            <h3 className="text-xl font-semibold text-foreground mt-6 mb-2">
               Tracking Technologies and Cookies
             </h3>
             <p>
@@ -155,7 +155,7 @@ const PrivacyPolicy = () => {
 
           {/* USAGE OF DATA */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Use of Your Personal Data
             </h2>
             <p>
@@ -177,7 +177,7 @@ const PrivacyPolicy = () => {
 
           {/* RETENTION & TRANSFER */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Retention and Transfer of Your Personal Data
             </h2>
             <p>
@@ -192,7 +192,7 @@ const PrivacyPolicy = () => {
 
           {/* DELETE */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Delete Your Personal Data
             </h2>
             <p>
@@ -203,7 +203,7 @@ const PrivacyPolicy = () => {
 
           {/* DISCLOSURE */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Disclosure of Your Personal Data
             </h2>
             <p>
@@ -214,7 +214,7 @@ const PrivacyPolicy = () => {
 
           {/* SECURITY */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Security of Your Personal Data
             </h2>
             <p>
@@ -225,7 +225,7 @@ const PrivacyPolicy = () => {
 
           {/* CHILDREN */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Children’s Privacy
             </h2>
             <p>
@@ -236,7 +236,7 @@ const PrivacyPolicy = () => {
 
           {/* LINKS */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Links to Other Websites
             </h2>
             <p>
@@ -247,7 +247,7 @@ const PrivacyPolicy = () => {
 
           {/* CHANGES */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Changes to This Privacy Policy
             </h2>
             <p>
@@ -256,7 +256,7 @@ const PrivacyPolicy = () => {
             </p>
           </section>
 
-          <p className="text-sm text-gray-500 border-t pt-6 mt-8 text-center">
+          <p className="text-sm text-muted-foreground border-t pt-6 mt-8 text-center">
             © {new Date().getFullYear()} DE’SOCIALPLUG. All rights reserved.
           </p>
         </div>

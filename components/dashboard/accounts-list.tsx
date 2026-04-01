@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Instagram,
   Facebook,
@@ -906,12 +906,14 @@ export function AccountsList({
                             <div className="text-sm md:text-base font-medium md:font-semibold text-foreground min-w-[80px] md:min-w-[100px] text-right">
                               {formatAmount(account.price)}
                             </div>
-                            <Button
+                            <motion.button
+                              layoutId={`modal-buy-${account.id}`}
                               onClick={() => handleBuyClick(account)}
-                              className="min-w-[60px] md:min-w-[70px] rounded-full font-semibold md:font-semibold text-xs md:text-sm h-8 md:h-9 bg-primary hover:bg-primary/90 text-white"
+                              style={{ borderRadius: 9999 }}
+                              className="min-w-[60px] flex items-center justify-center md:min-w-[70px] rounded-full font-semibold md:font-semibold text-xs md:text-sm h-8 md:h-9 bg-primary hover:bg-primary/90 text-white"
                             >
                               Buy
-                            </Button>
+                            </motion.button>
                           </div>
                         </div>
                       );
@@ -997,12 +999,14 @@ export function AccountsList({
                         <div className="text-sm md:text-base font-medium md:font-semibold text-foreground min-w-[80px] md:min-w-[100px] text-right">
                           {formatAmount(account.price)}
                         </div>
-                        <Button
+                        <motion.button
+                          layoutId={`modal-buy-${account.id}`}
                           onClick={() => handleBuyClick(account)}
-                          className="min-w-[60px] md:min-w-[70px] rounded-full font-semibold md:font-semibold text-xs md:text-sm h-8 md:h-9 bg-primary hover:bg-primary/90 text-white"
+                          style={{ borderRadius: 9999 }}
+                          className="min-w-[60px] flex items-center justify-center md:min-w-[70px] rounded-full font-semibold md:font-semibold text-xs md:text-sm h-8 md:h-9 bg-primary hover:bg-primary/90 text-white"
                         >
                           Buy
-                        </Button>
+                        </motion.button>
                       </div>
                     </div>
                   );
@@ -1081,12 +1085,14 @@ export function AccountsList({
                             <div className="text-sm md:text-base font-medium md:font-semibold text-foreground min-w-[80px] md:min-w-[100px] text-right">
                               {formatAmount(account.price)}
                             </div>
-                            <Button
+                            <motion.button
+                              layoutId={`modal-buy-${account.id}`}
                               onClick={() => handleBuyClick(account)}
-                              className="min-w-[60px] md:min-w-[70px] rounded-full font-semibold md:font-semibold text-xs md:text-sm h-8 md:h-9 bg-primary hover:bg-primary/90 text-white"
+                              style={{ borderRadius: 9999 }}
+                              className="min-w-[60px] flex items-center justify-center md:min-w-[70px] rounded-full font-semibold md:font-semibold text-xs md:text-sm h-8 md:h-9 bg-primary hover:bg-primary/90 text-white"
                             >
                               Buy
-                            </Button>
+                            </motion.button>
                           </div>
                         </div>
                       );
@@ -1099,12 +1105,11 @@ export function AccountsList({
       <AnimatePresence>
       {isModalOpen && selectedAccount && (
         <motion.div
-           initial={{ opacity: 0 }}
-           animate={{ opacity: 1 }}
-           exit={{ opacity: 0 }}
-           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/10 dark:bg-black/30"
-          style={{ perspective: 1200 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
           onClick={() => {
             if (!purchasing) {
               setIsModalOpen(false);
@@ -1114,39 +1119,8 @@ export function AccountsList({
           }}
         >
           <motion.div
-            initial={{ 
-              y: "60vh", 
-              scale: 0.01, 
-              scaleX: 0.1, 
-              skewX: -30, 
-              skewY: 15,
-              opacity: 0, 
-              filter: "blur(20px)" 
-            }}
-            animate={{ 
-              y: 0, 
-              scale: 1, 
-              scaleX: 1, 
-              skewX: 0, 
-              skewY: 0,
-              opacity: 1, 
-              filter: "blur(0px)" 
-            }}
-            exit={{ 
-              y: "60vh", 
-              scale: 0.01, 
-              scaleX: 0.1, 
-              skewX: 20,
-              opacity: 0, 
-              filter: "blur(15px)" 
-            }}
-            transition={{ 
-              type: "spring", 
-              damping: 17, 
-              stiffness: 85,
-              mass: 1 
-            }}
-            style={{ transformOrigin: "bottom center" }}
+            layoutId={`modal-buy-${selectedAccount.id}`}
+            transition={{ type: 'spring', stiffness: 450, damping: 30 }}
             className="
 bg-card
 rounded-2xl
@@ -1158,9 +1132,15 @@ overflow-y-auto
 dark:bg-slate-900/90
 dark:backdrop-blur-xl
 "
+            style={{ borderRadius: 16 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4 space-y-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { duration: 0.15 } }}
+              exit={{ opacity: 0, transition: { duration: 0.1 } }}
+              className="p-4 space-y-4"
+            >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div
@@ -1541,7 +1521,7 @@ dark:backdrop-blur-xl
                   </div>
                 </>
               )}
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       )}

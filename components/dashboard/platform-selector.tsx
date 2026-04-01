@@ -36,8 +36,8 @@ export function PlatformSelector({ selectedPlatform, onPlatformChange }: Platfor
               className={cn(
                 "h-auto py-2 md:py-3 px-3 md:px-4 flex items-center justify-center gap-2 rounded-lg md:rounded-xl transition-all font-medium text-xs md:text-sm",
                 selectedPlatform === platform.id
-                  ? "bg-primary text-white border-primary hover:bg-primary/90 hover:text-white"
-                  : "bg-background text-muted-foreground border-border hover:bg-muted/50",
+                  ? "bg-primary text-white border-primary hover:bg-primary/90 hover:text-white dark:bg-primary dark:text-white dark:border-primary dark:hover:bg-primary/90 dark:opacity-100"
+                  : "bg-background text-muted-foreground border-border hover:bg-muted/50 dark:bg-input/30 dark:hover:bg-input/50",
               )}
               onClick={() => onPlatformChange(platform.id)}
             >

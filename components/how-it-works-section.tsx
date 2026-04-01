@@ -13,7 +13,7 @@ export function HowItWorksSection() {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Step 1 */}
-          <Card className="rounded-3xl border-0 bg-[#f0f0ff] p-8 text-center shadow-sm">
+          <Card className="rounded-3xl border-0 bg-[#f0f0ff] dark:bg-muted/20 p-8 text-center shadow-sm">
             <div className="mb-4 text-4xl font-bold text-primary">1</div>
             <h3 className="mb-3 text-xl font-bold text-foreground">Sign Up</h3>
             <p className="text-sm leading-relaxed text-muted-foreground">
@@ -33,7 +33,7 @@ export function HowItWorksSection() {
           </Card>
 
           {/* Step 3 */}
-          <Card className="rounded-3xl border-0 bg-[#f0f0ff] p-8 text-center shadow-sm">
+          <Card className="rounded-3xl border-0 bg-[#f0f0ff] dark:bg-muted/20 p-8 text-center shadow-sm">
             <div className="mb-4 text-4xl font-bold text-primary">3</div>
             <h3 className="mb-3 text-xl font-bold text-foreground">Purchase Securely</h3>
             <p className="text-sm leading-relaxed text-muted-foreground">
@@ -42,7 +42,7 @@ export function HowItWorksSection() {
           </Card>
 
           {/* Step 4 */}
-          <Card className="rounded-3xl border-0 bg-[#f0f0ff] p-8 text-center shadow-sm">
+          <Card className="rounded-3xl border-0 bg-[#f0f0ff] dark:bg-muted/20 p-8 text-center shadow-sm">
             <div className="mb-4 text-4xl font-bold text-primary">4</div>
             <h3 className="mb-3 text-xl font-bold text-foreground">Instant Delivery</h3>
             <p className="text-sm leading-relaxed text-muted-foreground">
