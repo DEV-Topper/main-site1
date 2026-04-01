@@ -4,13 +4,18 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, CreditCard, Gem } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCurrency } from '@/context/CurrencyContext';
+import { Modal } from '@/components/ui/modal';
+import { PaymentMethodSelector } from '@/components/PaymentMethodSelector';
 
 export function StatsCards() {
   const { currency, formatAmount, usdRate } = useCurrency();
   const [totalSpent, setTotalSpent] = useState(0);
   const [balance, setBalance] = useState(0);
   const [referralBalance, setReferralBalance] = useState(0);
+  const [showSelectorModal, setShowSelectorModal] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchData() {
@@ -85,7 +90,7 @@ export function StatsCards() {
             </div>
           </div>
           <Button
-            onClick={() => (window.location.href = '/add-funds')}
+            onClick={() => setShowSelectorModal(true)}
             className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs md:text-sm px-3 md:px-4 h-8 md:h-10 rounded-lg md:rounded-xl flex-shrink-0"
           >
             Fund Wallet
@@ -143,6 +148,24 @@ export function StatsCards() {
           </Link>
         </div>
       </div>
+
+      {/* Selector Modal */}
+      <Modal
+        isOpen={showSelectorModal}
+        onClose={() => setShowSelectorModal(false)}
+        title="Choose Payment Method"
+      >
+        <PaymentMethodSelector
+          onSelectBank={() => {
+            setShowSelectorModal(false);
+            router.push('/add-funds?method=bank');
+          }}
+          onSelectCrypto={() => {
+            setShowSelectorModal(false);
+            router.push('/add-funds?method=crypto');
+          }}
+        />
+      </Modal>
     </div>
   );
 }
