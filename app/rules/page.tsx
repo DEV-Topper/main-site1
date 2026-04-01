@@ -99,8 +99,8 @@ export default function Rules() {
 
           <hr className="border-gray-200 my-6" />
 
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">
+          <div className="bg-blue-50 dark:bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded-md">
+            <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-400 mb-2">
               Important Reminder
             </h3>
             <p className="text-foreground">

@@ -29,8 +29,8 @@ export default function TermsOfUse() {
             these rules.
           </p>
 
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md">
-            <p className="font-semibold text-blue-900 uppercase mb-2">
+          <div className="bg-blue-50 dark:bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded-md">
+            <p className="font-semibold text-blue-900 dark:text-blue-400 uppercase mb-2">
               Kindly follow the above rules
             </p>
             <p>
@@ -72,8 +72,8 @@ export default function TermsOfUse() {
             purchasing an EU or USA account instead.
           </p>
 
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md mt-8">
-            <h3 className="text-lg font-semibold text-red-700 uppercase mb-2">
+          <div className="bg-red-50 dark:bg-red-500/10 border-l-4 border-red-500 p-4 rounded-md mt-8">
+            <h3 className="text-lg font-semibold text-red-700 dark:text-red-400 uppercase mb-2">
               Important Notice
             </h3>
             <p className="text-foreground">

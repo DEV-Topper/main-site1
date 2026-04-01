@@ -105,8 +105,8 @@ export default function TermsAndConditions() {
           <hr className="border-gray-200 my-6" />
 
           {/* Ethics Notice */}
-          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-md">
-            <h3 className="text-lg font-semibold text-yellow-800 mb-2">
+          <div className="bg-yellow-50 dark:bg-yellow-500/10 border-l-4 border-yellow-500 p-4 rounded-md">
+            <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-400 mb-2">
               Responsible Use Reminder
             </h3>
             <p className="text-foreground">
