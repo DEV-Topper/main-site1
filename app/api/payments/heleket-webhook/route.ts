@@ -110,17 +110,28 @@ export async function POST(req: Request) {
     }
 
     // ── Determine the USD amount ──────────────────────────────────────────
-    // payment_amount_usd = USD value of what the payer actually sent
-    // merchant_amount    = USD the merchant receives after fees (fallback)
-    // amount             = original invoice amount (last resort fallback)
     //
-    // DO NOT use `payment_amount` — that is in the payer's crypto (e.g. BTC)
-    // and will be a tiny number like 0.00001, not USD.
-    const depositAmountUSD =
-      parseFloat(payment_amount_usd) ||
-      parseFloat(merchant_amount) ||
-      parseFloat(amount) ||
-      0;
+    // ⚠️  ROOT CAUSE FIX:
+    //     Heleket sends `payment_amount_usd` as the CRYPTO TOKEN AMOUNT for
+    //     non-USD coins. Example: user pays $5 in TRON → Heleket sends
+    //     payment_amount_usd = "15.817621" (TRX tokens), NOT "$5".
+    //     Using that field makes the dashboard show $15 instead of $5.
+    //
+    // ✅  ONLY use `amount` — the original invoice USD amount the user
+    //     entered in the form (e.g. $5). It is ALWAYS in USD, ALWAYS correct,
+    //     and does NOT change based on which coin the user picks.
+    //
+    console.log('🔍 Heleket raw payment fields:', {
+      amount,              // ✅ USE THIS — original invoice USD (what user entered)
+      payment_amount_usd,  // ⚠️  MISLEADING — may be crypto token units (TRX/BTC)
+      merchant_amount,     // ℹ️  USD after Heleket fees
+      payment_amount: body.payment_amount, // ❌ Raw crypto amount — never use for USD
+      currency: body.currency,
+      payer_currency: body.payer_currency,
+    });
+
+    // Always use the original invoice amount — exactly what the user requested
+    const depositAmountUSD = parseFloat(amount) || 0;
 
     if (depositAmountUSD <= 0) {
       console.error(`❌ Could not determine USD deposit amount. Raw fields:`, {
