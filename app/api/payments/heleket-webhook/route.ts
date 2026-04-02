@@ -4,8 +4,8 @@ import User from '@/models/User';
 import Transaction from '@/models/Transaction';
 import { verifyHeleketeSignature } from '@/lib/heleket';
 
-// Default exchange rate: 1 USD = 1,383 Naira (updated 28-03-2026)
-const DEFAULT_USD_TO_NAIRA_RATE = 1383;
+// Fixed exchange rate: $1 = ₦1,300 (must match CurrencyContext.tsx)
+const FIXED_USD_TO_NAIRA_RATE = 1300;
 
 interface HeleketeWebhook {
   type: string;
@@ -28,23 +28,11 @@ interface HeleketeWebhook {
 }
 
 /**
- * Get current USD to Naira exchange rate
+ * Returns the fixed exchange rate — must stay in sync with CurrencyContext.tsx
+ * DO NOT fetch from a live API here or the user dashboard will show wrong amounts.
  */
-async function getExchangeRate(): Promise<number> {
-  try {
-    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-    if (response.ok) {
-      const data = await response.json();
-      const nairaRate = data.rates?.NGN;
-      if (nairaRate) {
-        console.log(`💱 Current exchange rate: 1 USD = ₦${nairaRate}`);
-        return nairaRate;
-      }
-    }
-  } catch (error) {
-    console.warn('Exchange rate API failed, using default');
-  }
-  return DEFAULT_USD_TO_NAIRA_RATE;
+function getExchangeRate(): number {
+  return FIXED_USD_TO_NAIRA_RATE;
 }
 
 export async function POST(req: Request) {
@@ -144,7 +132,8 @@ export async function POST(req: Request) {
     }
 
     // ── Convert USD → Naira ───────────────────────────────────────────────
-    const exchangeRate = await getExchangeRate();
+    // FIXED RATE: $1 = ₦1,300. Must match CurrencyContext.tsx on the frontend.
+    const exchangeRate = getExchangeRate();
     const depositAmountNaira = Math.round(depositAmountUSD * exchangeRate * 100) / 100;
 
     console.log(
