@@ -16,7 +16,7 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 
 export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
   const [currency, setCurrencyState] = useState<Currency>('NGN');
-  const [usdRate, setUsdRate] = useState(1383); // Default rate
+  const [usdRate, setUsdRate] = useState(1300); // Fixed rate: $1 = ₦1300
 
   // Load currency from localStorage on mount
   useEffect(() => {
@@ -25,23 +25,7 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
       setCurrencyState(savedCurrency);
     }
 
-    // Fetch latest exchange rate
-    const fetchRate = async () => {
-      try {
-        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.rates?.NGN) {
-            setUsdRate(data.rates.NGN);
-            console.log(`💱 CurrencyProvider: Updated rate 1 USD = ₦${data.rates.NGN}`);
-          }
-        }
-      } catch (error) {
-        console.warn('CurrencyProvider: Failed to fetch exchange rate, using default 1383');
-      }
-    };
-
-    fetchRate();
+    // Rate is fixed at $1 = ₦1300 — no live fetch needed
   }, []);
 
   const setCurrency = (newCurrency: Currency) => {
