@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import connectDB from "@/lib/mongodb";
+import PaymentpointVirtualAccount from "@/models/PaymentpointVirtualAccount";
+import User from "@/models/User";
+import Transaction from "@/models/Transaction";
+import Notification from "@/models/Notification";
 
 /**
  * 🚀 PaymentPoint Webhook Handler (TypeScript for Next.js)
@@ -11,7 +16,6 @@ export async function POST(request: Request) {
     // 🔹 1. Read the raw body text (PaymentPoint sends JSON)
     const rawBody = await request.text();
 
-    // 🪵 Log the raw body for debugging (so you can see what PaymentPoint actually sent)
     console.log("📦 Raw webhook body received:", rawBody);
 
     // 🔹 2. Try parsing JSON safely
@@ -86,6 +90,83 @@ export async function POST(request: Request) {
     console.log("Timestamp:", timestamp);
     console.log("Customer:", customer?.email);
     console.log("Description:", description);
+
+    if (transaction_status !== "success" && transaction_status !== "successful" && transaction_status !== "Completed") {
+      console.log(`Transaction is not successful: ${transaction_status}. Skipping credit.`);
+      return NextResponse.json({ status: "success" }, { status: 200 });
+    }
+
+    const accountNumber = receiver?.account_number || data.account_number;
+    if (!accountNumber) {
+      console.error("No account number found in webhook data");
+      return NextResponse.json({ status: "error", message: "No account number" }, { status: 400 });
+    }
+
+    await connectDB();
+
+    const va = await PaymentpointVirtualAccount.findOne({
+      accountNumber,
+      status: "active"
+    });
+
+    if (!va) {
+      console.log(`No active virtual account found for account number: ${accountNumber}`);
+      return NextResponse.json({ status: "success", message: "VA not found" }, { status: 200 });
+    }
+
+    const paidAmount = Number(settlement_amount) || Number(amount_paid) || 0;
+    if (paidAmount <= 0) {
+      return NextResponse.json({ status: "success", message: "Invalid amount" }, { status: 200 });
+    }
+
+    const user = await User.findById(va.userId);
+    if (!user) {
+      return NextResponse.json({ status: "success", message: "User not found" }, { status: 200 });
+    }
+
+    // Process Referral Commission
+    const commission = user.referredBy ? Number((paidAmount * 0.03).toFixed(2)) : 0;
+
+    user.walletBalance = Number((user.walletBalance + paidAmount).toFixed(2));
+    await user.save();
+
+    if (user.referredBy && commission > 0) {
+      const referrer = await User.findById(user.referredBy);
+      if (referrer) {
+        referrer.referralBalance = Number((referrer.referralBalance + commission).toFixed(2));
+        const referralEntry = referrer.referrals.find((r: any) => r.uid === va.userId);
+        if (referralEntry) {
+          referralEntry.earnings = Number((referralEntry.earnings + commission).toFixed(2));
+          referralEntry.date = new Date();
+        } else {
+          referrer.referrals.push({
+            uid: va.userId,
+            username: user.username,
+            date: new Date(),
+            earnings: commission
+          });
+        }
+        await referrer.save();
+      }
+    }
+
+    await Transaction.create({
+      userUUID: va.userId,
+      type: "deposit",
+      amount: paidAmount,
+      status: "successful",
+      reference: transaction_id,
+      description: `Funded wallet via PaymentPoint (Ref: ${transaction_id})`
+    });
+
+    await Notification.create({
+      userUUID: va.userId,
+      type: "payment",
+      title: "Wallet Funded",
+      message: `Successfully added ₦${paidAmount.toLocaleString()} to your account`,
+      read: false,
+      source: "notifications"
+    });
 
     // ✅ 8. Respond to PaymentPoint that webhook was processed
     return NextResponse.json({ status: "success" }, { status: 200 });

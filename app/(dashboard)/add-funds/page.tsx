@@ -126,7 +126,7 @@ function AddFundsContent() {
       // 1. Check if user already has a virtual account
       try {
         const res = await fetch(
-          `/api/pocketfi/virtual-account?userId=${userData._id}`,
+          `/api/paymentpoint/virtual-account?userId=${userData._id}`,
         );
         const data = await res.json().catch(() => ({}));
 
@@ -175,7 +175,7 @@ function AddFundsContent() {
     phone: string,
   ) => {
     try {
-      const res = await fetch('/api/pocketfi/virtual-account', {
+      const res = await fetch('/api/paymentpoint/virtual-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -217,7 +217,7 @@ function AddFundsContent() {
   };
 
   // Modal submit handler
-  const handlePocketfiPayment = async () => {
+  const handlePaymentpointPayment = async () => {
     if (!user) return toast.error('Please login first');
 
     const trimmedFirst = firstName.trim();
@@ -257,7 +257,7 @@ function AddFundsContent() {
         title="Confirm your details"
       >
         <p className="text-sm text-muted-foreground mb-4">
-          Please confirm your details so we can create your PocketFi virtual
+          Please confirm your details so we can create your PaymentPoint virtual
           account.
         </p>
 
@@ -302,7 +302,7 @@ function AddFundsContent() {
             Cancel
           </button>
           <button
-            onClick={handlePocketfiPayment}
+            onClick={handlePaymentpointPayment}
             disabled={processing}
             className="px-6 py-2 bg-gradient-to-r from-primary to-purple-600 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 shadow-md hover:shadow-lg active:scale-95 transition-all"
           >

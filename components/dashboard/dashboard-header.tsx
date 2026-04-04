@@ -413,8 +413,8 @@ export function DashboardHeader() {
                   <button
                     onClick={() => setTheme('light')}
                     className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${theme === 'light'
-                        ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
-                        : 'bg-background border-border text-muted-foreground'
+                      ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'bg-background border-border text-muted-foreground'
                       }`}
                   >
                     <div className="flex flex-col items-center gap-1">
@@ -425,8 +425,8 @@ export function DashboardHeader() {
                   <button
                     onClick={() => setTheme('dark')}
                     className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${theme === 'dark'
-                        ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
-                        : 'bg-background border-border text-muted-foreground'
+                      ? 'bg-blue-50 dark:bg-blue-900/40 border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'bg-background border-border text-muted-foreground'
                       }`}
                   >
                     <div className="flex flex-col items-center gap-1">
