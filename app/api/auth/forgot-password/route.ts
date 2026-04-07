@@ -41,7 +41,19 @@ export async function POST(req: Request) {
     const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
 
     // Send email
-    await sendPasswordResetEmail(email, user.username, resetLink);
+    const emailResult = await sendPasswordResetEmail(
+      normalizedEmail,
+      user.username,
+      resetLink,
+    );
+
+    if (!emailResult.success) {
+      console.error('Failed to send reset email:', emailResult.error);
+      return NextResponse.json(
+        { error: 'Failed to send reset email. Please try again later.' },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
