@@ -59,32 +59,28 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
         {/* Dashboard link */}
         <Link
           href="/dashboard"
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
-            pathname === "/dashboard"
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${pathname === "/dashboard"
               ? "bg-blue-500 text-white"
               : "text-blue-100 hover:bg-blue-700 hover:text-white"
-          }`}
+            }`}
         >
           <ShoppingBag className="w-5 h-5" />
           <span>Dashboard</span>
         </Link>
 
-        {/* Other menu items */}
-        {menuItems.map((item) => {
+        {/* First 3 items */}
+        {menuItems.slice(0, 3).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
-          
-          // If it's the item before where we want Partnership (Referrals is at index 3/4)
-          // Actually let's just insert Partnership explicitly
+
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
-                isActive
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
                   ? "bg-blue-500 text-white"
                   : "text-blue-100 hover:bg-blue-700 hover:text-white"
-              }`}
+                }`}
             >
               <Icon className="w-5 h-5" />
               <span>{item.label}</span>
@@ -92,15 +88,14 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           )
         })}
 
-        {/* Partnership Dropdown */}
+        {/* Partnership Dropdown (NOW ABOVE REFERRALS) */}
         <div className="space-y-1">
           <button
             onClick={togglePartnership}
-            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
-              isPartnershipOpen || pathname.includes("/dashboard/developer-api") || pathname.includes("/dashboard/child-panel")
+            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isPartnershipOpen || pathname.includes("/dashboard/developer-api") || pathname.includes("/dashboard/child-panel")
                 ? "bg-blue-600/50 text-white"
                 : "text-blue-100 hover:bg-blue-700 hover:text-white"
-            }`}
+              }`}
           >
             <div className="flex items-center gap-3">
               <UsersRound className="w-5 h-5" />
@@ -118,11 +113,10 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
               <Link
                 href="/dashboard/developer-api"
                 onClick={onClose}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  pathname === "/dashboard/developer-api"
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/dashboard/developer-api"
                     ? "text-white bg-blue-500/30"
                     : "text-blue-200 hover:text-white hover:bg-blue-700/50"
-                }`}
+                  }`}
               >
                 <Terminal className="w-4 h-4" />
                 <span>API</span>
@@ -130,11 +124,10 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
               <Link
                 href="/dashboard/child-panel"
                 onClick={onClose}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  pathname === "/dashboard/child-panel"
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/dashboard/child-panel"
                     ? "text-white bg-blue-500/30"
                     : "text-blue-200 hover:text-white hover:bg-blue-700/50"
-                }`}
+                  }`}
               >
                 <Monitor className="w-4 h-4" />
                 <span>Child Panel</span>
@@ -142,6 +135,26 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             </div>
           )}
         </div>
+
+        {/* Remaining items (Referrals + others) */}
+        {menuItems.slice(3).map((item) => {
+          const Icon = item.icon
+          const isActive = pathname === item.href
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
+                  ? "bg-blue-500 text-white"
+                  : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span>{item.label}</span>
+            </Link>
+          )
+        })}
       </nav>
 
       {/* Sign out */}
