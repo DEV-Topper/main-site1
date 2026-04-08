@@ -19,9 +19,10 @@ import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useCurrency } from '@/context/CurrencyContext';
 import { cn } from '@/lib/utils';
+import { useRef } from 'react';
 
 interface Notification {
   id: string;
@@ -54,7 +55,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     useState<Notification | null>(null);
 
   const router = useRouter();
+  const pathname = usePathname();
   const { currency, setCurrency } = useCurrency();
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Reset scroll on navigation
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }, [pathname]);
 
   useEffect(() => {
     fetchUser();
@@ -488,7 +498,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <DashboardHeader />
         </div>
 
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        <div ref={contentRef} className="flex-1 overflow-y-auto">{children}</div>
       </div>
 
       {/* NOTIFICATION POPUP FOR MOBILE */}
@@ -679,7 +689,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <button
                 onClick={handleCancelEdit}
                 disabled={isSaving}
-                className="flex-1 px-4 py-2 bg-background border border-border text-foreground rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-background border border-border text-foreground rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 Cancel
               </button>
