@@ -8,6 +8,11 @@ export async function GET(req: Request) {
   try {
     await connectDB();
     const token = await getTokenFromRequest(req);
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const session = await getSession(token);
 
     if (!session || !session.userId) {
@@ -25,6 +30,11 @@ export async function POST(req: Request) {
   try {
     await connectDB();
     const token = await getTokenFromRequest(req);
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const session = await getSession(token);
 
     if (!session || !session.userId) {

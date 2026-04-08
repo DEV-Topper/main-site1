@@ -122,7 +122,8 @@ export async function createSession(userId: string) {
   return session;
 }
 
-export async function getSession(token: string) {
+export async function getSession(token: string | null) {
+  if (!token) return null;
   await connectDB();
 
   const session = await Session.findOne({
@@ -135,7 +136,8 @@ export async function getSession(token: string) {
   return session;
 }
 
-export async function deleteSession(token: string) {
+export async function deleteSession(token: string | null) {
+  if (!token) return;
   await connectDB();
   await Session.deleteOne({ token });
 }
