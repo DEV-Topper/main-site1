@@ -22,6 +22,7 @@ export interface IUser extends Document {
   referrals: IReferral[];
   googleId?: string;
   virtualAccountNumber?: string;
+  apiKey?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -94,6 +95,11 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     virtualAccountNumber: {
       type: String,
+      sparse: true,
+    },
+    apiKey: {
+      type: String,
+      unique: true,
       sparse: true,
     },
   },
