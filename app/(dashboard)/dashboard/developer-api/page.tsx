@@ -51,9 +51,9 @@ export default function DeveloperApiPage() {
             <div className="p-2 bg-blue-500/10 rounded-lg">
               <Key className="w-5 h-5 text-blue-500" />
             </div>
-            <h2 className="text-lg md:text-xl font-semibold">Public API Key</h2>
+            <h2 className="text-lg md:text-xl font-semibold"> API Key</h2>
           </div>
-          <button 
+          <button
             onClick={generateKey}
             disabled={generating}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:opacity-90 rounded-lg transition-all text-sm font-medium"
@@ -84,7 +84,7 @@ export default function DeveloperApiPage() {
           </div>
           <p className="text-sm text-muted-foreground mb-4">Fetch available logs using a standard HTTP GET request with your API key.</p>
           <pre className="bg-muted p-4 rounded-xl text-[10px] md:text-xs text-muted-foreground overflow-x-auto font-mono">
-{`curl -X GET "https://desocialplug.com/api/public/logs" \\
+            {`curl -X GET "https://desocialplug.com/api/public/logs" \\
   -H "x-api-key: YOUR_API_KEY"`}
           </pre>
         </div>
@@ -96,7 +96,7 @@ export default function DeveloperApiPage() {
           </div>
           <p className="text-sm text-muted-foreground mb-4">You can target specific platforms or categories using query parameters.</p>
           <pre className="bg-muted p-4 rounded-xl text-[10px] md:text-xs text-muted-foreground overflow-x-auto font-mono">
-{`// 1. Fetch only Instagram logs
+            {`// 1. Fetch only Instagram logs
 GET /api/public/logs?platform=Instagram
 
 // 2. Fetch Facebook Random logs

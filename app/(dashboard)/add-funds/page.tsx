@@ -68,11 +68,25 @@ function AddFundsContent() {
         }
 
         setUser(data.user);
-        
-        // If an initial method was passed, fire its logic payload
-        if (validMethod === 'bank') {
+
+        // ZERO-LOADING: If virtual account is already in the user object, use it instantly!
+        if (data.user.virtualAccount) {
+          setVirtualAccount({
+            id: data.user.virtualAccount._id,
+            bank: data.user.virtualAccount.bank,
+            bankName: data.user.virtualAccount.bankName,
+            accountNumber: data.user.virtualAccount.accountNumber,
+            accountName: data.user.virtualAccount.accountName,
+            status: data.user.virtualAccount.status,
+          });
+          // Explicitly set loading to false since we have everything we need
+          setLoading(false);
+        } else if (validMethod === 'bank') {
+          // Only if we DON'T have it yet, we fetch it
           loadVirtualAccount(data.user);
-          return; // Exit early since loadVirtualAccount manages loading state internally
+          return;
+        } else {
+          setLoading(false);
         }
 
         // Pre-populate details from user object
@@ -103,7 +117,10 @@ function AddFundsContent() {
   // Core logic: check existing VA → create if needed → show modal if name missing
   const loadVirtualAccount = async (userData: UserData) => {
     try {
-      setLoading(true);
+      // If we already have the account info, don't show the full-page spinner
+      if (!virtualAccount) {
+        setLoading(true);
+      }
       setVaError(null);
 
       const nameParts = (userData.username || '').split(' ').filter(Boolean);
@@ -128,14 +145,15 @@ function AddFundsContent() {
         const data = await res.json().catch(() => ({}));
 
         if (res.ok && data.accountNumber && data.bankName && data.accountName) {
-          setVirtualAccount({
+          const vaInfo = {
             id: data.id,
             bank: data.bank,
             bankName: data.bankName,
             accountNumber: data.accountNumber,
             accountName: data.accountName,
             status: data.status,
-          });
+          };
+          setVirtualAccount(vaInfo);
           setLoading(false);
           return;
         }

@@ -10,13 +10,24 @@ export async function GET(req: Request) {
     }
 
     const session = await getSession(token);
-
     if (!session || !session.userId) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
 
+    // Cast to any to access toObject (populated IUser)
+    const userData = (session.userId as any).toObject();
+    delete userData.password;
+
+    // Fetch virtual account if it exists to enable zero-loading frontend
+    await import('@/lib/mongodb').then(m => m.default());
+    const PaymentpointVirtualAccount = (await import('@/models/PaymentpointVirtualAccount')).default;
+    const virtualAccount = await PaymentpointVirtualAccount.findOne({ userId: userData._id }).sort({ createdAt: -1 });
+
     return NextResponse.json({
-      user: session.userId,
+      user: {
+        ...userData,
+        virtualAccount: virtualAccount ? virtualAccount.toObject() : null
+      },
       success: true,
     });
   } catch (error) {

@@ -370,7 +370,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <div className="flex items-center gap-3 mb-4">
                   <Avatar className="h-12 w-12">
                     <AvatarImage
-                      src={user?.profileImage || '/placeholder.svg'}
+                      src={user?.profileImage || '/image/avater.jpeg'}
                     />
                     <AvatarFallback className="bg-primary text-white">
                       {user?.username?.slice(0, 2).toUpperCase() || 'LF'}
@@ -386,13 +386,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   </div>
                 </div>
 
-                <Button
-                  onClick={handleEditProfile}
-                  variant="outline"
-                  className="w-full mb-4 bg-transparent"
-                >
-                  Edit Profile
-                </Button>
+                <DropdownMenuItem onSelect={handleEditProfile} asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full mb-4 bg-transparent cursor-pointer"
+                  >
+                    Edit Profile
+                  </Button>
+                </DropdownMenuItem>
 
                 <div className="mb-4">
                   <div className="text-sm text-gray-500 mb-2">Theme Mode</div>
@@ -601,56 +602,56 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             onClick={handleCancelEdit}
           />
 
-          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 animate-in fade-in zoom-in duration-200">
+          <div className="relative bg-card border border-border rounded-lg shadow-xl w-full max-w-md mx-4 p-6 animate-in fade-in zoom-in duration-200">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Edit Profile
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Update your profile information and reset your password
               </p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-foreground">
                   Username
                 </label>
                 <input
                   type="text"
                   value={editedUsername}
                   onChange={(e) => setEditedUsername(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-background border border-border text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter username"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-foreground">
                   Email
                 </label>
                 <input
                   type="email"
                   value={editedEmail}
                   onChange={(e) => setEditedEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-background border border-border text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter email"
                 />
               </div>
 
-              <div className="border-t pt-4">
+              <div className="border-t border-border pt-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-foreground">
                     Password
                   </label>
-                  <p className="text-xs text-gray-500 mb-2">
+                  <p className="text-xs text-muted-foreground mb-2">
                     Click the button below to receive a password reset link via
                     email
                   </p>
                   <button
                     onClick={handleResetPassword}
                     disabled={isResettingPassword}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full px-4 py-2 bg-background border border-border text-foreground rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isResettingPassword ? 'Sending...' : 'Reset Password'}
                   </button>
@@ -678,7 +679,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <button
                 onClick={handleCancelEdit}
                 disabled={isSaving}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 px-4 py-2 bg-background border border-border text-foreground rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Cancel
               </button>
