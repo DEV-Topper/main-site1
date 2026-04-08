@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Monitor, Shield, Zap, Globe, Cpu, Settings, Lock, CheckCircle2, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
+import { Monitor, Shield, Zap, Globe, Cpu, Settings, Lock, CheckCircle2, AlertCircle, ArrowRight, Loader2, ChevronDown } from "lucide-react";
 import { useCurrency } from "@/context/CurrencyContext";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ export default function ChildPanelPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [isDNSOpen, setIsDNSOpen] = useState(true);
 
   const [formData, setFormData] = useState({
     domain: "",
@@ -78,7 +79,7 @@ export default function ChildPanelPage() {
         <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-500 bg-clip-text text-transparent">
           Child Panel Partnership
         </h1>
-        <p className="text-sm md:text-base text-muted-foreground">Launch your own white-label social media platform panel in minutes.</p>
+        <p className="text-sm md:text-base text-muted-foreground">Launch your own white-label social media marketplace panel in minutes.</p>
       </header>
 
       <div className="grid lg:grid-cols-3 gap-8">
@@ -106,7 +107,6 @@ export default function ChildPanelPage() {
                     <div className="space-y-3">
                       <label className="text-sm font-semibold flex items-center gap-2">
                         Domain Name
-                        <span className="text-xs font-normal text-muted-foreground">(yourdomain.com)</span>
                       </label>
                       <input
                         type="text"
@@ -164,23 +164,6 @@ export default function ChildPanelPage() {
                       </div>
                     </div>
 
-                    {/* DNS Instructions Refined */}
-                    <div className="p-5 bg-blue-500/5 border border-blue-500/10 rounded-2xl space-y-4">
-                      <div className="flex items-start gap-4">
-                        <div className="p-2 bg-blue-500/10 rounded-lg shrink-0">
-                          <Settings className="w-5 h-5 text-blue-500" />
-                        </div>
-                        <div className="space-y-1">
-                          <h3 className="text-sm font-bold text-blue-500">Nameserver Configuration</h3>
-                          <p className="text-xs text-muted-foreground leading-relaxed">Please point your domain name servers to the following record. This is required for your panel to function.</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="p-2.5 bg-background border border-border rounded-xl font-mono text-[11px] text-center shadow-sm select-all">ns1.desocialplug.com</div>
-                        <div className="p-2.5 bg-background border border-border rounded-xl font-mono text-[11px] text-center shadow-sm select-all">ns2.desocialplug.com</div>
-                      </div>
-                      <span className="text-xs font-normal text-muted-foreground">Note: DNS propagation can take up to 24-48 hours depending on your registrar.</span>
-                    </div>
 
                     <button
                       type="submit"
@@ -278,6 +261,55 @@ export default function ChildPanelPage() {
         </div>
 
         <div className="space-y-6">
+          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+            <button
+              onClick={() => setIsDNSOpen(!isDNSOpen)}
+              className="w-full p-5 flex items-center justify-between hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Settings className="w-5 h-5 text-blue-500" />
+                </div>
+                <h3 className="font-bold text-sm uppercase tracking-wider">Nameserver Configuration</h3>
+              </div>
+              <motion.div
+                animate={{ rotate: isDNSOpen ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronDown className="w-5 h-5 text-muted-foreground" />
+              </motion.div>
+            </button>
+
+            <AnimatePresence initial={false}>
+              {isDNSOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                  <div className="p-5 pt-0 space-y-4 border-t border-border/50">
+                    <p className="text-[13px] text-muted-foreground leading-relaxed">
+                      Please point your domain name servers to the following record. This is required for your panel to function.
+                    </p>
+                    <div className="grid gap-2">
+                      <div className="p-3 bg-muted/50 border border-border rounded-xl font-mono text-[11px] flex items-center justify-between group">
+                        <span className="select-all">ns1.desocialplug.com</span>
+                        <div className="text-[9px] uppercase font-bold text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</div>
+                      </div>
+                      <div className="p-3 bg-muted/50 border border-border rounded-xl font-mono text-[11px] flex items-center justify-between group">
+                        <span className="select-all">ns2.desocialplug.com</span>
+                        <div className="text-[9px] uppercase font-bold text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</div>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground/70 italic bg-muted/30 p-3 rounded-lg border border-border/30">
+                      Note: DNS propagation can take up to 24-48 hours depending on your registrar.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-6 text-white shadow-xl shadow-blue-500/20">
             <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
               <Zap className="w-5 h-5 fill-yellow-400 text-yellow-400" />

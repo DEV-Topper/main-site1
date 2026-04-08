@@ -68,8 +68,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           <span>Dashboard</span>
         </Link>
 
-        {/* First 3 items */}
-        {menuItems.slice(0, 3).map((item) => {
+        {/* First 4 items (INCLUDING REFERRALS) */}
+        {menuItems.slice(0, 4).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
 
@@ -88,7 +88,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           )
         })}
 
-        {/* Partnership Dropdown (NOW ABOVE REFERRALS) */}
+        {/* Partnership Dropdown (NOW BELOW REFERRALS) */}
         <div className="space-y-1">
           <button
             onClick={togglePartnership}
@@ -136,8 +136,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           )}
         </div>
 
-        {/* Remaining items (Referrals + others) */}
-        {menuItems.slice(3).map((item) => {
+        {/* Remaining items */}
+        {menuItems.slice(4).map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
 
