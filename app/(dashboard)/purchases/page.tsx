@@ -158,9 +158,12 @@ export default function PurchasesPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ 
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1] 
+      }}
       className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen"
     >
         <div className="max-w-7xl mx-auto">

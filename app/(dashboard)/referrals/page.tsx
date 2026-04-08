@@ -150,9 +150,12 @@ export default function ReferralsPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.99 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ 
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1] 
+      }}
       className="container mx-auto px-4 py-8 relative bg-background min-h-screen"
     >
         <h1 className="text-2xl font-bold mb-8 text-foreground">Referral Program</h1>

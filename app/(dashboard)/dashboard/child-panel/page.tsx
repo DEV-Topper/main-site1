@@ -88,9 +88,13 @@ export default function ChildPanelPage() {
             {!success ? (
               <motion.div
                 key="form"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
+                transition={{ 
+                  duration: 0.6,
+                  ease: [0.22, 1, 0.36, 1] 
+                }}
                 className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-8"
               >
                 <div className="space-y-6">
@@ -105,9 +109,12 @@ export default function ChildPanelPage() {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Domain Field */}
                     <div className="space-y-3">
-                      <label className="text-sm font-semibold flex items-center gap-2">
-                        Domain Name
-                      </label>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold flex items-center gap-2">
+                          Domain Name
+                        </label>
+                        <p className="text-[11px] font-normal text-muted-foreground">Enter your custom domain without HTTP:// or HTTPS://</p>
+                      </div>
                       <input
                         type="text"
                         name="domain"
@@ -117,7 +124,6 @@ export default function ChildPanelPage() {
                         onChange={handleInputChange}
                         className="w-full p-3.5 rounded-xl bg-muted border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted-foreground/50"
                       />
-                      <span className="text-xs font-normal text-muted-foreground">Enter your custom domain without HTTP:// or HTTPS://</span>
                     </div>
 
 
@@ -268,9 +274,9 @@ export default function ChildPanelPage() {
             >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Settings className="w-5 h-5 text-blue-500" />
+                  <Monitor className="w-5 h-5 text-blue-500" />
                 </div>
-                <h3 className="font-bold text-sm uppercase tracking-wider">Nameserver Configuration</h3>
+                <h3 className="font-bold text-sm uppercase tracking-wider">DNS Configuration</h3>
               </div>
               <motion.div
                 animate={{ rotate: isDNSOpen ? 180 : 0 }}
@@ -349,10 +355,16 @@ export default function ChildPanelPage() {
                 "Free Technical Support",
                 "Daily Database Backups"
               ].map((item, i) => (
-                <li key={i} className="text-sm text-foreground/80 flex items-center gap-3">
+                <motion.li 
+                  key={i} 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="text-sm text-foreground/80 flex items-center gap-3"
+                >
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   {item}
-                </li>
+                </motion.li>
               ))}
             </ul>
           </div>

@@ -59,6 +59,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
         {/* Dashboard link */}
         <Link
           href="/dashboard"
+          onClick={onClose}
           className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${pathname === "/dashboard"
               ? "bg-blue-500 text-white"
               : "text-blue-100 hover:bg-blue-700 hover:text-white"
@@ -77,6 +78,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
                   ? "bg-blue-500 text-white"
                   : "text-blue-100 hover:bg-blue-700 hover:text-white"
@@ -145,6 +147,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
                   ? "bg-blue-500 text-white"
                   : "text-blue-100 hover:bg-blue-700 hover:text-white"
