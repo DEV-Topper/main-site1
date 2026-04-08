@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { Copy, Users } from 'lucide-react';
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { toast } from 'sonner';
 import { useCurrency } from '@/context/CurrencyContext';
 
@@ -141,27 +140,22 @@ export default function ReferralsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          Loading...
-        </div>
-      </DashboardLayout>
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
     );
   }
 
   if (!userData) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          No user data found.
-        </div>
-      </DashboardLayout>
+      <div className="flex items-center justify-center min-h-screen">
+        No user data found.
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="container mx-auto px-4 py-8 relative bg-background min-h-screen">
+    <div className="container mx-auto px-4 py-8 relative bg-background min-h-screen">
         <h1 className="text-2xl font-bold mb-8 text-foreground">Referral Program</h1>
 
         {/* Stats */}
@@ -462,6 +456,5 @@ export default function ReferralsPage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 }

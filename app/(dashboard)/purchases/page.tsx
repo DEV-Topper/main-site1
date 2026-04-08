@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { X, Copy, Check } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -159,15 +158,12 @@ export default function PurchasesPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="p-6 text-center">Loading...</div>
-      </DashboardLayout>
+      <div className="p-6 text-center">Loading...</div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <main className="p-6 lg:p-8 bg-background min-h-screen">
+    <main className="p-6 lg:p-8 bg-background min-h-screen">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
@@ -332,6 +328,5 @@ export default function PurchasesPage() {
           )}
         </AnimatePresence>
       </main>
-    </DashboardLayout>
   );
 }

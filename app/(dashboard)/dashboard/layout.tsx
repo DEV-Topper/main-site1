@@ -1,18 +1,11 @@
 "use client";
 
-import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
-import AuthGuard from "@/components/AuthGuard";
+import React from "react";
 
 export default function DashboardRootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <AuthGuard>
-      <DashboardLayout>
-        {children}
-      </DashboardLayout>
-    </AuthGuard>
-  );
+  return <>{children}</>;
 }

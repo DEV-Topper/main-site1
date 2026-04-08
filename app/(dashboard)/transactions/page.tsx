@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 
@@ -118,15 +117,12 @@ export default function TransactionsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="p-6 text-center">Loading...</div>
-      </DashboardLayout>
+      <div className="p-6 text-center">Loading...</div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <main className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen">
+    <main className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-4 sm:mb-6">
@@ -247,6 +243,5 @@ export default function TransactionsPage() {
           )}
         </div>
       </main>
-    </DashboardLayout>
   );
 }

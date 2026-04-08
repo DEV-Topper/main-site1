@@ -1,6 +1,5 @@
 'use client';
 
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CiBank, CiCircleInfo, CiCreditCard1 } from 'react-icons/ci';
@@ -21,15 +20,13 @@ interface UserData {
 
 export default function AddFundsPage() {
   return (
-    <DashboardLayout>
-      <Suspense fallback={
-        <div className="bg-background min-h-screen p-8 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent" />
-        </div>
-      }>
-        <AddFundsContent />
-      </Suspense>
-    </DashboardLayout>
+    <Suspense fallback={
+      <div className="bg-background min-h-screen p-8 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent" />
+      </div>
+    }>
+      <AddFundsContent />
+    </Suspense>
   );
 }
 
