@@ -11,7 +11,13 @@ import {
   UsersRound,
   Headset,
   Handshake,
+  ChevronDown,
+  ChevronUp,
+  Terminal,
+  Box,
+  Monitor,
 } from "lucide-react"
+import { useState } from "react"
 import SignOutButton from "./signout-button"
 
 const menuItems = [
@@ -25,6 +31,13 @@ const menuItems = [
 
 export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
+  const [isPartnershipOpen, setIsPartnershipOpen] = useState(
+    pathname.includes("/dashboard/developer-api") || pathname.includes("/dashboard/child-panel")
+  )
+
+  const togglePartnership = () => {
+    setIsPartnershipOpen(!isPartnershipOpen)
+  }
 
   return (
     <div className="h-full bg-[#1a49ee] dark:bg-blue-950/50 dark:backdrop-blur-xl border-r border-blue-600 dark:border-blue-900/50 flex flex-col">
@@ -60,6 +73,9 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
+          
+          // If it's the item before where we want Partnership (Referrals is at index 3/4)
+          // Actually let's just insert Partnership explicitly
           return (
             <Link
               key={item.href}
@@ -75,6 +91,57 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             </Link>
           )
         })}
+
+        {/* Partnership Dropdown */}
+        <div className="space-y-1">
+          <button
+            onClick={togglePartnership}
+            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+              isPartnershipOpen || pathname.includes("/dashboard/developer-api") || pathname.includes("/dashboard/child-panel")
+                ? "bg-blue-600/50 text-white"
+                : "text-blue-100 hover:bg-blue-700 hover:text-white"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <UsersRound className="w-5 h-5" />
+              <span>Partnership</span>
+            </div>
+            {isPartnershipOpen ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+
+          {isPartnershipOpen && (
+            <div className="pl-9 space-y-1 animate-in slide-in-from-top-2 duration-200">
+              <Link
+                href="/dashboard/developer-api"
+                onClick={onClose}
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === "/dashboard/developer-api"
+                    ? "text-white bg-blue-500/30"
+                    : "text-blue-200 hover:text-white hover:bg-blue-700/50"
+                }`}
+              >
+                <Terminal className="w-4 h-4" />
+                <span>API</span>
+              </Link>
+              <Link
+                href="/dashboard/child-panel"
+                onClick={onClose}
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === "/dashboard/child-panel"
+                    ? "text-white bg-blue-500/30"
+                    : "text-blue-200 hover:text-white hover:bg-blue-700/50"
+                }`}
+              >
+                <Monitor className="w-4 h-4" />
+                <span>Child Panel</span>
+              </Link>
+            </div>
+          )}
+        </div>
       </nav>
 
       {/* Sign out */}

@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await User.findById(session.userId);
+    const user = session.userId as any;
     return NextResponse.json({ apiKey: user?.apiKey || null });
   } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -42,7 +42,8 @@ export async function POST(req: Request) {
     }
 
     const newApiKey = "dsp_" + crypto.randomBytes(24).toString("hex");
-    await User.findByIdAndUpdate(session.userId, { apiKey: newApiKey });
+    const userId = (session.userId as any)._id;
+    await User.findByIdAndUpdate(userId, { apiKey: newApiKey });
 
     return NextResponse.json({ apiKey: newApiKey });
   } catch (error) {

@@ -1,18 +1,33 @@
 'use client';
 
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
-import { StatsCards } from '@/components/dashboard/stats-cards';
 import { PlatformSelector } from '@/components/dashboard/platform-selector';
+import { StatsCards } from '@/components/dashboard/stats-cards';
 import { CategoryTabs } from '@/components/dashboard/category-tabs';
 import { AccountsList } from '@/components/dashboard/accounts-list';
 import { useEffect, useState } from 'react';
-import AuthGuard from '@/components/AuthGuard'; // Import the AuthGuard
 import { CommunityAnnouncement } from '@/app/components/community-announcement';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Terminal, Monitor, Zap, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const [selectedPlatform, setSelectedPlatform] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isOpen, setIsOpen] = useState(true);
+  const [showPromo, setShowPromo] = useState(false);
+
+  useEffect(() => {
+    // Check if user has dismissed the promo banner
+    const isDismissed = localStorage.getItem('promo-banner-dismissed');
+    if (!isDismissed) {
+      setShowPromo(true);
+    }
+  }, []);
+
+  const dismissPromo = () => {
+    setShowPromo(false);
+    localStorage.setItem('promo-banner-dismissed', 'true');
+  };
 
   useEffect(() => {
     // Whenever platform changes, reset to 'all'
@@ -20,43 +35,98 @@ export default function DashboardPage() {
   }, [selectedPlatform]);
 
   return (
-    <AuthGuard>
-      <DashboardLayout>
-        <main className="p-6 lg:p-8 bg-background">
-          {/* Stats section */}
-          <StatsCards />
+    <main className="p-6 lg:p-8 bg-background">
+      {/* Stats section */}
+      <StatsCards />
 
-          {/* Platform selector section */}
-          <div className="mb-6">
-            <PlatformSelector
-              selectedPlatform={selectedPlatform}
-              onPlatformChange={(platformId) => {
-                setSelectedPlatform(platformId);
-                setSelectedCategory('all'); // reset category when platform changes
-              }}
-            />
-          </div>
+      {/* Promotion Banner */}
+      <AnimatePresence>
+        {showPromo && (
+          <motion.div
+            initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+            animate={{ height: "auto", opacity: 1, marginBottom: 24 }}
+            exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-blue-700 dark:to-indigo-900 rounded-2xl p-6 md:p-8 text-white shadow-xl shadow-blue-500/20">
+              {/* Close Button */}
+              <button
+                onClick={dismissPromo}
+                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors group"
+                aria-label="Dismiss"
+              >
+                <X className="w-5 h-5 opacity-70 group-hover:opacity-100" />
+              </button>
 
-          {/* Dynamic subcategory tabs */}
-          <div className="mb-6">
-            <CategoryTabs
-              selectedPlatform={selectedPlatform}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-            />
-          </div>
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="space-y-4 max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold uppercase tracking-wider">
+                    <Zap className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    New Partnership Features
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold leading-tight">
+                    API & Child Panel Solutions <br className="hidden md:block" />
+                    are Coming Soon!
+                  </h2>
+                  <p className="text-blue-100 text-sm md:text-base max-w-xl">
+                    Take your business to the next level with our upcoming white-label panels and
+                    robust programmatic access. Automate your orders and launch your own empire today.
+                  </p>
+                </div>
 
-          {/* Accounts list filtered by platform + subcategory */}
-          <AccountsList
-            selectedPlatform={selectedPlatform}
-            selectedCategory={selectedCategory}
-          />
-          <CommunityAnnouncement
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-          />
-        </main>
-      </DashboardLayout>
-    </AuthGuard>
+                <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+                  <Link
+                    href="/dashboard/developer-api"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-blue-600 hover:bg-blue-50 rounded-xl font-bold transition-all shadow-lg group"
+                  >
+                    <Terminal className="w-4 h-4" />
+                    Go to API
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link
+                    href="/dashboard/child-panel"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 backdrop-blur-md border border-white/30 text-white rounded-xl font-bold transition-all group"
+                  >
+                    <Monitor className="w-4 h-4" />
+                    Explore Child Panel
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Platform selector section */}
+      <div className="mb-6">
+        <PlatformSelector
+          selectedPlatform={selectedPlatform}
+          onPlatformChange={(platformId) => {
+            setSelectedPlatform(platformId);
+            setSelectedCategory('all'); // reset category when platform changes
+          }}
+        />
+      </div>
+
+      {/* Dynamic subcategory tabs */}
+      <div className="mb-6">
+        <CategoryTabs
+          selectedPlatform={selectedPlatform}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
+      </div>
+
+      {/* Accounts list filtered by platform + subcategory */}
+      <AccountsList
+        selectedPlatform={selectedPlatform}
+        selectedCategory={selectedCategory}
+      />
+      <CommunityAnnouncement
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
+    </main>
   );
 }
