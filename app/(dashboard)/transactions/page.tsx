@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
+import { motion } from 'framer-motion';
 
 interface Transaction {
   id: string;
@@ -115,15 +116,14 @@ export default function TransactionsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center">Loading...</div>
-    );
-  }
-
   return (
-    <main className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen">
-        <div className="max-w-7xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen"
+    >
+      <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-4 sm:mb-6">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
@@ -196,17 +196,20 @@ export default function TransactionsPage() {
                     </td>
                   </tr>
                 ))}
-              </tbody>
+                </tbody>
             </table>
 
-            {/* Empty State */}
-            {transactions.length === 0 && (
+            {/* Empty State / Loading State */}
+            {loading ? (
+              <div className="p-12 flex flex-col items-center justify-center gap-4">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-muted-foreground animate-pulse">Fetching transactions...</p>
+              </div>
+            ) : transactions.length === 0 && (
               <div className="p-6 text-center text-xs sm:text-sm text-muted-foreground">
                 No transactions found.
               </div>
             )}
-          </div>
-
           {/* Pagination Controls */}
           {pagination && pagination.totalPages > 1 && (
             <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -242,6 +245,7 @@ export default function TransactionsPage() {
             </div>
           )}
         </div>
-      </main>
+      </div>
+    </motion.div>
   );
 }

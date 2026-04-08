@@ -156,14 +156,13 @@ export default function PurchasesPage() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center">Loading...</div>
-    );
-  }
-
   return (
-    <main className="p-6 lg:p-8 bg-background min-h-screen">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen"
+    >
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
@@ -190,41 +189,63 @@ export default function PurchasesPage() {
           </section>
 
           <section className="space-y-3">
-            {purchases.length === 0 ? (
+            {loading ? (
+              <div className="p-12 flex flex-col items-center justify-center gap-4">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-muted-foreground animate-pulse">Fetching orders...</p>
+              </div>
+            ) : purchases.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 No purchases found
               </div>
             ) : (
-              purchases.map((purchase) => (
-                <div
-                  key={purchase.id}
-                  className="bg-card rounded-xl p-4 shadow-sm border border-border cursor-pointer hover:shadow-md transition"
-                  onClick={() => openPurchaseModal(purchase)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium text-foreground">
-                        Order #{purchase.id.slice(0, 8)}
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        {purchase.platform} |{' '}
-                        {purchase.followers?.toLocaleString() || '—'} followers
-                      </p>
-                      <p className="text-xs text-muted-foreground/60 mt-1">
-                        {formatDate(purchase.purchaseDate)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-muted-foreground text-opacity-80">
-                        {purchase.status || 'Completed'}
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                  }
+                }}
+                className="space-y-3"
+              >
+                {purchases.map((purchase) => (
+                  <motion.div
+                    key={purchase.id}
+                    variants={{
+                      hidden: { opacity: 0, x: -10 },
+                      visible: { opacity: 1, x: 0 }
+                    }}
+                    className="bg-card rounded-xl p-4 shadow-sm border border-border cursor-pointer hover:shadow-md transition"
+                    onClick={() => openPurchaseModal(purchase)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-foreground">
+                          Order #{purchase.id.slice(0, 8)}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          {purchase.platform} |{' '}
+                          {purchase.followers?.toLocaleString() || '—'} followers
+                        </p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">
+                          {formatDate(purchase.purchaseDate)}
+                        </p>
                       </div>
-                      <div className="font-semibold text-foreground">
-                        {formatAmount(purchase.totalAmount || 0)}
+                      <div className="text-right">
+                        <div className="text-sm text-muted-foreground text-opacity-80">
+                          {purchase.status || 'Completed'}
+                        </div>
+                        <div className="font-semibold text-foreground">
+                          {formatAmount(purchase.totalAmount || 0)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))
+                  </motion.div>
+                ))}
+              </motion.div>
             )}
           </section>
         </div>
@@ -327,6 +348,6 @@ export default function PurchasesPage() {
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      </motion.div>
   );
 }

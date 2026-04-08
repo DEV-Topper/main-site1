@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useEffect, useState, Suspense } from 'react';
 import { Copy, Users } from 'lucide-react';
 import { toast } from 'sonner';
@@ -138,51 +139,57 @@ export default function ReferralsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        Loading...
-      </div>
-    );
-  }
 
-  if (!userData) {
+  if (!userData && !loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen text-muted-foreground">
         No user data found.
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 relative bg-background min-h-screen">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.99 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4 }}
+      className="container mx-auto px-4 py-8 relative bg-background min-h-screen"
+    >
         <h1 className="text-2xl font-bold mb-8 text-foreground">Referral Program</h1>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
           <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
             <h3 className="text-muted-foreground mb-2">Total Referrals</h3>
-            <p className="text-3xl font-bold text-foreground">{userData.referrals.length}</p>
+            {loading ? (
+              <div className="h-9 w-20 bg-muted animate-pulse rounded" />
+            ) : (
+              <p className="text-3xl font-bold text-foreground">{userData?.referrals?.length || 0}</p>
+            )}
           </div>
           <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col justify-between">
             <div>
               <h3 className="text-muted-foreground mb-2">Total Earnings</h3>
-              <p className="text-3xl font-bold text-foreground">
-                {formatAmount(userData.referralBalance || 0)}
-              </p>
+              {loading ? (
+                <div className="h-9 w-32 bg-muted animate-pulse rounded" />
+              ) : (
+                <p className="text-3xl font-bold text-foreground">
+                  {formatAmount(userData?.referralBalance || 0)}
+                </p>
+              )}
             </div>
             <div className="mt-4">
               <button
                 onClick={openWithdrawModal}
-                disabled={Number(userData.referralBalance || 0) < 1000}
-                className={`w-full px-4 py-2 rounded-lg text-white ${Number(userData.referralBalance || 0) >= 1000
+                disabled={Number(userData?.referralBalance || 0) < 1000}
+                className={`w-full px-4 py-2 rounded-lg text-white ${Number(userData?.referralBalance || 0) >= 1000
                   ? 'bg-green-600 hover:bg-green-700'
                   : 'bg-gray-300 cursor-not-allowed'
                   }`}
               >
                 Withdraw Referral Balance
               </button>
-              {Number(userData.referralBalance || 0) < 1000 && (
+              {Number(userData?.referralBalance || 0) < 1000 && (
                 <p className="text-xs text-muted-foreground mt-2 text-center">
                   Minimum withdrawal: {formatAmount(1000)}</p>
               )}
@@ -195,11 +202,11 @@ export default function ReferralsPage() {
           <h2 className="text-xl font-semibold mb-4 text-foreground">Your Referral Code</h2>
           <div className="flex items-center gap-4">
             <div className="flex-1 bg-muted p-4 rounded-lg font-mono text-foreground border border-border">
-              {userData.referralCode || 'Not generated'}
+              {loading && !userData?.referralCode ? 'Generating...' : userData?.referralCode || 'Not generated'}
             </div>
             <button
-              onClick={() => copyToClipboard(userData.referralCode || '')}
-              disabled={!userData.referralCode}
+              onClick={() => copyToClipboard(userData?.referralCode || '')}
+              disabled={!userData?.referralCode}
               className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:bg-muted disabled:text-muted-foreground"
             >
               <Copy className="w-4 h-4" />
@@ -213,19 +220,19 @@ export default function ReferralsPage() {
           <h2 className="text-xl font-semibold mb-4 text-foreground">Your Referral Link</h2>
           <div className="flex items-center gap-4">
             <div className="flex-1 bg-muted p-4 rounded-lg font-mono text-sm truncate">
-              {userData.referralCode
-                ? `${origin}/register?ref=${userData.referralCode}`
+              {loading ? '...' : userData?.referralCode
+                ? `${origin}/register?ref=${userData?.referralCode}`
                 : 'Not generated'}
             </div>
             <button
               onClick={() => {
-                const link = `${origin}/register?ref=${userData.referralCode}`;
+                const link = `${origin}/register?ref=${userData?.referralCode}`;
                 navigator.clipboard.writeText(link);
                 setLinkCopied(true);
                 setTimeout(() => setLinkCopied(false), 2000);
                 toast.success('Referral link copied!');
               }}
-              disabled={!userData.referralCode}
+              disabled={!userData?.referralCode}
               className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:bg-gray-400 whitespace-nowrap"
             >
               <Copy className="w-4 h-4" />
@@ -271,17 +278,17 @@ export default function ReferralsPage() {
                     </tr>
                   </thead>
                   <tbody className="text-foreground">
-                    {userData.referrals.length === 0 ? (
+                    {!userData || (userData?.referrals?.length || 0) === 0 ? (
                       <tr>
                         <td
                           colSpan={4}
                           className="text-center py-8 text-muted-foreground"
                         >
-                          No referrals yet
+                          {loading ? 'Loading referrals...' : 'No referrals yet'}
                         </td>
                       </tr>
                     ) : (
-                      userData.referrals.map((referral: any, index: number) => (
+                      userData?.referrals?.map((referral: any, index: number) => (
                         <tr key={index} className="border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors">
                           <td className="py-4">
                             <div className="flex items-center gap-2">
@@ -455,6 +462,6 @@ export default function ReferralsPage() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
   );
 }
