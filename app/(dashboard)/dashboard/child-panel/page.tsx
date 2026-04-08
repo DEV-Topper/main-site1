@@ -14,7 +14,7 @@ export default function ChildPanelPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     domain: "",
     adminName: "",
@@ -30,7 +30,7 @@ export default function ChildPanelPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.domain.includes(".")) {
       toast.error("Please enter a valid domain name");
       return;
@@ -78,7 +78,7 @@ export default function ChildPanelPage() {
         <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-500 bg-clip-text text-transparent">
           Child Panel Partnership
         </h1>
-        <p className="text-sm md:text-base text-muted-foreground">Launch your own profitable SMM agency with our white-label solution.</p>
+        <p className="text-sm md:text-base text-muted-foreground">Launch your own white-label social media platform panel in minutes.</p>
       </header>
 
       <div className="grid lg:grid-cols-3 gap-8">
@@ -108,23 +108,25 @@ export default function ChildPanelPage() {
                         Domain Name
                         <span className="text-xs font-normal text-muted-foreground">(yourdomain.com)</span>
                       </label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="domain"
                         required
-                        placeholder="yourdomain.com"
+                        placeholder="e.g yourdomain.com"
                         value={formData.domain}
                         onChange={handleInputChange}
                         className="w-full p-3.5 rounded-xl bg-muted border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted-foreground/50"
                       />
+                      <span className="text-xs font-normal text-muted-foreground">Enter your custom domain without HTTP:// or HTTPS://</span>
                     </div>
+
 
                     {/* Admin Credentials Fields */}
                     <div className="grid md:grid-cols-1 gap-6">
-                       <div className="space-y-3">
+                      <div className="space-y-3">
                         <label className="text-sm font-semibold">Admin Username</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="adminName"
                           required
                           placeholder="Admin Username"
@@ -137,8 +139,8 @@ export default function ChildPanelPage() {
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <label className="text-sm font-semibold">Admin Password</label>
-                          <input 
-                            type="password" 
+                          <input
+                            type="password"
                             name="adminPassword"
                             required
                             placeholder="••••••••"
@@ -149,8 +151,8 @@ export default function ChildPanelPage() {
                         </div>
                         <div className="space-y-3">
                           <label className="text-sm font-semibold">Confirm Password</label>
-                          <input 
-                            type="password" 
+                          <input
+                            type="password"
                             name="confirmPassword"
                             required
                             placeholder="••••••••"
@@ -170,16 +172,17 @@ export default function ChildPanelPage() {
                         </div>
                         <div className="space-y-1">
                           <h3 className="text-sm font-bold text-blue-500">Nameserver Configuration</h3>
-                          <p className="text-xs text-muted-foreground leading-relaxed">To link your domain, you must set your domain's nameservers to:</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">Please point your domain name servers to the following record. This is required for your panel to function.</p>
                         </div>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="p-2.5 bg-background border border-border rounded-xl font-mono text-[11px] text-center shadow-sm select-all">ns1.desocialplug.com</div>
                         <div className="p-2.5 bg-background border border-border rounded-xl font-mono text-[11px] text-center shadow-sm select-all">ns2.desocialplug.com</div>
                       </div>
+                      <span className="text-xs font-normal text-muted-foreground">Note: DNS propagation can take up to 24-48 hours depending on your registrar.</span>
                     </div>
 
-                    <button 
+                    <button
                       type="submit"
                       disabled={loading}
                       className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold flex items-center justify-center gap-3 hover:opacity-95 transition-all disabled:opacity-50 shadow-xl shadow-primary/20 group"
@@ -209,7 +212,7 @@ export default function ChildPanelPage() {
                 <div className="space-y-2">
                   <h2 className="text-2xl font-bold">Successfully Requested!</h2>
                   <p className="text-muted-foreground max-w-md mx-auto">
-                    Your child panel request for <span className="text-primary font-semibold">{formData.domain}</span> has been received. 
+                    Your child panel request for <span className="text-primary font-semibold">{formData.domain}</span> has been received.
                     Our team will provision your panel within 24-48 hours.
                   </p>
                 </div>
@@ -223,7 +226,7 @@ export default function ChildPanelPage() {
                     <span className="font-semibold">{formData.adminName}</span>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => router.push("/dashboard")}
                   className="px-8 py-3 bg-muted hover:bg-muted/80 rounded-xl font-bold transition-all"
                 >
@@ -246,7 +249,7 @@ export default function ChildPanelPage() {
                   <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto">
                     <AlertCircle className="w-10 h-10 text-amber-500" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <h2 className="text-2xl font-bold">Insufficient Balance</h2>
                     <p className="text-muted-foreground leading-relaxed">
