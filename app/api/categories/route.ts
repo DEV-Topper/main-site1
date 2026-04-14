@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Account from '@/models/Account';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function GET() {
   try {
     await connectDB();
@@ -27,7 +37,9 @@ export async function GET() {
       tempMap[platform].sort();
     });
 
-    return NextResponse.json({ success: true, categories: tempMap });
+    return NextResponse.json({ success: true, categories: tempMap }, {
+      headers: corsHeaders
+    });
   } catch (error) {
     console.error('Categories fetch error:', error);
     return NextResponse.json(

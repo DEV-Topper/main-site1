@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key',
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const apiKey = req.headers.get("x-api-key");
@@ -48,8 +58,8 @@ export async function GET(req: Request) {
       logs = logs.filter((log: any) => log.subcategory === subcategory);
     }
 
-    return NextResponse.json(logs);
+    return NextResponse.json(logs, { headers: corsHeaders });
   } catch (error) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
   }
 }
