@@ -63,7 +63,8 @@ export async function GET(req: Request) {
 
       groupedData[plat][sub].push({
         itemId: acc._id,
-        name: acc.account || acc.olaz,
+        type: acc.type || '',
+        name: acc.account || acc.olaz || '',
         price: acc.price || 0,
         followers: acc.followers || 0,
         logsCount: acc.logs || 0,
