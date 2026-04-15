@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
+import Account from "@/models/Account";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,46 +21,62 @@ export async function GET(req: Request) {
   const subcategory = searchParams.get("subcategory"); 
 
   if (!apiKey) {
-    return NextResponse.json({ error: "API Key is required" }, { status: 401 });
+    return NextResponse.json({ error: "API Key is required" }, { status: 401, headers: corsHeaders });
   }
 
   try {
     await connectDB();
     const user = await User.findOne({ apiKey });
     if (!user) {
-      return NextResponse.json({ error: "Invalid API Key" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid API Key" }, { status: 401, headers: corsHeaders });
     }
 
-    // Since we do not have firebase-admin initialized in the user repo with credentials,
-    // we use the public Firestore REST API to match what the admin panel uses.
-    const projectId = "sociallogs-973c5";
-    let url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/uploads`;
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-       return NextResponse.json({ error: "Failed to fetch logs from upstream" }, { status: 500 });
+    let query: any = {
+      status: 'Available',
+      $or: [{ visibleToUsers: true }, { visibleToUsers: { $exists: false } }],
+    };
+
+    if (platform && platform !== 'all') {
+      query.platform = { $regex: platform, $options: 'i' };
     }
     
-    const rawData = await response.json();
-    let logs = (rawData.documents || []).map((doc: any) => {
-      const data = doc.fields;
-      const parsed: any = { id: doc.name.split("/").pop() };
-      for (const [key, value] of Object.entries(data)) {
-         parsed[key] = (value as any).stringValue || (value as any).integerValue || (value as any).timestampValue || null;
+    if (subcategory) {
+      query.subcategory = { $regex: subcategory, $options: 'i' };
+    }
+
+    // Fetch accounts WITH bulkLogs included
+    const accounts = await Account.find(query).select('+bulkLogs').lean();
+
+    // Group the data: { [platform]: { [subcategory]: [ items... ] } }
+    const groupedData: Record<string, Record<string, any[]>> = {};
+
+    accounts.forEach((acc: any) => {
+      const plat = (acc.platform || 'uncategorized').toLowerCase().trim();
+      const sub = acc.subcategory?.trim() || 'General';
+
+      if (!groupedData[plat]) {
+        groupedData[plat] = {};
       }
-      return parsed;
+      if (!groupedData[plat][sub]) {
+        groupedData[plat][sub] = [];
+      }
+
+      groupedData[plat][sub].push({
+        itemId: acc._id,
+        name: acc.account || acc.olaz,
+        price: acc.price || 0,
+        followers: acc.followers || 0,
+        logsCount: acc.logs || 0,
+        availableLogsCount: acc.bulkLogs ? acc.bulkLogs.length : 0,
+        description: acc.description || '',
+        vpnType: acc.vpnType || '',
+        logs: acc.bulkLogs || []
+      });
     });
 
-    // Apply filtering
-    if (platform) {
-      logs = logs.filter((log: any) => log.category === platform);
-    }
-    if (subcategory) {
-      logs = logs.filter((log: any) => log.subcategory === subcategory);
-    }
-
-    return NextResponse.json(logs, { headers: corsHeaders });
+    return NextResponse.json(groupedData, { headers: corsHeaders });
   } catch (error) {
+    console.error('Error fetching public logs API:', error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
   }
 }
