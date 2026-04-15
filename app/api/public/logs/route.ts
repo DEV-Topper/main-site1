@@ -71,6 +71,7 @@ export async function GET(req: Request) {
         availableLogsCount: acc.bulkLogs ? acc.bulkLogs.length : 0,
         description: acc.description || '',
         vpnType: acc.vpnType || '',
+        mailIncluded: acc.mailIncluded || false,
         logs: acc.bulkLogs || []
       });
     });
