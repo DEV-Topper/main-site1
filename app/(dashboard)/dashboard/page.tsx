@@ -38,7 +38,7 @@ export default function DashboardPage() {
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ 
+      transition={{
         duration: 0.6,
         ease: [0.22, 1, 0.36, 1] // Custom quintic ease-out
       }}
@@ -69,13 +69,12 @@ export default function DashboardPage() {
 
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div className="space-y-4 max-w-2xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold uppercase tracking-wider">
+                  {/* <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold uppercase tracking-wider">
                     <Zap className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     New Partnership Features
-                  </div>
+                  </div> */}
                   <h2 className="text-2xl md:text-3xl font-bold leading-tight">
-                    API & Child Panel Solutions <br className="hidden md:block" />
-                    are Coming Soon!
+                    API & Child Panel Solutions
                   </h2>
                   <p className="text-blue-100 text-sm md:text-base max-w-xl">
                     Take your business to the next level with our upcoming white-label panels and
