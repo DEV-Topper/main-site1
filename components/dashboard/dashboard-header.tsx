@@ -200,6 +200,8 @@ export function DashboardHeader() {
 
   const handleLogout = async () => {
     try {
+      // Clear promo dismissal on logout
+      localStorage.removeItem('promo-banner-dismissed-at');
       await fetch('/api/auth/logout', { method: 'POST' });
       router.push('/login');
     } catch (err) {

@@ -18,15 +18,28 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Check if user has dismissed the promo banner
-    const isDismissed = localStorage.getItem('promo-banner-dismissed');
-    if (!isDismissed) {
+    const dismissedAt = localStorage.getItem('promo-banner-dismissed-at');
+    
+    if (dismissedAt) {
+      const now = new Date().getTime();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      
+      // Show again if 24 hours have passed
+      if (now - parseInt(dismissedAt) > twentyFourHours) {
+        setShowPromo(true);
+        localStorage.removeItem('promo-banner-dismissed-at');
+      } else {
+        setShowPromo(false);
+      }
+    } else {
       setShowPromo(true);
     }
   }, []);
 
   const dismissPromo = () => {
     setShowPromo(false);
-    localStorage.setItem('promo-banner-dismissed', 'true');
+    // Store the exact time of dismissal
+    localStorage.setItem('promo-banner-dismissed-at', new Date().getTime().toString());
   };
 
   useEffect(() => {
