@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Terminal, Key, Copy, RefreshCw, Check, Code2, Layers } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import AuthGuard from "@/components/AuthGuard";
+import { ApiDocsContent } from "@/components/developer-api/api-docs-content";
 
 export default function DeveloperApiPage() {
   const [apiKey, setApiKey] = useState<string | null>(null);
@@ -73,36 +74,11 @@ export default function DeveloperApiPage() {
             </button>
           )}
         </div>
-        <p className="text-[10px] md:text-xs text-muted-foreground mt-4">Do not share this key with anyone. It provides full read access to public logs.</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground mt-4">Do not share this key with anyone. It provides full access to your wallet for purchases via the API.</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-card border border-border rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Terminal className="w-5 h-5 text-purple-500" />
-            <h3 className="font-semibold">API Endpoint Reference</h3>
-          </div>
-          <p className="text-sm text-muted-foreground mb-4">Fetch available logs using a standard HTTP GET request with your API key.</p>
-          <pre className="bg-muted p-4 rounded-xl text-[10px] md:text-xs text-muted-foreground overflow-x-auto font-mono">
-            {`curl -X GET "https://desocialplug.com/api/public/logs" \\
-  -H "x-api-key: YOUR_API_KEY"`}
-          </pre>
-        </div>
-
-        <div className="bg-card border border-border rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Layers className="w-5 h-5 text-green-500" />
-            <h3 className="font-semibold">Advanced Filtering</h3>
-          </div>
-          <p className="text-sm text-muted-foreground mb-4">You can target specific platforms or categories using query parameters.</p>
-          <pre className="bg-muted p-4 rounded-xl text-[10px] md:text-xs text-muted-foreground overflow-x-auto font-mono">
-            {`// 1. Fetch only Instagram logs
-GET /api/public/logs?platform=Instagram
-
-// 2. Fetch Facebook Random logs
-GET /api/public/logs?platform=Facebook&subcategory=Random`}
-          </pre>
-        </div>
+      <div className="pt-8 border-t border-border/50">
+        <ApiDocsContent />
       </div>
     </div>
   );

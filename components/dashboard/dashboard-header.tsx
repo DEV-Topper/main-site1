@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, X, Moon, Sun, Globe } from 'lucide-react';
+import { Bell, X, Moon, Sun, Globe, Terminal } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 // ... existing imports ...
 import { useCurrency } from '@/context/CurrencyContext';
@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { useTheme } from 'next-themes';
 
@@ -210,6 +211,15 @@ export function DashboardHeader() {
     <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b px-4 md:px-6 py-3 md:py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
+          {/* API Link */}
+          <Link 
+            href="/dashboard/developer-api"
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors border border-border rounded-lg bg-background/50 hover:bg-background"
+          >
+            <Terminal className="w-4 h-4 text-blue-500" />
+            <span>API</span>
+          </Link>
+
           {/* Currency Switcher */}
           <div className="flex items-center bg-muted/50 rounded-lg p-1 mr-1 md:mr-2">
             <button
@@ -235,6 +245,14 @@ export function DashboardHeader() {
               USD
             </button>
           </div>
+
+          {/* Mobile API Link */}
+          <Link 
+            href="/dashboard/developer-api"
+            className="flex sm:hidden items-center justify-center w-10 h-10 rounded-full border border-gray-200"
+          >
+            <Terminal className="w-5 h-5 text-gray-700" />
+          </Link>
 
           {/* Notifications dropdown */}
           <DropdownMenu>

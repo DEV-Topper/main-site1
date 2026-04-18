@@ -15,6 +15,7 @@ const NAV = [
   { label: "Features", href: "features" },
   { label: "How it works", href: "how-it-works" },
   { label: "FAQ", href: "faq" },
+  { label: "API", href: "/developer-api", isExternal: true },
 ]
 
 export function Header() {
@@ -50,6 +51,12 @@ export function Header() {
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     href: string
   ) => {
+    // If it's a direct link (starts with /), let it be
+    if (href.startsWith("/")) {
+      setOpen(false);
+      return;
+    }
+
     e.preventDefault()
 
     // If href is "home" or empty
@@ -128,7 +135,7 @@ export function Header() {
               {NAV.map(({ label, href }) => (
                 <a
                   key={label}
-                  href={`#${href}`}
+                  href={href.startsWith("/") ? href : `#${href}`}
                   onClick={(e) => handleScroll(e, href)}
                   className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
                 >
@@ -276,7 +283,7 @@ export function Header() {
               {NAV.map(({ label, href }) => (
                 <li key={label}>
                   <a
-                    href={`#${href}`}
+                    href={href.startsWith("/") ? href : `#${href}`}
                     onClick={(e) => handleScroll(e, href)}
                     className="block rounded-md px-3 py-2 text-base font-medium text-white/95 hover:bg-white/10 transition-colors"
                   >
