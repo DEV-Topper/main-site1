@@ -13,7 +13,7 @@ export function ApiDocsContent() {
           <h2 className="text-2xl font-bold tracking-tight">Getting Started</h2>
         </div>
         <p className="text-muted-foreground max-w-3xl leading-relaxed italic">
-          Welcome to the DeSocial Plug Developer API. Our API allows you to programmatically browse available logs and purchase them using your wallet balance. All requests must be authenticated using your unique API key.
+          Welcome to the De’socialPlug Developer API. Our API allows you to programmatically browse available logs and purchase them using your wallet balance. All requests must be authenticated using your unique API key.
         </p>
       </section>
 
@@ -69,14 +69,14 @@ export function ApiDocsContent() {
           </div>
 
           <div className="bg-slate-950 rounded-2xl p-6 shadow-xl border border-slate-800 overflow-hidden relative">
-             <div className="absolute top-0 right-0 p-2 opacity-20">
-                <Code2 className="w-12 h-12 text-blue-400" />
-             </div>
+            <div className="absolute top-0 right-0 p-2 opacity-20">
+              <Code2 className="w-12 h-12 text-blue-400" />
+            </div>
             <h4 className="text-xs font-bold text-slate-400 uppercase mb-4 flex items-center gap-2">
               <Terminal className="w-3 h-3" /> cURL Example
             </h4>
             <pre className="text-[11px] md:text-xs text-blue-300 font-mono whitespace-pre-wrap">
-{`curl -X GET "https://desocialplug.com/api/public/logs?platform=Instagram" \\
+              {`curl -X GET "https://desocialplug.com/api/public/logs?platform=Instagram" \\
   -H "x-api-key: YOUR_API_KEY"`}
             </pre>
           </div>
@@ -101,7 +101,7 @@ export function ApiDocsContent() {
           </div>
           <div className="p-6">
             <pre className="text-[11px] md:text-sm font-mono text-muted-foreground overflow-x-auto whitespace-pre">
-{`{
+              {`{
   "instagram": {
     "High Quality": [
       {
@@ -175,7 +175,7 @@ export function ApiDocsContent() {
               <Terminal className="w-3 h-3" /> Purchase Example
             </h4>
             <pre className="text-[11px] md:text-xs text-purple-300 font-mono whitespace-pre-wrap">
-{`curl -X POST "https://desocialplug.com/api/public/purchase" \\
+              {`curl -X POST "https://desocialplug.com/api/public/purchase" \\
   -H "x-api-key: YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{

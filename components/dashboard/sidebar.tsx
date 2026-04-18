@@ -92,21 +92,9 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
 
         {/* Partnership Dropdown (NOW BELOW REFERRALS) */}
         <div className="space-y-1">
-          <Link
-            href="/dashboard/developer-api"
-            onClick={onClose}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${pathname === "/dashboard/developer-api"
-                ? "bg-blue-500 text-white"
-                : "text-blue-100 hover:bg-blue-700 hover:text-white"
-              }`}
-          >
-            <Terminal className="w-5 h-5" />
-            <span>Developer API</span>
-          </Link>
-
           <button
             onClick={togglePartnership}
-            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isPartnershipOpen || pathname.includes("/dashboard/child-panel")
+            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isPartnershipOpen || pathname.includes("/dashboard/developer-api") || pathname.includes("/dashboard/child-panel")
                 ? "bg-blue-600/50 text-white"
                 : "text-blue-100 hover:bg-blue-700 hover:text-white"
               }`}
@@ -124,6 +112,17 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
 
           {isPartnershipOpen && (
             <div className="pl-9 space-y-1 animate-in slide-in-from-top-2 duration-200">
+              <Link
+                href="/dashboard/developer-api"
+                onClick={onClose}
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/dashboard/developer-api"
+                    ? "text-white bg-blue-500/30"
+                    : "text-blue-200 hover:text-white hover:bg-blue-700/50"
+                  }`}
+              >
+                <Terminal className="w-4 h-4" />
+                <span>API</span>
+              </Link>
               <Link
                 href="/dashboard/child-panel"
                 onClick={onClose}
