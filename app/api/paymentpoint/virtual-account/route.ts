@@ -133,12 +133,15 @@ export async function POST(req: Request) {
 
     const data = await res.json().catch(() => null);
 
+    const isSuccess = data?.status === 'success' || data?.status === true;
+    const bankAccounts = data?.data?.bankAccounts || data?.bankAccounts;
+
     if (
       !res.ok ||
       !data ||
-      data.status !== 'success' ||
-      !Array.isArray(data.bankAccounts) ||
-      !data.bankAccounts[0]
+      !isSuccess ||
+      !Array.isArray(bankAccounts) ||
+      !bankAccounts[0]
     ) {
       console.error('PaymentPoint create virtual account error', data);
       return NextResponse.json(
@@ -150,7 +153,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const bankInfo = data.bankAccounts[0];
+    const bankInfo = bankAccounts[0];
     const bankName = String(bankInfo.bankName || '');
     const accountNumber = String(bankInfo.accountNumber || '');
     const accountName = String(bankInfo.accountName || '');
