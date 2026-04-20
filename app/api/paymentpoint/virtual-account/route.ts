@@ -144,10 +144,17 @@ export async function POST(req: Request) {
       !bankAccounts[0]
     ) {
       console.error('PaymentPoint create virtual account error', data);
+      
+      const providerError = Array.isArray(data?.errors) && data.errors.length > 0 
+        ? data.errors.join(', ') 
+        : (data?.message?.includes('Customer account created successfully') 
+            ? 'Failed to generate bank details. Please contact support.' 
+            : data?.message || 'Invalid response structure');
+
       return NextResponse.json(
         {
           error: 'Unable to create PaymentPoint virtual account',
-          details: data || null,
+          details: { message: providerError },
         },
         { status: 502 }
       );
