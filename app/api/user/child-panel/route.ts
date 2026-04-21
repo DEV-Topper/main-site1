@@ -133,7 +133,7 @@ export async function POST(req: Request) {
       adminPassword: hashedAdminPassword,
       priceInUsd,
       priceInNaira,
-      status: 'active', // Auto-activate immediately on purchase
+      status: 'pending',
     });
 
     await Transaction.create({
