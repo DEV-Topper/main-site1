@@ -6,6 +6,39 @@ import Transaction from '@/models/Transaction';
 import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
 import bcrypt from 'bcryptjs';
 
+const VERCEL_ACCESS_TOKEN = process.env.VERCEL_ACCESS_TOKEN;
+const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID;
+
+async function addDomainToVercel(domain: string): Promise<{ success: boolean; error?: string }> {
+  if (!VERCEL_ACCESS_TOKEN || !VERCEL_PROJECT_ID) {
+    console.warn('Vercel credentials not configured. Skipping domain provisioning.');
+    return { success: true };
+  }
+
+  try {
+    const res = await fetch(`https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${VERCEL_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: domain }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (data.error?.code === 'domain_already_in_use' || data.error?.code === 'domain_already_exists') {
+        return { success: true };
+      }
+      console.error('Vercel domain add error:', data);
+      return { success: false, error: data.error?.message || 'Vercel domain provisioning failed' };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error('Vercel API request failed:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { domain, adminName, adminPassword } = await req.json();
@@ -30,8 +63,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Please provide all required fields' }, { status: 400 });
     }
 
+    // Normalize domain (strip http/https and trailing slashes)
+    const cleanDomain = domain.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase().trim();
+
     // 2. Check for unique domain
-    const existingPanel = await ChildPanel.findOne({ domain });
+    const existingPanel = await ChildPanel.findOne({ domain: cleanDomain });
     if (existingPanel) {
       return NextResponse.json({ error: 'Domain is already registered' }, { status: 400 });
     }
@@ -53,16 +89,14 @@ export async function POST(req: Request) {
     // 5. Debit user wallet
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      {
-        $inc: { walletBalance: -priceInNaira },
-      },
+      { $inc: { walletBalance: -priceInNaira } },
       { new: true }
     );
 
     // 6. Create Child Panel record
     const childPanel = await ChildPanel.create({
       userId: user._id,
-      domain,
+      domain: cleanDomain,
       adminName,
       adminPassword: hashedAdminPassword,
       priceInUsd,
@@ -77,13 +111,21 @@ export async function POST(req: Request) {
       amount: priceInNaira,
       amountUSD: priceInUsd,
       status: 'successful',
-      description: `Child Panel Subscription for ${domain}`,
+      description: `Child Panel Subscription for ${cleanDomain}`,
       reference: childPanel._id.toString(),
     });
+
+    // 8. Automatically register the domain on Vercel
+    const vercelResult = await addDomainToVercel(cleanDomain);
+    if (!vercelResult.success) {
+      console.warn(`Vercel domain provisioning failed for ${cleanDomain}: ${vercelResult.error}. Panel created anyway.`);
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Child panel request submitted successfully',
+      domain: cleanDomain,
+      vercelProvisioned: vercelResult.success,
       newBalance: updatedUser?.walletBalance,
     });
 
