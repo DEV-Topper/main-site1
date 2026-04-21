@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import ChildPanel from '@/models/ChildPanel';
+import User from '@/models/User';
+import Transaction from '@/models/Transaction';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +12,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, x-super-admin-key',
 };
 
-// Validate the super admin secret key
 function isAuthorized(req: Request) {
   const key = req.headers.get('x-super-admin-key');
   return key === process.env.SUPER_ADMIN_SECRET_KEY;
@@ -20,20 +21,16 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders });
 }
 
-// GET — list all panels (with optional status filter)
 export async function GET(req: Request) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
   }
-
   try {
     await connectDB();
     const url = new URL(req.url);
     const status = url.searchParams.get('status');
-
     const query = status ? { status } : {};
     const panels = await ChildPanel.find(query).sort({ createdAt: -1 }).lean();
-
     return NextResponse.json({
       success: true,
       panels: panels.map((p: any) => ({
@@ -43,6 +40,8 @@ export async function GET(req: Request) {
         status: p.status,
         createdAt: p.createdAt,
         userId: p.userId?.toString(),
+        priceInNaira: p.priceInNaira,
+        priceInUsd: p.priceInUsd,
       })),
     }, { headers: corsHeaders });
   } catch (error) {
@@ -50,12 +49,10 @@ export async function GET(req: Request) {
   }
 }
 
-// PATCH — approve or reject a panel
 export async function PATCH(req: Request) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
   }
-
   try {
     await connectDB();
     const { panelId, status } = await req.json();
@@ -65,18 +62,29 @@ export async function PATCH(req: Request) {
     }
 
     const panel = await ChildPanel.findByIdAndUpdate(panelId, { status }, { new: true });
-
     if (!panel) {
       return NextResponse.json({ error: 'Panel not found' }, { status: 404, headers: corsHeaders });
     }
 
+    // Auto-refund the user's DeSocialPlug wallet when a panel is rejected
+    if (status === 'rejected' && panel.userId && panel.priceInNaira) {
+      await User.findByIdAndUpdate(panel.userId, {
+        $inc: { walletBalance: panel.priceInNaira },
+      });
+      await Transaction.create({
+        userUUID: panel.userId.toString(),
+        type: 'refund',
+        amount: panel.priceInNaira,
+        amountUSD: panel.priceInUsd || 10.99,
+        status: 'successful',
+        description: `Refund: Child Panel for ${panel.domain} was rejected`,
+        reference: panel._id.toString(),
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      panel: {
-        id: panel._id.toString(),
-        domain: panel.domain,
-        status: panel.status,
-      },
+      panel: { id: panel._id.toString(), domain: panel.domain, status: panel.status },
     }, { headers: corsHeaders });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });

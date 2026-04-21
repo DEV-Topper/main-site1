@@ -88,10 +88,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Please provide all required fields' }, { status: 400 });
     }
 
-    // Check if user already has a panel
-    const alreadyHas = await ChildPanel.findOne({ userId });
-    if (alreadyHas) {
-      return NextResponse.json({ error: 'You already have a child panel registered.' }, { status: 400 });
+    // Check if user already has a panel — allow resubmission if rejected
+    const existingUserPanel = await ChildPanel.findOne({ userId });
+    if (existingUserPanel) {
+      if (existingUserPanel.status === 'rejected') {
+        // Delete the old rejected panel so they can start fresh
+        await ChildPanel.findByIdAndDelete(existingUserPanel._id);
+      } else {
+        return NextResponse.json({ error: 'You already have a child panel registered.' }, { status: 400 });
+      }
     }
 
     // Normalize domain
