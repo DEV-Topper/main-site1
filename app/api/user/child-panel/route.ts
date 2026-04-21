@@ -14,7 +14,6 @@ async function addDomainToVercel(domain: string): Promise<{ success: boolean; er
     console.warn('Vercel credentials not configured. Skipping domain provisioning.');
     return { success: true };
   }
-
   try {
     const res = await fetch(`https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains`, {
       method: 'POST',
@@ -29,50 +28,81 @@ async function addDomainToVercel(domain: string): Promise<{ success: boolean; er
       if (data.error?.code === 'domain_already_in_use' || data.error?.code === 'domain_already_exists') {
         return { success: true };
       }
-      console.error('Vercel domain add error:', data);
       return { success: false, error: data.error?.message || 'Vercel domain provisioning failed' };
     }
     return { success: true };
   } catch (err: any) {
-    console.error('Vercel API request failed:', err);
     return { success: false, error: err.message };
   }
 }
 
+// GET — fetch the current user's existing child panel
+export async function GET(req: Request) {
+  try {
+    const token = await getTokenFromRequest(req);
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    await connectDB();
+    const session = await getSession(token);
+    if (!session || !session.userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const user = session.userId as any;
+    const userId = user._id.toString();
+
+    const panel = await ChildPanel.findOne({ userId }).sort({ createdAt: -1 }).lean();
+
+    if (!panel) {
+      return NextResponse.json({ exists: false }, { status: 200 });
+    }
+
+    return NextResponse.json({
+      exists: true,
+      domain: panel.domain,
+      adminName: panel.adminName,
+      status: panel.status,
+      panelId: (panel as any)._id.toString(),
+      createdAt: (panel as any).createdAt,
+    }, { status: 200 });
+  } catch (error) {
+    console.error('Child Panel GET error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// POST — purchase a new child panel
 export async function POST(req: Request) {
   try {
     const { domain, adminName, adminPassword } = await req.json();
     const token = await getTokenFromRequest(req);
 
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     await connectDB();
     const session = await getSession(token);
-
-    if (!session || !session.userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!session || !session.userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const user = session.userId as any;
     const userId = user._id.toString();
 
-    // 1. Validate inputs
     if (!domain || !adminName || !adminPassword) {
       return NextResponse.json({ error: 'Please provide all required fields' }, { status: 400 });
     }
 
-    // Normalize domain (strip http/https and trailing slashes)
+    // Check if user already has a panel
+    const alreadyHas = await ChildPanel.findOne({ userId });
+    if (alreadyHas) {
+      return NextResponse.json({ error: 'You already have a child panel registered.' }, { status: 400 });
+    }
+
+    // Normalize domain
     const cleanDomain = domain.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase().trim();
 
-    // 2. Check for unique domain
+    // Check for unique domain
     const existingPanel = await ChildPanel.findOne({ domain: cleanDomain });
     if (existingPanel) {
       return NextResponse.json({ error: 'Domain is already registered' }, { status: 400 });
     }
 
-    // 3. Check user balance (Price: $10.99 = ₦14,287)
     const priceInNaira = 14287;
     const priceInUsd = 10.99;
 
@@ -83,17 +113,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4. Hash admin password
     const hashedAdminPassword = await bcrypt.hash(adminPassword, 10);
 
-    // 5. Debit user wallet
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $inc: { walletBalance: -priceInNaira } },
       { new: true }
     );
 
-    // 6. Create Child Panel record
     const childPanel = await ChildPanel.create({
       userId: user._id,
       domain: cleanDomain,
@@ -101,10 +128,9 @@ export async function POST(req: Request) {
       adminPassword: hashedAdminPassword,
       priceInUsd,
       priceInNaira,
-      status: 'pending',
+      status: 'active', // Auto-activate immediately on purchase
     });
 
-    // 7. Create Transaction record
     await Transaction.create({
       userUUID: userId,
       type: 'purchase',
@@ -115,16 +141,18 @@ export async function POST(req: Request) {
       reference: childPanel._id.toString(),
     });
 
-    // 8. Automatically register the domain on Vercel
+    // Automatically register the domain on Vercel
     const vercelResult = await addDomainToVercel(cleanDomain);
     if (!vercelResult.success) {
-      console.warn(`Vercel domain provisioning failed for ${cleanDomain}: ${vercelResult.error}. Panel created anyway.`);
+      console.warn(`Vercel domain provisioning failed for ${cleanDomain}: ${vercelResult.error}`);
     }
 
     return NextResponse.json({
       success: true,
       message: 'Child panel request submitted successfully',
       domain: cleanDomain,
+      adminName,
+      status: 'pending',
       vercelProvisioned: vercelResult.success,
       newBalance: updatedUser?.walletBalance,
     });
