@@ -68,7 +68,13 @@ export default function ChildPanelPage() {
       const response = await fetch("/api/user/child-panel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: formData.domain, adminName: formData.adminName, adminPassword: formData.adminPassword })
+        body: JSON.stringify({
+          domain: formData.domain,
+          adminName: formData.adminName,
+          adminPassword: formData.adminPassword,
+          priceInNaira: 14287,
+          priceInUsd: 10.99
+        })
       });
       const data = await response.json();
       if (!response.ok) {
