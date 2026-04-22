@@ -82,6 +82,20 @@ export async function PATCH(req: Request) {
       });
     }
 
+    // Automatically delete the domain from Vercel so they can re-use it
+    if ((status === 'rejected' || status === 'cancelled') && process.env.VERCEL_ACCESS_TOKEN) {
+      try {
+        await fetch(`https://api.vercel.com/v10/projects/prj_D4yIoSpvWjjjP8r28sOHRZoMuJNY/domains/${panel.domain}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${process.env.VERCEL_ACCESS_TOKEN}`
+          }
+        });
+      } catch (err) {
+        console.error('Failed to remove domain from Vercel during rejection:', err);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       panel: { id: panel._id.toString(), domain: panel.domain, status: panel.status },
