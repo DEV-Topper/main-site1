@@ -15,7 +15,7 @@ async function addDomainToVercel(domain: string): Promise<{ success: boolean; er
     return { success: true };
   }
   try {
-    const res = await fetch(`https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains`, {
+    const res = await fetch(`https://api.vercel.com/v10/projects/prj_D4yIoSpvWjjjP8r28sOHRZoMuJNY/domains`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${VERCEL_ACCESS_TOKEN}`,
