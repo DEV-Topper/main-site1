@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const corsHeaders = {
@@ -11,24 +11,31 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders });
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      return NextResponse.json({ error: 'Config Error: Missing Supabase URL or Anon Key in Vercel' }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ error: 'Config Error: Missing Supabase URL or Anon Key' }, { status: 500, headers: corsHeaders });
     }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const url = new URL(req.url);
-    const panelId = url.searchParams.get('panelId');
+    
+    // Safer way to get the panelId
+    const { searchParams } = new URL(req.url);
+    const panelId = searchParams.get('panelId');
 
     if (!panelId) {
       return NextResponse.json({ error: 'Request Error: Missing panelId in URL' }, { status: 400, headers: corsHeaders });
     }
 
-    const data = await req.json();
+    let data;
+    try {
+      data = await req.json();
+    } catch (e) {
+      return NextResponse.json({ error: 'Data Error: Invalid JSON body' }, { status: 400, headers: corsHeaders });
+    }
     
     // PocketFi Webhook Structure
     const transaction = data.transaction || {};
@@ -45,10 +52,14 @@ export async function POST(req: Request) {
     ).toString().trim();
 
     if (!accountNumber || amount <= 0) {
-      return NextResponse.json({ error: 'Data Error: Missing account number or amount', received_account: accountNumber, received_amount: amount }, { status: 400, headers: corsHeaders });
+      return NextResponse.json({ 
+        error: 'Data Error: Missing account number or amount', 
+        received_account: accountNumber, 
+        received_amount: amount 
+      }, { status: 400, headers: corsHeaders });
     }
 
-    // Call RPC
+    // Call RPC Function
     const { data: result, error: rpcError } = await supabase.rpc('handle_child_panel_payment', {
       p_panel_id: panelId,
       p_account_number: accountNumber,
@@ -57,12 +68,20 @@ export async function POST(req: Request) {
     });
 
     if (rpcError) {
-      return NextResponse.json({ error: `Database Error: ${rpcError.message}`, code: rpcError.code }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ 
+        error: `Database Error: ${rpcError.message}`, 
+        code: rpcError.code 
+      }, { status: 500, headers: corsHeaders });
     }
 
-    return NextResponse.json({ success: true, message: 'Webhook processed successfully', result }, { status: 200, headers: corsHeaders });
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Webhook processed successfully', 
+      result 
+    }, { status: 200, headers: corsHeaders });
 
   } catch (error: any) {
+    console.error('Webhook Crash:', error);
     return NextResponse.json({ error: `System Crash: ${error.message}` }, { status: 500, headers: corsHeaders });
   }
 }
