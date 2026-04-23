@@ -61,8 +61,8 @@ export default function SuperAdminDashboard() {
       });
       const data = await res.json();
       if (data.success) {
-        // Enriched mapping to match our UI types
-        const enrichedPanels = data.panels.map((p: any) => ({
+        const basePanels = data.panels;
+        setPanels(basePanels.map((p: any) => ({
           ...p,
           ownerName: p.adminName || 'Admin',
           ownerEmail: 'secure@admin.com',
@@ -79,8 +79,39 @@ export default function SuperAdminDashboard() {
           discountPercent: 0,
           totalApiLogs: 0,
           recentApiActivity: []
-        }));
-        setPanels(enrichedPanels);
+        })));
+
+        // Now, fetch real-time stats from each ACTIVE panel's bridge
+        const activePanels = basePanels.filter((p: any) => p.status === 'active');
+        
+        for (const p of activePanels) {
+          try {
+            const statsRes = await fetch(`https://${p.domain}/api/dsp?action=admin-data`, {
+              headers: { 'x-super-admin-key': ADMIN_KEY }
+            });
+            const statsData = await statsRes.json();
+            
+            if (statsData.success && statsData.data) {
+              const { stats, users, transactions } = statsData.data;
+              
+              setPanels(prev => prev.map(panel => {
+                if (panel.id === p.id) {
+                  return {
+                    ...panel,
+                    userCount: stats.total_users || 0,
+                    totalRevenue: stats.total_revenue || 0,
+                    ownerBalance: stats.total_deposits || 0, // In this view, balance is total site deposits
+                    topUsers: users || [],
+                    recentApiActivity: transactions || []
+                  };
+                }
+                return panel;
+              }));
+            }
+          } catch (err) {
+            console.error(`Failed to fetch stats for ${p.domain}:`, err);
+          }
+        }
       }
     } catch (e) {
       console.error('Failed to fetch panels', e);
@@ -112,11 +143,15 @@ export default function SuperAdminDashboard() {
     }
   };
 
+  const totalUsers = panels.reduce((sum, p) => sum + (p.userCount || 0), 0);
+  const aggregateRevenue = panels.reduce((sum, p) => sum + (p.totalRevenue || 0), 0);
+  const globalSpending = panels.reduce((sum, p) => sum + (p.ownerBalance || 0), 0);
+
   const stats = [
     { label: "Total Child Panels", value: panels.length.toString(), icon: <Layout className="w-5 h-5" />, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Pending Requests", value: panels.filter(p => p.status === 'pending').length.toString(), icon: <Clock className="w-5 h-5" />, color: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Aggregate Profit", value: "₦571,199", icon: <TrendingUp className="w-5 h-5" />, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Global Spending", value: "₦3.03M", icon: <DollarSign className="w-5 h-5" />, color: "text-orange-600", bg: "bg-orange-50" },
+    { label: "Total User Base", value: totalUsers.toLocaleString(), icon: <Users className="w-5 h-5" />, color: "text-violet-600", bg: "bg-violet-50" },
+    { label: "Aggregate Revenue", value: `₦${aggregateRevenue.toLocaleString()}`, icon: <TrendingUp className="w-5 h-5" />, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "Global Deposits", value: `₦${globalSpending.toLocaleString()}`, icon: <DollarSign className="w-5 h-5" />, color: "text-orange-600", bg: "bg-orange-50" },
   ];
 
   const filteredPanels = panels.filter(p => {
