@@ -63,10 +63,12 @@ export default function SuperAdminPage() {
     else setLoading(true);
     
     try {
+      // FORCE MATCH with backend fallback to resolve connection issues
       const secretKey = "dsp_master_secret_2025_security_bypass"; 
       
       const res = await fetch(`/api/admin/child-panels${filter !== 'all' ? `?status=${filter}` : ''}`, {
-        headers: { 'x-super-admin-key': secretKey }
+        headers: { 'x-super-admin-key': secretKey },
+        cache: 'no-store'
       });
       const data = await res.json();
       
