@@ -194,64 +194,68 @@ export default function ChildPanelPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 md:space-y-8 min-h-screen bg-background text-foreground mt-4">
-      <header className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-500 bg-clip-text text-transparent">
-          Child Panel Partnership
-        </h1>
-        <p className="text-sm md:text-base text-muted-foreground">Launch your own white-label social media marketplace panel in minutes.</p>
-      </header>
+      {(!existingPanel?.exists || existingPanel.status !== 'active') && (
+        <header className="space-y-2">
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-500 bg-clip-text text-transparent">
+            Child Panel Partnership
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground">Launch your own white-label social media marketplace panel in minutes.</p>
+        </header>
+      )}
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
+      <div className={`grid ${existingPanel?.status === 'active' ? 'grid-cols-1' : 'lg:grid-cols-3'} gap-8`}>
+        <div className={existingPanel?.status === 'active' ? 'w-full max-w-3xl mx-auto' : 'lg:col-span-2'}>
           <AnimatePresence mode="wait">
 
             {/* ─── ACTIVE/PENDING: Show status + DNS guide ─── */}
             {existingPanel?.exists && existingPanel.status !== 'rejected' ? (
               <motion.div key="existing" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-
+                
                 {/* Subscription Status Card */}
                 <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl">
-                  <div className="bg-gradient-to-r from-slate-900 to-blue-950 p-6 md:p-8 text-white relative">
+                  <div className="bg-gradient-to-r from-slate-900 to-blue-950 p-4 md:p-8 text-white relative">
                     <div className="absolute top-0 right-0 p-8 opacity-10"><Cpu className="w-24 h-24" /></div>
                     <div className="flex items-start justify-between relative z-10">
                       <div className="space-y-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${existingPanel.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                          <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${existingPanel.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
                             }`}>
                             {existingPanel.status}
                           </span>
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Plan: Pro Monthly</span>
+                          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Pro Monthly</span>
                         </div>
-                        <h2 className="text-2xl font-black tracking-tight">{existingPanel.domain}</h2>
-                        <p className="text-blue-200/60 text-xs font-medium">Managed White-Label Infrastructure</p>
+                        <h2 className="text-xl md:text-2xl font-black tracking-tight">{existingPanel.domain}</h2>
+                        <p className="text-blue-200/60 text-[10px] md:text-xs font-medium">Managed Infrastructure</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-300/60 mb-1">Monthly Billing</p>
-                        <p className="text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
+                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-blue-300/60 mb-1">Billing</p>
+                        <p className="text-xl md:text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
                       </div>
                     </div>
 
                     <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
                       <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Next Renewal Date & Time</p>
-                        <p className="text-sm font-bold flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-blue-400" />
-                          {existingPanel.expires_at ? (
-                            <span className="flex flex-col">
+                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Next Renewal</p>
+                        <div className="text-xs md:text-sm font-bold flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5 text-blue-400" />
+                            {existingPanel.expires_at ? (
                               <span>{new Date(existingPanel.expires_at).toLocaleDateString()} at {new Date(existingPanel.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                              <div className="mt-2 p-2 bg-white/5 rounded-lg border border-white/10 w-fit">
-                                <CountdownTimer expiryDate={existingPanel.expires_at} />
-                              </div>
-                            </span>
-                          ) : 'N/A'}
-                        </p>
+                            ) : 'N/A'}
+                          </div>
+                          {existingPanel.expires_at && (
+                            <div className="p-1.5 bg-white/5 rounded-lg border border-white/10 w-fit">
+                              <CountdownTimer expiryDate={existingPanel.expires_at} />
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Auto-Renewal</p>
+                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Auto-Renewal</p>
                         <button
                           onClick={handleToggleAutoRenew}
                           disabled={togglingRenew}
-                          className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase transition-all ${existingPanel.auto_renew
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase transition-all ${existingPanel.auto_renew
                               ? 'bg-green-500 text-white shadow-lg shadow-green-500/20'
                               : 'bg-white/10 text-slate-300 hover:bg-white/20'
                             }`}
@@ -262,82 +266,89 @@ export default function ChildPanelPage() {
                     </div>
                   </div>
 
-                  <div className="p-6 md:p-8 bg-card flex items-center justify-between">
+                  <div className="p-4 md:p-8 bg-card flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                        <Shield className="w-5 h-5" />
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                        <Shield className="w-4 h-4 md:w-5 md:h-5" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Access</p>
-                        <p className="text-sm font-bold">{existingPanel.adminName || 'Admin'}</p>
+                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Access</p>
+                        <a 
+                          href={`https://${existingPanel.domain}/admin`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs md:text-sm font-bold text-primary hover:underline flex items-center gap-1.5"
+                        >
+                          {existingPanel.domain}/admin
+                          <ArrowRight className="w-3 h-3" />
+                        </a>
                       </div>
                     </div>
                     {existingPanel.status === 'expired' && !existingPanel.auto_renew && (
                       <button
                         onClick={handleManualRenew}
                         disabled={loading}
-                        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
+                        className="px-4 py-2.5 md:px-6 md:py-3 bg-primary text-primary-foreground rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
                       >
-                        {loading ? 'Processing...' : 'Renew Now'}
+                        {loading ? '...' : 'Renew Now'}
                       </button>
                     )}
                   </div>
                 </div>
 
-                {/* DNS Instructions */}
-                <div className="bg-slate-900 text-white rounded-3xl overflow-hidden shadow-2xl">
-                  <div className="p-5 md:p-6 border-b border-white/10 flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-blue-400" />
-                    <h3 className="font-bold">DNS Configuration Guide</h3>
+                {/* DNS Instructions — Only show if not fully active */}
+                {existingPanel.status !== 'active' && (
+                  <div className="bg-slate-900 text-white rounded-3xl overflow-hidden shadow-2xl">
+                    <div className="p-5 md:p-6 border-b border-white/10 flex items-center gap-3">
+                      <Globe className="w-5 h-5 text-blue-400" />
+                      <h3 className="font-bold">DNS Configuration Guide</h3>
+                    </div>
+                    <div className="p-5 md:p-6 space-y-5">
+                      <p className="text-sm text-slate-300">
+                        Go to the place where you bought your domain (Namecheap, GoDaddy, Cloudflare, etc.) and add this record:
+                      </p>
+                      <div className="rounded-xl overflow-hidden border border-white/10">
+                        <table className="w-full text-sm text-left">
+                          <thead className="bg-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                            <tr>
+                              <th className="px-4 py-3">Type</th>
+                              <th className="px-4 py-3">Name / Host</th>
+                              <th className="px-4 py-3">Value / Points To</th>
+                              <th className="px-4 py-3">TTL</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr className="border-t border-white/10">
+                              <td className="px-4 py-3 font-mono text-blue-300 font-bold text-xs">CNAME</td>
+                              <td className="px-4 py-3 font-mono text-[10px]"><span className="text-yellow-300">@</span> <span className="text-slate-500 text-[10px]">(or www)</span></td>
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                  <code className="text-[10px] text-green-300 bg-white/5 px-2 py-0.5 rounded">cname.vercel-dns.com</code>
+                                  <CopyButton text="cname.vercel-dns.com" />
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-slate-400 text-[10px]">Auto</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="space-y-3">
+                        {[
+                          "Log into your domain registrar (Namecheap, GoDaddy, Cloudflare, etc.)",
+                          `Find the DNS settings for ${existingPanel.domain}`,
+                          "Add a new CNAME record: name = @ (or www), value = cname.vercel-dns.com",
+                          "Save the changes and wait up to 24 hours for DNS to propagate globally",
+                          "Once DNS is set and your panel is approved, customers can visit your domain!",
+                        ].map((text, i) => (
+                          <div key={i} className="flex items-start gap-3">
+                            <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
+                            <p className="text-sm text-slate-300">{text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-5 md:p-6 space-y-5">
-                    <p className="text-sm text-slate-300">
-                      Go to the place where you bought your domain (Namecheap, GoDaddy, Cloudflare, etc.) and add this record:
-                    </p>
-                    <div className="rounded-xl overflow-hidden border border-white/10">
-                      <table className="w-full text-sm text-left">
-                        <thead className="bg-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                          <tr>
-                            <th className="px-4 py-3">Type</th>
-                            <th className="px-4 py-3">Name / Host</th>
-                            <th className="px-4 py-3">Value / Points To</th>
-                            <th className="px-4 py-3">TTL</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className="border-t border-white/10">
-                            <td className="px-4 py-3 font-mono text-blue-300 font-bold text-xs">CNAME</td>
-                            <td className="px-4 py-3 font-mono text-[10px]"><span className="text-yellow-300">@</span> <span className="text-slate-500 text-[10px]">(or www)</span></td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                <code className="text-[10px] text-green-300 bg-white/5 px-2 py-0.5 rounded">cname.vercel-dns.com</code>
-                                <CopyButton text="cname.vercel-dns.com" />
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-slate-400 text-[10px]">Auto</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <div className="space-y-3">
-                      {[
-                        "Log into your domain registrar (Namecheap, GoDaddy, Cloudflare, etc.)",
-                        `Find the DNS settings for ${existingPanel.domain}`,
-                        "Add a new CNAME record: name = @ (or www), value = cname.vercel-dns.com",
-                        "Save the changes and wait up to 24 hours for DNS to propagate globally",
-                        "Once DNS is set and your panel is approved, customers can visit your domain!",
-                      ].map((text, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
-                          <p className="text-sm text-slate-300">{text}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-xs">
-                      ⚠️ DNS changes can take 24-48 hours to propagate globally.
-                    </div>
-                  </div>
-                </div>
+                )}
 
                 {/* Subscription History Table */}
                 {/* <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
@@ -502,100 +513,102 @@ export default function ChildPanelPage() {
         </div>
 
         {/* ─── RIGHT COLUMN ─── */}
-        <div className="space-y-6">
-          {/* DNS card — only show on the form view */}
-          {showForm && (
-            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-              <button
-                onClick={() => setIsDNSOpen(!isDNSOpen)}
-                className="w-full p-5 flex items-center justify-between hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/10 rounded-lg"><Monitor className="w-5 h-5 text-blue-500" /></div>
-                  <h3 className="font-bold text-sm uppercase tracking-wider">DNS Configuration</h3>
-                </div>
-                <motion.div animate={{ rotate: isDNSOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
-                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                </motion.div>
-              </button>
-              <AnimatePresence initial={false}>
-                {isDNSOpen && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }}>
-                    <div className="p-5 pt-0 space-y-4 border-t border-border/50">
-                      <p className="text-[13px] text-muted-foreground leading-relaxed">
-                        Please point your domain name servers to the following record. This is required for your panel to function.
-                      </p>
-                      <div className="grid gap-2">
-                        <div className="p-3 bg-muted/50 border border-border rounded-xl font-mono text-[11px] flex items-center justify-between group">
-                          <span className="select-all">cname.vercel-dns.com</span>
-                          <div className="text-[9px] uppercase font-bold text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</div>
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground/70 italic bg-muted/30 p-3 rounded-lg border border-border/30">
-                        Note: DNS propagation can take up to 24-48 hours depending on your registrar.
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-
-          {/* Package Summary */}
-          <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-6 text-white shadow-xl shadow-blue-500/20">
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Zap className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              Package Summary
-            </h3>
-            <div className="space-y-3 pb-4 border-b border-white/10">
-              <div className="flex justify-between text-sm">
-                <span className="opacity-70">Child Panel Subscription</span>
-                <span className="font-medium">Monthly Plan</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="opacity-70">White-Label Status</span>
-                <span className="font-medium text-green-400">Yes</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="opacity-70">API Integration</span>
-                <span className="font-medium text-blue-300 italic">Full Access</span>
-              </div>
-            </div>
-            <div className="pt-4 space-y-1">
-              <div className="text-xs opacity-70 uppercase font-bold tracking-wider">Total Monthly Price</div>
-              <div className="text-4xl font-bold tabular-nums tracking-tight">{formatAmount(priceInNaira)}</div>
-              <div className="text-[10px] opacity-60">* Renewal managed via wallet balance</div>
-            </div>
-          </div>
-
-          {/* Premium Benefits */}
-          <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-            <h3 className="font-bold flex items-center gap-2 text-sm uppercase tracking-wider opacity-60">
-              Premium Benefits
-            </h3>
-            <ul className="space-y-3">
-              {[
-                "Fully Branded SMM Panel",
-                "Full API Order Sync",
-                "Profit Margin Management",
-                "Unlimited Service Import",
-                "Free Technical Support",
-                "Daily Database Backups"
-              ].map((item, i) => (
-                <motion.li
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="text-sm text-foreground/80 flex items-center gap-3"
+        {(!existingPanel?.exists || existingPanel.status !== 'active') && (
+          <div className="space-y-6">
+            {/* DNS card — only show on the form view */}
+            {showForm && (
+              <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+                <button
+                  onClick={() => setIsDNSOpen(!isDNSOpen)}
+                  className="w-full p-5 flex items-center justify-between hover:bg-muted/50 transition-colors"
                 >
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  {item}
-                </motion.li>
-              ))}
-            </ul>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg"><Monitor className="w-5 h-5 text-blue-500" /></div>
+                    <h3 className="font-bold text-sm uppercase tracking-wider">DNS Configuration</h3>
+                  </div>
+                  <motion.div animate={{ rotate: isDNSOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  </motion.div>
+                </button>
+                <AnimatePresence initial={false}>
+                  {isDNSOpen && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }}>
+                      <div className="p-5 pt-0 space-y-4 border-t border-border/50">
+                        <p className="text-[13px] text-muted-foreground leading-relaxed">
+                          Please point your domain name servers to the following record. This is required for your panel to function.
+                        </p>
+                        <div className="grid gap-2">
+                          <div className="p-3 bg-muted/50 border border-border rounded-xl font-mono text-[11px] flex items-center justify-between group">
+                            <span className="select-all">cname.vercel-dns.com</span>
+                            <div className="text-[9px] uppercase font-bold text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</div>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground/70 italic bg-muted/30 p-3 rounded-lg border border-border/30">
+                          Note: DNS propagation can take up to 24-48 hours depending on your registrar.
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Package Summary */}
+            <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-6 text-white shadow-xl shadow-blue-500/20">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Zap className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                Package Summary
+              </h3>
+              <div className="space-y-3 pb-4 border-b border-white/10">
+                <div className="flex justify-between text-sm">
+                  <span className="opacity-70">Child Panel Subscription</span>
+                  <span className="font-medium">Monthly Plan</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="opacity-70">White-Label Status</span>
+                  <span className="font-medium text-green-400">Yes</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="opacity-70">API Integration</span>
+                  <span className="font-medium text-blue-300 italic">Full Access</span>
+                </div>
+              </div>
+              <div className="pt-4 space-y-1">
+                <div className="text-xs opacity-70 uppercase font-bold tracking-wider">Total Monthly Price</div>
+                <div className="text-4xl font-bold tabular-nums tracking-tight">{formatAmount(priceInNaira)}</div>
+                <div className="text-[10px] opacity-60">* Renewal managed via wallet balance</div>
+              </div>
+            </div>
+
+            {/* Premium Benefits */}
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+              <h3 className="font-bold flex items-center gap-2 text-sm uppercase tracking-wider opacity-60">
+                Premium Benefits
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  "Fully Branded SMM Panel",
+                  "Full API Order Sync",
+                  "Profit Margin Management",
+                  "Unlimited Service Import",
+                  "Free Technical Support",
+                  "Daily Database Backups"
+                ].map((item, i) => (
+                  <motion.li
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="text-sm text-foreground/80 flex items-center gap-3"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    {item}
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
