@@ -160,74 +160,72 @@ export default function ChildPanelPage() {
             {/* ─── ACTIVE/PENDING: Show status + DNS guide ─── */}
             {existingPanel?.exists && existingPanel.status !== 'rejected' ? (
               <motion.div key="existing" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                
+
                 {/* Subscription Status Card */}
                 <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl">
                   <div className="bg-gradient-to-r from-slate-900 to-blue-950 p-6 md:p-8 text-white relative">
                     <div className="absolute top-0 right-0 p-8 opacity-10"><Cpu className="w-24 h-24" /></div>
                     <div className="flex items-start justify-between relative z-10">
                       <div className="space-y-1">
-                         <div className="flex items-center gap-3 mb-2">
-                            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
-                              existingPanel.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${existingPanel.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
                             }`}>
-                              {existingPanel.status}
-                            </span>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Plan: Pro Monthly</span>
-                         </div>
-                         <h2 className="text-2xl font-black tracking-tight">{existingPanel.domain}</h2>
-                         <p className="text-blue-200/60 text-xs font-medium">Managed White-Label Infrastructure</p>
+                            {existingPanel.status}
+                          </span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Plan: Pro Monthly</span>
+                        </div>
+                        <h2 className="text-2xl font-black tracking-tight">{existingPanel.domain}</h2>
+                        <p className="text-blue-200/60 text-xs font-medium">Managed White-Label Infrastructure</p>
                       </div>
                       <div className="text-right">
-                         <p className="text-[10px] font-black uppercase tracking-widest text-blue-300/60 mb-1">Monthly Billing</p>
-                         <p className="text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-300/60 mb-1">Monthly Billing</p>
+                        <p className="text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
                       </div>
                     </div>
 
                     <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
-                       <div className="space-y-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Next Renewal Date</p>
-                          <p className="text-sm font-bold flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-blue-400" />
-                            {existingPanel.expires_at ? new Date(existingPanel.expires_at).toLocaleDateString() : 'N/A'}
-                          </p>
-                       </div>
-                       <div className="flex flex-col items-end gap-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Auto-Renewal</p>
-                          <button 
-                            onClick={handleToggleAutoRenew}
-                            disabled={togglingRenew}
-                            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase transition-all ${
-                              existingPanel.auto_renew 
-                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' 
-                                : 'bg-white/10 text-slate-300 hover:bg-white/20'
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Next Renewal Date</p>
+                        <p className="text-sm font-bold flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-blue-400" />
+                          {existingPanel.expires_at ? new Date(existingPanel.expires_at).toLocaleDateString() : 'N/A'}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Auto-Renewal</p>
+                        <button
+                          onClick={handleToggleAutoRenew}
+                          disabled={togglingRenew}
+                          className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase transition-all ${existingPanel.auto_renew
+                              ? 'bg-green-500 text-white shadow-lg shadow-green-500/20'
+                              : 'bg-white/10 text-slate-300 hover:bg-white/20'
                             }`}
-                          >
-                            {togglingRenew ? '...' : existingPanel.auto_renew ? 'Enabled' : 'Disabled'}
-                          </button>
-                       </div>
+                        >
+                          {togglingRenew ? '...' : existingPanel.auto_renew ? 'Enabled' : 'Disabled'}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
                   <div className="p-6 md:p-8 bg-card flex items-center justify-between">
-                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                          <Shield className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Access</p>
-                          <p className="text-sm font-bold">{existingPanel.adminName || 'Admin'}</p>
-                        </div>
-                     </div>
-                     {existingPanel.status === 'expired' && !existingPanel.auto_renew && (
-                       <button 
-                          onClick={handleManualRenew}
-                          disabled={loading}
-                          className="px-6 py-3 bg-primary text-primary-foreground rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
-                        >
-                         {loading ? 'Processing...' : 'Renew Now'}
-                       </button>
-                     )}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                        <Shield className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Access</p>
+                        <p className="text-sm font-bold">{existingPanel.adminName || 'Admin'}</p>
+                      </div>
+                    </div>
+                    {existingPanel.status === 'expired' && !existingPanel.auto_renew && (
+                      <button
+                        onClick={handleManualRenew}
+                        disabled={loading}
+                        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
+                      >
+                        {loading ? 'Processing...' : 'Renew Now'}
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -287,7 +285,7 @@ export default function ChildPanelPage() {
                 </div>
 
                 {/* Subscription History Table */}
-                <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+                {/* <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
                    <div className="p-6 border-b border-border/50 flex items-center gap-3">
                       <Clock className="w-5 h-5 text-primary" />
                       <h3 className="font-black text-sm uppercase tracking-widest">Billing History</h3>
@@ -328,7 +326,7 @@ export default function ChildPanelPage() {
                          </tbody>
                       </table>
                    </div>
-                </div>
+                </div> */}
               </motion.div>
 
             ) : (
