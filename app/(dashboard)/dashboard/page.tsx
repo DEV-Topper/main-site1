@@ -19,11 +19,11 @@ export default function DashboardPage() {
   useEffect(() => {
     // Check if user has dismissed the promo banner
     const dismissedAt = localStorage.getItem('promo-banner-dismissed-at');
-    
+
     if (dismissedAt) {
       const now = new Date().getTime();
       const twentyFourHours = 24 * 60 * 60 * 1000;
-      
+
       // Show again if 24 hours have passed
       if (now - parseInt(dismissedAt) > twentyFourHours) {
         setShowPromo(true);
@@ -82,10 +82,10 @@ export default function DashboardPage() {
 
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div className="space-y-4 max-w-2xl">
-                  {/* <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold uppercase tracking-wider">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold uppercase tracking-wider">
                     <Zap className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     New Partnership Features
-                  </div> */}
+                  </div>
                   <h2 className="text-2xl md:text-3xl font-bold leading-tight">
                     API & Child Panel Solutions
                   </h2>
