@@ -14,14 +14,15 @@ export async function OPTIONS() {
 export async function POST(req: Request) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseServiceKey) {
+    if (!supabaseUrl || !supabaseAnonKey) {
       console.error('Missing Supabase environment variables');
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500, headers: corsHeaders });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // We use the ANON key here because the RPC function is "SECURITY DEFINER" (it has its own power)
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
     const url = new URL(req.url);
     const panelId = url.searchParams.get('panelId');
 
@@ -52,57 +53,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Invalid transaction data' }, { status: 200, headers: corsHeaders });
     }
 
-    // 1. Find the profile in Supabase that matches the virtual account and panelId
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('virtual_account_number', accountNumber)
-      .eq('panel_id', panelId)
-      .maybeSingle();
+    // Call our "Smart Function" in Supabase
+    const { data: result, error: rpcError } = await supabase.rpc('handle_child_panel_payment', {
+      p_panel_id: panelId,
+      p_account_number: accountNumber,
+      p_amount: amount,
+      p_reference: reference
+    });
 
-    if (profileError || !profile) {
-      console.error(`Webhook Error: No matching profile found for account ${accountNumber} in panel ${panelId}`);
-      return NextResponse.json({ message: 'Profile not found' }, { status: 200, headers: corsHeaders });
+    if (rpcError) {
+      console.error('RPC Error:', rpcError);
+      throw new Error(`RPC Failed: ${rpcError.message}`);
     }
 
-    // 2. Prevent duplicate transactions
-    const { data: existingTxn } = await supabase
-      .from('transactions')
-      .select('id')
-      .eq('transaction_id', reference)
-      .eq('panel_id', panelId)
-      .maybeSingle();
-
-    if (existingTxn) {
-      return NextResponse.json({ message: 'Duplicate transaction ignored' }, { status: 200, headers: corsHeaders });
-    }
-
-    // 3. Update the user's wallet balance
-    const newBalance = Number(profile.wallet_balance || 0) + amount;
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ wallet_balance: newBalance })
-      .eq('user_id', profile.user_id)
-      .eq('panel_id', panelId);
-
-    if (updateError) {
-      throw new Error(`Failed to update wallet: ${updateError.message}`);
-    }
-
-    // 4. Record the transaction
-    await supabase
-      .from('transactions')
-      .insert({
-        user_id: profile.user_id,
-        panel_id: panelId,
-        transaction_id: reference,
-        type: 'deposit',
-        amount: amount,
-        description: `Funded wallet via PocketFi (Ref: ${reference})`,
-        status: 'successful'
-      });
-
-    return NextResponse.json({ message: 'Webhook processed successfully' }, { status: 200, headers: corsHeaders });
+    return NextResponse.json({ message: 'Webhook processed successfully', result }, { status: 200, headers: corsHeaders });
 
   } catch (error: any) {
     console.error('PocketFi Multi-Tenant Webhook error:', error);
