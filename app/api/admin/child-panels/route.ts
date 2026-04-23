@@ -48,12 +48,18 @@ export async function GET(req: Request) {
 
       if (p.status === 'active') {
         try {
-          const statsResp = await fetch(`https://${p.domain}/api/dsp?action=admin-data&panelId=${p._id}`, {
+          const pId = p._id.toString();
+          const statsResp = await fetch(`https://${p.domain}/api/dsp?action=admin-data&panelId=${pId}`, {
             headers: {
               'x-super-admin-key': process.env.SUPER_ADMIN_SECRET_KEY || "dsp_superadmin_2025_secret_key_change_this"
             },
-            next: { revalidate: 60 } // Cache for 1 minute
+            next: { revalidate: 60 }
           });
+          
+          if (!statsResp.ok) {
+            console.error(`Bridge Error for ${p.domain}: Status ${statsResp.status}`);
+          }
+
           const statsData = await statsResp.json();
           if (statsData.success && statsData.data?.stats) {
             panelData.stats = {
@@ -63,7 +69,7 @@ export async function GET(req: Request) {
             };
           }
         } catch (err) {
-          console.error(`Failed to fetch stats for ${p.domain}:`, err);
+          console.error(`Failed to connect to ${p.domain} bridge:`, err);
         }
       }
       return panelData;
