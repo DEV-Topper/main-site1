@@ -1,64 +1,106 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import User from '@/models/User';
 import ChildPanel from '@/models/ChildPanel';
-import { getSession, getTokenFromRequest } from '@/lib/auth-mongo';
+import User from '@/models/User';
+import Transaction from '@/models/Transaction';
+
+export const dynamic = 'force-dynamic';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, x-super-admin-key',
+};
+
+function isAuthorized(req: Request) {
+  const key = req.headers.get('x-super-admin-key');
+  return key === process.env.SUPER_ADMIN_SECRET_KEY;
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
 
 export async function GET(req: Request) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+  }
   try {
-    const token = await getTokenFromRequest(req);
-    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
     await connectDB();
-    const session = await getSession(token);
-    if (!session || !session.userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    // Verify Super Admin Role
-    const user = await User.findById(session.userId);
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden: Super Admin access required' }, { status: 403 });
-    }
-
-    // Fetch all child panels and populate owner info
-    const panels = await ChildPanel.find()
-      .populate('userId', 'username email walletBalance')
-      .sort({ createdAt: -1 })
-      .lean();
-
-    console.log(`[SuperAdmin] Found ${panels.length} panels`);
-    
-    return NextResponse.json({ success: true, panels }, { status: 200 });
-  } catch (error: any) {
-    console.error('Super Admin Panels GET error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const url = new URL(req.url);
+    const status = url.searchParams.get('status');
+    const query = status ? { status } : {};
+    const panels = await ChildPanel.find(query).sort({ createdAt: -1 }).lean();
+    return NextResponse.json({
+      success: true,
+      panels: panels.map((p: any) => ({
+        id: p._id.toString(),
+        domain: p.domain,
+        adminName: p.adminName,
+        status: p.status,
+        createdAt: p.createdAt,
+        userId: p.userId?.toString(),
+        priceInNaira: p.priceInNaira,
+        priceInUsd: p.priceInUsd,
+      })),
+    }, { headers: corsHeaders });
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 }
 
-// Update panel status (Approve/Reject/Suspend)
 export async function PATCH(req: Request) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+  }
   try {
-    const token = await getTokenFromRequest(req);
-    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { panelId, status, expiresAt, autoRenew } = await req.json();
-
     await connectDB();
-    const session = await getSession(token);
-    if (!session || !session.userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { panelId, status } = await req.json();
 
-    const user = await User.findById(session.userId);
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!panelId || !['active', 'rejected', 'cancelled'].includes(status)) {
+      return NextResponse.json({ error: 'Invalid panelId or status' }, { status: 400, headers: corsHeaders });
     }
 
-    const updatedPanel = await ChildPanel.findByIdAndUpdate(
-      panelId,
-      { status, expiresAt, autoRenew },
-      { new: true }
-    );
+    const panel = await ChildPanel.findByIdAndUpdate(panelId, { status }, { new: true });
+    if (!panel) {
+      return NextResponse.json({ error: 'Panel not found' }, { status: 404, headers: corsHeaders });
+    }
 
-    return NextResponse.json({ success: true, panel: updatedPanel }, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Auto-refund the user's DeSocialPlug wallet when a panel is rejected
+    if (status === 'rejected' && panel.userId && panel.priceInNaira) {
+      await User.findByIdAndUpdate(panel.userId, {
+        $inc: { walletBalance: panel.priceInNaira },
+      });
+      await Transaction.create({
+        userUUID: panel.userId.toString(),
+        type: 'refund',
+        amount: panel.priceInNaira,
+        amountUSD: panel.priceInUsd || 10.99,
+        status: 'successful',
+        description: `Refund: Child Panel for ${panel.domain} was rejected`,
+        reference: panel._id.toString(),
+      });
+    }
+
+    // Automatically delete the domain from Vercel so they can re-use it
+    if ((status === 'rejected' || status === 'cancelled') && process.env.VERCEL_ACCESS_TOKEN) {
+      try {
+        await fetch(`https://api.vercel.com/v10/projects/prj_D4yIoSpvWjjjP8r28sOHRZoMuJNY/domains/${panel.domain}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${process.env.VERCEL_ACCESS_TOKEN}`
+          }
+        });
+      } catch (err) {
+        console.error('Failed to remove domain from Vercel during rejection:', err);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      panel: { id: panel._id.toString(), domain: panel.domain, status: panel.status },
+    }, { headers: corsHeaders });
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 }
