@@ -25,6 +25,8 @@ export async function GET(req: Request) {
       .sort({ createdAt: -1 })
       .lean();
 
+    console.log(`[SuperAdmin] Found ${panels.length} panels`);
+    
     return NextResponse.json({ success: true, panels }, { status: 200 });
   } catch (error: any) {
     console.error('Super Admin Panels GET error:', error);
