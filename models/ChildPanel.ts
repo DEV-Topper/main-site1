@@ -7,7 +7,10 @@ export interface IChildPanel extends Document {
   adminPassword?: string; // Stored hashed
   priceInUsd: number;
   priceInNaira: number;
-  status: 'pending' | 'active' | 'rejected' | 'cancelled';
+  subscriptionPrice: number;
+  expiresAt: Date;
+  autoRenew: boolean;
+  status: 'pending' | 'active' | 'rejected' | 'cancelled' | 'expired';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,9 +47,21 @@ const ChildPanelSchema: Schema<IChildPanel> = new Schema(
       required: true,
       default: 14287,
     },
+    subscriptionPrice: {
+      type: Number,
+      default: 14287,
+    },
+    expiresAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+    },
+    autoRenew: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
-      enum: ['pending', 'active', 'rejected', 'cancelled'],
+      enum: ['pending', 'active', 'rejected', 'cancelled', 'expired'],
       default: 'pending',
     },
   },

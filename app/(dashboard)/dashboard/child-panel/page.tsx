@@ -12,8 +12,12 @@ interface ExistingPanel {
   exists: boolean;
   domain?: string;
   adminName?: string;
-  status?: 'pending' | 'active' | 'rejected' | 'cancelled';
+  status?: 'pending' | 'active' | 'rejected' | 'cancelled' | 'expired';
   panelId?: string;
+  expires_at?: string;
+  auto_renew?: boolean;
+  subscription_price?: number;
+  history?: any[];
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -36,6 +40,7 @@ export default function ChildPanelPage() {
   const [loading, setLoading] = useState(false);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [isDNSOpen, setIsDNSOpen] = useState(true);
+  const [togglingRenew, setTogglingRenew] = useState(false);
 
   const [formData, setFormData] = useState({
     domain: "",
@@ -47,12 +52,54 @@ export default function ChildPanelPage() {
   const priceInNaira = 14287;
 
   // Load existing panel on mount
-  useEffect(() => {
+  const loadPanelData = () => {
     fetch("/api/user/child-panel")
       .then(r => r.json())
       .then(data => { setExistingPanel(data); setPageLoading(false); })
       .catch(() => setPageLoading(false));
+  };
+
+  useEffect(() => {
+    loadPanelData();
   }, []);
+
+  const handleToggleAutoRenew = async () => {
+    if (!existingPanel?.panelId) return;
+    setTogglingRenew(true);
+    try {
+      const resp = await fetch("/api/user/child-panel/subscription", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ autoRenew: !existingPanel.auto_renew })
+      });
+      if (resp.ok) {
+        toast.success(`Auto-renew ${!existingPanel.auto_renew ? 'enabled' : 'disabled'}`);
+        loadPanelData();
+      }
+    } catch (e) {
+      toast.error("Failed to update auto-renew");
+    } finally {
+      setTogglingRenew(false);
+    }
+  };
+
+  const handleManualRenew = async () => {
+    if (!confirm("Proceed with manual renewal? The fee will be deducted from your balance.")) return;
+    setLoading(true);
+    try {
+      const resp = await fetch("/api/user/child-panel/subscription", {
+        method: "POST",
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "Renewal failed");
+      toast.success("Panel renewed successfully!");
+      loadPanelData();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -82,7 +129,7 @@ export default function ChildPanelPage() {
         throw new Error(data.error || "Failed to purchase child panel");
       }
       toast.success("Child panel purchased successfully!");
-      setExistingPanel({ exists: true, domain: data.domain, adminName: data.adminName, status: 'active' });
+      loadPanelData();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -113,85 +160,153 @@ export default function ChildPanelPage() {
             {/* ─── ACTIVE/PENDING: Show status + DNS guide ─── */}
             {existingPanel?.exists && existingPanel.status !== 'rejected' ? (
               <motion.div key="existing" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                {/* Status Card */}
-                <div className={`bg-card border rounded-2xl p-6 md:p-8 shadow-sm flex items-start gap-5 ${
-                  existingPanel.status === 'active' ? 'border-green-500/30 bg-green-500/5' : 'border-border'
-                }`}>
-                  {existingPanel.status === 'active'
-                    ? <CheckCircle2 className="w-10 h-10 text-green-500 shrink-0 mt-1" />
-                    : <Clock className="w-10 h-10 text-yellow-500 shrink-0 mt-1" />
-                  }
-                  <div className="space-y-1">
-                    <h2 className="text-xl font-bold">
-                      {existingPanel.status === 'active' ? 'Panel Active!' : 'Panel Pending Approval'}
-                    </h2>
-                    <p className="text-muted-foreground text-sm">
-                      {existingPanel.status === 'active'
-                        ? `Your panel at ${existingPanel.domain} is live! Follow the DNS guide below to connect your domain.`
-                        : `Your panel for ${existingPanel.domain} is being reviewed. Set up your DNS below while you wait.`}
-                    </p>
-                    <div className="flex items-center gap-3 pt-2 flex-wrap">
-                      <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
-                        existingPanel.status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-yellow-500/10 text-yellow-600'
-                      }`}>{existingPanel.status}</span>
-                      <span className="text-xs text-muted-foreground font-mono">{existingPanel.domain}</span>
+                
+                {/* Subscription Status Card */}
+                <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl">
+                  <div className="bg-gradient-to-r from-slate-900 to-blue-950 p-6 md:p-8 text-white relative">
+                    <div className="absolute top-0 right-0 p-8 opacity-10"><Cpu className="w-24 h-24" /></div>
+                    <div className="flex items-start justify-between relative z-10">
+                      <div className="space-y-1">
+                         <div className="flex items-center gap-3 mb-2">
+                            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
+                              existingPanel.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                            }`}>
+                              {existingPanel.status}
+                            </span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Plan: Pro Monthly</span>
+                         </div>
+                         <h2 className="text-2xl font-black tracking-tight">{existingPanel.domain}</h2>
+                         <p className="text-blue-200/60 text-xs font-medium">Managed White-Label Infrastructure</p>
+                      </div>
+                      <div className="text-right">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-blue-300/60 mb-1">Monthly Billing</p>
+                         <p className="text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
+                      </div>
                     </div>
+
+                    <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
+                       <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Next Renewal Date</p>
+                          <p className="text-sm font-bold flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-blue-400" />
+                            {existingPanel.expires_at ? new Date(existingPanel.expires_at).toLocaleDateString() : 'N/A'}
+                          </p>
+                       </div>
+                       <div className="flex flex-col items-end gap-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Auto-Renewal</p>
+                          <button 
+                            onClick={handleToggleAutoRenew}
+                            disabled={togglingRenew}
+                            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase transition-all ${
+                              existingPanel.auto_renew 
+                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' 
+                                : 'bg-white/10 text-slate-300 hover:bg-white/20'
+                            }`}
+                          >
+                            {togglingRenew ? '...' : existingPanel.auto_renew ? 'Enabled' : 'Disabled'}
+                          </button>
+                       </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 md:p-8 bg-card flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                          <Shield className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Access</p>
+                          <p className="text-sm font-bold">{existingPanel.adminName || 'Admin'}</p>
+                        </div>
+                     </div>
+                     <button 
+                        onClick={handleManualRenew}
+                        disabled={loading}
+                        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
+                      >
+                       {loading ? 'Processing...' : 'Renew Now'}
+                     </button>
                   </div>
                 </div>
 
                 {/* DNS Instructions */}
-                <div className="bg-slate-900 text-white rounded-2xl overflow-hidden shadow-2xl">
+                <div className="bg-slate-900 text-white rounded-3xl overflow-hidden shadow-2xl">
                   <div className="p-5 md:p-6 border-b border-white/10 flex items-center gap-3">
                     <Globe className="w-5 h-5 text-blue-400" />
                     <h3 className="font-bold">DNS Configuration Guide</h3>
                   </div>
                   <div className="p-5 md:p-6 space-y-5">
                     <p className="text-sm text-slate-300">
-                      Go to the place where you bought your domain (Namecheap, GoDaddy, Cloudflare, etc.) and add this record:
+                      Point your domain to our infrastructure to take your panel live.
                     </p>
                     <div className="rounded-xl overflow-hidden border border-white/10">
                       <table className="w-full text-sm text-left">
                         <thead className="bg-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                           <tr>
                             <th className="px-4 py-3">Type</th>
-                            <th className="px-4 py-3">Name / Host</th>
-                            <th className="px-4 py-3">Value / Points To</th>
-                            <th className="px-4 py-3">TTL</th>
+                            <th className="px-4 py-3">Host</th>
+                            <th className="px-4 py-3">Value</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr className="border-t border-white/10">
-                            <td className="px-4 py-3 font-mono text-blue-300 font-bold">CNAME</td>
-                            <td className="px-4 py-3 font-mono text-xs"><span className="text-yellow-300">@</span> <span className="text-slate-500 text-[10px]">(or www)</span></td>
+                            <td className="px-4 py-3 font-mono text-blue-300 font-bold text-xs">CNAME</td>
+                            <td className="px-4 py-3 font-mono text-[10px]"><span className="text-yellow-300">@</span></td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
-                                <code className="text-xs text-green-300 bg-white/5 px-2 py-0.5 rounded select-all">cname.vercel-dns.com</code>
+                                <code className="text-[10px] text-green-300 bg-white/5 px-2 py-0.5 rounded">cname.vercel-dns.com</code>
                                 <CopyButton text="cname.vercel-dns.com" />
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-slate-400 text-xs">Auto</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-                    <div className="space-y-3">
-                      {[
-                        "Log into your domain registrar (Namecheap, GoDaddy, Cloudflare, etc.)",
-                        `Find the DNS settings for ${existingPanel.domain}`,
-                        "Add a new CNAME record: name = @ (or www), value = cname.vercel-dns.com",
-                        "Save the changes and wait up to 24 hours for DNS to propagate globally",
-                        "Once DNS is set and your panel is approved, customers can visit your domain!",
-                      ].map((text, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
-                          <p className="text-sm text-slate-300">{text}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-xs">
-                      ⚠️ DNS changes can take 24-48 hours to propagate globally.
-                    </div>
                   </div>
+                </div>
+
+                {/* Subscription History Table */}
+                <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+                   <div className="p-6 border-b border-border/50 flex items-center gap-3">
+                      <Clock className="w-5 h-5 text-primary" />
+                      <h3 className="font-black text-sm uppercase tracking-widest">Billing History</h3>
+                   </div>
+                   <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                         <thead className="bg-muted/50 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+                            <tr>
+                               <th className="px-6 py-4">Transaction ID</th>
+                               <th className="px-6 py-4">Date</th>
+                               <th className="px-6 py-4">Amount</th>
+                               <th className="px-6 py-4">Period</th>
+                               <th className="px-6 py-4">Status</th>
+                            </tr>
+                         </thead>
+                         <tbody className="divide-y divide-border/50">
+                            {existingPanel.history?.length ? existingPanel.history.map((h, i) => (
+                              <tr key={i} className="hover:bg-muted/30 transition-colors">
+                                 <td className="px-6 py-4 font-mono text-[10px] font-bold text-muted-foreground uppercase">{h.id.slice(0, 8)}</td>
+                                 <td className="px-6 py-4 text-[11px] font-bold">{new Date(h.created_at).toLocaleDateString()}</td>
+                                 <td className="px-6 py-4 text-[11px] font-black text-foreground">{formatAmount(h.amount)}</td>
+                                 <td className="px-6 py-4 text-[10px] font-medium text-muted-foreground">
+                                    {new Date(h.period_start).toLocaleDateString()} - {new Date(h.period_end).toLocaleDateString()}
+                                 </td>
+                                 <td className="px-6 py-4">
+                                    <span className="text-[9px] font-black uppercase tracking-tighter px-2 py-0.5 rounded bg-green-500/10 text-green-600 border border-green-500/20">
+                                       {h.status}
+                                    </span>
+                                 </td>
+                              </tr>
+                            )) : (
+                              <tr>
+                                 <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground text-xs italic font-medium">
+                                    No billing records found.
+                                 </td>
+                              </tr>
+                            )}
+                         </tbody>
+                      </table>
+                   </div>
                 </div>
               </motion.div>
 

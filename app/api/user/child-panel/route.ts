@@ -55,6 +55,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ exists: false }, { status: 200 });
     }
 
+    // Fetch billing history for this panel
+    const SubscriptionHistory = (await import('@/models/SubscriptionHistory')).default;
+    const history = await SubscriptionHistory.find({ panelId: panel._id }).sort({ createdAt: -1 }).limit(10).lean();
+
     return NextResponse.json({
       exists: true,
       domain: panel.domain,
@@ -62,6 +66,10 @@ export async function GET(req: Request) {
       status: panel.status,
       panelId: (panel as any)._id.toString(),
       createdAt: (panel as any).createdAt,
+      expires_at: (panel as any).expiresAt,
+      auto_renew: (panel as any).autoRenew,
+      subscription_price: (panel as any).subscriptionPrice || 14287,
+      history: history || []
     }, { status: 200 });
   } catch (error) {
     console.error('Child Panel GET error:', error);
@@ -133,7 +141,20 @@ export async function POST(req: Request) {
       adminPassword: hashedAdminPassword,
       priceInUsd,
       priceInNaira,
+      subscriptionPrice: priceInNaira,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      autoRenew: false,
       status: 'pending',
+    });
+
+    const SubscriptionHistory = (await import('@/models/SubscriptionHistory')).default;
+    await SubscriptionHistory.create({
+      panelId: childPanel._id,
+      userId: user._id,
+      amount: priceInNaira,
+      periodStart: new Date(),
+      periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      status: 'success',
     });
 
     await Transaction.create({
