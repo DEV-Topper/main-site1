@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Force the route to be dynamic to prevent build-time crashes
+export const dynamic = 'force-dynamic';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -17,14 +20,13 @@ export async function POST(req: NextRequest) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      return NextResponse.json({ error: 'Config Error: Missing Supabase URL or Anon Key' }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ error: 'Config Error: Missing Supabase keys in Vercel' }, { status: 500, headers: corsHeaders });
     }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
     
-    // Safer way to get the panelId
-    const { searchParams } = new URL(req.url);
-    const panelId = searchParams.get('panelId');
+    // Safer way to get the panelId using nextUrl
+    const panelId = req.nextUrl.searchParams.get('panelId');
 
     if (!panelId) {
       return NextResponse.json({ error: 'Request Error: Missing panelId in URL' }, { status: 400, headers: corsHeaders });
@@ -37,7 +39,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Data Error: Invalid JSON body' }, { status: 400, headers: corsHeaders });
     }
     
-    // PocketFi Webhook Structure
     const transaction = data.transaction || {};
     const order = data.order || {};
     const reference = transaction.reference || order.reference;
@@ -53,10 +54,10 @@ export async function POST(req: NextRequest) {
 
     if (!accountNumber || amount <= 0) {
       return NextResponse.json({ 
-        error: 'Data Error: Missing account number or amount', 
-        received_account: accountNumber, 
-        received_amount: amount 
-      }, { status: 400, headers: corsHeaders });
+        error: 'Data Error: Missing account number or amount',
+        received_account: accountNumber,
+        received_amount: amount
+      }, { status: 200, headers: corsHeaders }); // Return 200 to PocketFi so it stops retrying invalid data
     }
 
     // Call RPC Function
