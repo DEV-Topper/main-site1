@@ -16,9 +16,13 @@ import {
   Terminal,
   Box,
   Monitor,
+  ShieldCheck,
+  ShieldCheckIcon,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import SignOutButton from "./signout-button"
+
+const ADMIN_EMAILS = ["admin@desocialplug.com", "your-email@example.com"]; // Change these to your real emails
 
 const menuItems = [
   { icon: ShoppingBasket, label: "Purchases", href: "/purchases" },
@@ -31,6 +35,25 @@ const menuItems = [
 
 export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await fetch('/api/auth/me')
+        const data = await res.json()
+        if (data.success) {
+          setUser(data.user)
+        }
+      } catch (err) {
+        console.error("Failed to fetch user session", err)
+      }
+    }
+    fetchUser()
+  }, [])
+
+  const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email)
+
   const [isPartnershipOpen, setIsPartnershipOpen] = useState(
     pathname.includes("/dashboard/developer-api") || pathname.includes("/dashboard/child-panel")
   )
@@ -56,13 +79,28 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
 
       {/* Menu items */}
       <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+        {/* Super Admin - ONLY FOR ADMINS */}
+        {isAdmin && (
+          <Link
+            href="/dashboard/admin"
+            onClick={onClose}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-black uppercase tracking-tighter transition-all mb-4 ${pathname === "/dashboard/admin"
+              ? "bg-white text-blue-600 shadow-lg shadow-white/20"
+              : "bg-black/20 text-blue-100 hover:bg-black/30 border border-white/5"
+              }`}
+          >
+            <ShieldCheckIcon className="w-5 h-5 text-yellow-400" />
+            <span>Super Admin</span>
+          </Link>
+        )}
+
         {/* Dashboard link */}
         <Link
           href="/dashboard"
           onClick={onClose}
           className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${pathname === "/dashboard"
-              ? "bg-blue-500 text-white"
-              : "text-blue-100 hover:bg-blue-700 hover:text-white"
+            ? "bg-blue-500 text-white"
+            : "text-blue-100 hover:bg-blue-700 hover:text-white"
             }`}
         >
           <ShoppingBag className="w-5 h-5" />
@@ -80,8 +118,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
               href={item.href}
               onClick={onClose}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
-                  ? "bg-blue-500 text-white"
-                  : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                ? "bg-blue-500 text-white"
+                : "text-blue-100 hover:bg-blue-700 hover:text-white"
                 }`}
             >
               <Icon className="w-5 h-5" />
@@ -95,8 +133,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           <button
             onClick={togglePartnership}
             className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isPartnershipOpen || pathname.includes("/dashboard/developer-api") || pathname.includes("/dashboard/child-panel")
-                ? "bg-blue-600/50 text-white"
-                : "text-blue-100 hover:bg-blue-700 hover:text-white"
+              ? "bg-blue-600/50 text-white"
+              : "text-blue-100 hover:bg-blue-700 hover:text-white"
               }`}
           >
             <div className="flex items-center gap-3">
@@ -116,8 +154,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
                 href="/dashboard/developer-api"
                 onClick={onClose}
                 className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/dashboard/developer-api"
-                    ? "text-white bg-blue-500/30"
-                    : "text-blue-200 hover:text-white hover:bg-blue-700/50"
+                  ? "text-white bg-blue-500/30"
+                  : "text-blue-200 hover:text-white hover:bg-blue-700/50"
                   }`}
               >
                 <Terminal className="w-4 h-4" />
@@ -127,8 +165,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
                 href="/dashboard/child-panel"
                 onClick={onClose}
                 className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/dashboard/child-panel"
-                    ? "text-white bg-blue-500/30"
-                    : "text-blue-200 hover:text-white hover:bg-blue-700/50"
+                  ? "text-white bg-blue-500/30"
+                  : "text-blue-200 hover:text-white hover:bg-blue-700/50"
                   }`}
               >
                 <Monitor className="w-4 h-4" />
@@ -149,8 +187,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
               href={item.href}
               onClick={onClose}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive
-                  ? "bg-blue-500 text-white"
-                  : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                ? "bg-blue-500 text-white"
+                : "text-blue-100 hover:bg-blue-700 hover:text-white"
                 }`}
             >
               <Icon className="w-5 h-5" />

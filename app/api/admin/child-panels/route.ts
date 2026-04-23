@@ -31,9 +31,10 @@ export async function GET(req: Request) {
     const status = url.searchParams.get('status');
     const query = status ? { status } : {};
     const panels = await ChildPanel.find(query).sort({ createdAt: -1 }).lean();
-    return NextResponse.json({
-      success: true,
-      panels: panels.map((p: any) => ({
+
+    // Enrich active panels with live stats from their Supabase instance via bridge
+    const enrichedPanels = await Promise.all(panels.map(async (p: any) => {
+      const panelData = {
         id: p._id.toString(),
         domain: p.domain,
         adminName: p.adminName,
@@ -42,7 +43,35 @@ export async function GET(req: Request) {
         userId: p.userId?.toString(),
         priceInNaira: p.priceInNaira,
         priceInUsd: p.priceInUsd,
-      })),
+        stats: { totalUsers: 0, totalDeposits: 0, totalRevenue: 0 }
+      };
+
+      if (p.status === 'active') {
+        try {
+          const statsResp = await fetch(`https://${p.domain}/api/dsp?action=admin-data&panelId=${p._id}`, {
+            headers: {
+              'x-super-admin-key': process.env.SUPER_ADMIN_SECRET_KEY || "dsp_superadmin_2025_secret_key_change_this"
+            },
+            next: { revalidate: 60 } // Cache for 1 minute
+          });
+          const statsData = await statsResp.json();
+          if (statsData.success && statsData.data?.stats) {
+            panelData.stats = {
+              totalUsers: statsData.data.stats.total_users || 0,
+              totalDeposits: statsData.data.stats.total_deposits || 0,
+              totalRevenue: statsData.data.stats.total_revenue || 0
+            };
+          }
+        } catch (err) {
+          console.error(`Failed to fetch stats for ${p.domain}:`, err);
+        }
+      }
+      return panelData;
+    }));
+
+    return NextResponse.json({
+      success: true,
+      panels: enrichedPanels,
     }, { headers: corsHeaders });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
