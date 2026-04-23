@@ -210,7 +210,7 @@ export default function ChildPanelPage() {
             {/* ─── ACTIVE/PENDING: Show status + DNS guide ─── */}
             {existingPanel?.exists && existingPanel.status !== 'rejected' ? (
               <motion.div key="existing" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                
+
                 {/* Subscription Status Card */}
                 <div className="bg-card border border-border rounded-[24px] md:rounded-3xl overflow-hidden shadow-xl">
                   <div className="bg-gradient-to-r from-slate-900 to-blue-950 p-3 md:p-8 text-white relative">
@@ -228,7 +228,7 @@ export default function ChildPanelPage() {
                         <p className="text-blue-200/50 text-[9px] md:text-xs font-medium">Managed Infrastructure</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-blue-300/50 mb-0.5">Billing</p>
+                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-blue-300/50 mb-0.5">Monthly Billing</p>
                         <p className="text-lg md:text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
                       </div>
                     </div>
@@ -240,8 +240,8 @@ export default function ChildPanelPage() {
                           <div className="flex items-center gap-1.5">
                             <Clock className="w-3 h-3 text-blue-400" />
                             <span className="text-[10px] md:text-sm">
-                              {existingPanel.expires_at 
-                                ? `${new Date(existingPanel.expires_at).toLocaleDateString()} at ${new Date(existingPanel.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` 
+                              {existingPanel.expires_at
+                                ? `${new Date(existingPanel.expires_at).toLocaleDateString()} at ${new Date(existingPanel.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                                 : 'N/A'}
                             </span>
                           </div>
@@ -258,8 +258,8 @@ export default function ChildPanelPage() {
                           onClick={handleToggleAutoRenew}
                           disabled={togglingRenew}
                           className={`flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase transition-all ${existingPanel.auto_renew
-                              ? 'bg-green-500 text-white shadow-lg shadow-green-500/20'
-                              : 'bg-white/10 text-slate-300 hover:bg-white/20'
+                            ? 'bg-green-500 text-white shadow-lg shadow-green-500/20'
+                            : 'bg-white/10 text-slate-300 hover:bg-white/20'
                             }`}
                         >
                           {togglingRenew ? '...' : existingPanel.auto_renew ? 'Enabled' : 'Disabled'}
@@ -275,9 +275,9 @@ export default function ChildPanelPage() {
                       </div>
                       <div>
                         <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Access</p>
-                        <a 
-                          href={`https://${existingPanel.domain}/admin`} 
-                          target="_blank" 
+                        <a
+                          href={`https://${existingPanel.domain}/admin`}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-[10px] md:text-sm font-bold text-primary hover:underline flex items-center gap-1"
                         >

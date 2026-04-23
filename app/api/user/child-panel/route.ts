@@ -57,7 +57,26 @@ export async function GET(req: Request) {
 
     // Fetch billing history for this panel
     const SubscriptionHistory = (await import('@/models/SubscriptionHistory')).default;
-    const history = await SubscriptionHistory.find({ panelId: panel._id }).sort({ createdAt: -1 }).limit(10).lean();
+    let history = await SubscriptionHistory.find({ panelId: panel._id }).sort({ createdAt: -1 }).limit(10).lean();
+
+    // BACKFILL: If no history exists for an existing panel, create the first record based on its creation date
+    if (history.length === 0 && panel.status !== 'rejected') {
+      const periodStart = new Date(panel.createdAt);
+      const periodEnd = new Date(periodStart.getTime() + 30 * 24 * 60 * 60 * 1000);
+      
+      await SubscriptionHistory.create({
+        panelId: panel._id,
+        userId: userId,
+        amount: panel.subscriptionPrice || 14287,
+        periodStart,
+        periodEnd,
+        status: 'success',
+        createdAt: periodStart // Match the original purchase time
+      });
+      
+      // Refresh the history list after creating the backfill
+      history = await SubscriptionHistory.find({ panelId: panel._id }).sort({ createdAt: -1 }).limit(10).lean();
+    }
 
     return NextResponse.json({
       exists: true,
