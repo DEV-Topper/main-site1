@@ -69,9 +69,12 @@ export async function GET(req: Request) {
               totalDeposits: statsData.data.stats.total_deposits || 0,
               totalRevenue: statsData.data.stats.total_revenue || 0
             };
+          } else {
+            (panelData.stats as any).error = statsData.error || `HTTP ${statsResp.status}`;
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error(`Failed to connect to ${p.domain} bridge:`, err);
+          (panelData.stats as any).error = err.message || "Connection Failed";
         }
       }
       return panelData;

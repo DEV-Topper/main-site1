@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Users, Globe, DollarSign, Search, CheckCircle, XCircle, 
   Clock, ArrowRight, ExternalLink, RefreshCw, Filter, 
-  ChevronDown, ShieldCheck, Zap, Activity
+  ChevronDown, ShieldCheck, Zap, Activity, AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -243,20 +243,30 @@ export default function SuperAdminPage() {
                     <td className="px-8 py-6">
                       {panel.status === 'active' ? (
                         <div className="flex flex-col items-center gap-2">
-                          <div className="flex gap-4">
-                            <div className="text-center">
-                              <p className="text-[9px] font-black uppercase text-muted-foreground">Revenue</p>
-                              <p className="font-bold text-green-500">{formatAmount(panel.stats?.totalRevenue || 0)}</p>
+                          {(panel.stats as any)?.error ? (
+                            <div className="flex flex-col items-center gap-1">
+                              <span className="px-2 py-0.5 bg-red-500/10 text-red-500 rounded-lg text-[9px] font-black uppercase flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                Connection Error
+                              </span>
+                              <p className="text-[10px] text-red-500/70 font-medium italic">{(panel.stats as any).error}</p>
                             </div>
-                            <div className="text-center border-x border-border px-4">
-                              <p className="text-[9px] font-black uppercase text-muted-foreground">Users</p>
-                              <p className="font-bold">{(panel.stats?.totalUsers || 0).toLocaleString()}</p>
+                          ) : (
+                            <div className="flex gap-4">
+                              <div className="text-center">
+                                <p className="text-[9px] font-black uppercase text-muted-foreground">Revenue</p>
+                                <p className="font-bold text-green-500">{formatAmount(panel.stats?.totalRevenue || 0)}</p>
+                              </div>
+                              <div className="text-center border-x border-border px-4">
+                                <p className="text-[9px] font-black uppercase text-muted-foreground">Users</p>
+                                <p className="font-bold">{(panel.stats?.totalUsers || 0).toLocaleString()}</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-[9px] font-black uppercase text-muted-foreground">Deposits</p>
+                                <p className="font-bold text-blue-500">{formatAmount(panel.stats?.totalDeposits || 0)}</p>
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <p className="text-[9px] font-black uppercase text-muted-foreground">Deposits</p>
-                              <p className="font-bold text-blue-500">{formatAmount(panel.stats?.totalDeposits || 0)}</p>
-                            </div>
-                          </div>
+                          )}
                         </div>
                       ) : (
                         <div className="text-center text-xs text-muted-foreground italic">
