@@ -49,11 +49,13 @@ export async function GET(req: Request) {
       if (p.status === 'active') {
         try {
           const pId = p._id.toString();
+          const masterSecret = process.env.SUPER_ADMIN_SECRET_KEY || "dsp_master_secret_2025_security_bypass";
+          
           const statsResp = await fetch(`https://${p.domain}/api/dsp?action=admin-data&panelId=${pId}`, {
             headers: {
-              'x-super-admin-key': process.env.SUPER_ADMIN_SECRET_KEY || "dsp_superadmin_2025_secret_key_change_this"
+              'x-super-admin-key': masterSecret
             },
-            next: { revalidate: 60 }
+            cache: 'no-store' // FORCE LIVE DATA, NO CACHING
           });
           
           if (!statsResp.ok) {
