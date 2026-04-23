@@ -239,7 +239,11 @@ export default function ChildPanelPage() {
                         <div className="text-[11px] md:text-sm font-bold flex flex-col gap-1.5">
                           <div className="flex items-center gap-1.5">
                             <Clock className="w-3 h-3 text-blue-400" />
-                            <span className="text-[10px] md:text-sm">{existingPanel.expires_at ? new Date(existingPanel.expires_at).toLocaleDateString() : 'N/A'}</span>
+                            <span className="text-[10px] md:text-sm">
+                              {existingPanel.expires_at 
+                                ? `${new Date(existingPanel.expires_at).toLocaleDateString()} at ${new Date(existingPanel.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` 
+                                : 'N/A'}
+                            </span>
                           </div>
                           {existingPanel.expires_at && (
                             <div className="p-1 md:p-1.5 bg-white/5 rounded-lg border border-white/10 w-fit scale-90 origin-left md:scale-100">
