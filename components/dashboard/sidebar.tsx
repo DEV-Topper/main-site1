@@ -22,7 +22,7 @@ import {
 import { useState, useEffect } from "react"
 import SignOutButton from "./signout-button"
 
-const ADMIN_EMAILS = ["admin@desocialplug.com", "your-email@example.com"]; // Change these to your real emails
+const ADMIN_EMAILS = ["admin@desocialplug.com", "superadmin@gmail.com"]; // Authorized Super Admins
 
 const menuItems = [
   { icon: ShoppingBasket, label: "Purchases", href: "/purchases" },

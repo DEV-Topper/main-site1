@@ -32,14 +32,38 @@ export default function SuperAdminPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<'all' | 'pending' | 'active' | 'rejected'>('all');
   const [search, setSearch] = useState("");
+  
+  // Secondary Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoginLoading(true);
+    
+    // Hardcoded credentials as requested
+    if (adminEmail === "superadmin@gmail.com" && adminPassword === "superadmin123!") {
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        setIsLoginLoading(false);
+        toast.success("Security Clearance Granted. Welcome, Boss.");
+      }, 1000);
+    } else {
+      setTimeout(() => {
+        toast.error("Invalid Admin Credentials. Access Denied.");
+        setIsLoginLoading(false);
+      }, 800);
+    }
+  };
 
   const fetchPanels = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     
     try {
-      // Note: In a real app, the key would come from a secure session or prompt
-      const secretKey = "dsp_superadmin_2025_secret_key_change_this"; 
+      const secretKey = "dsp_master_secret_2025_security_bypass"; 
       
       const res = await fetch(`/api/admin/child-panels${filter !== 'all' ? `?status=${filter}` : ''}`, {
         headers: { 'x-super-admin-key': secretKey }
@@ -60,8 +84,10 @@ export default function SuperAdminPage() {
   };
 
   useEffect(() => {
-    fetchPanels();
-  }, [filter]);
+    if (isAuthenticated) {
+      fetchPanels();
+    }
+  }, [filter, isAuthenticated]);
 
   const handleStatusChange = async (panelId: string, newStatus: string) => {
     const secretKey = "dsp_superadmin_2025_secret_key_change_this";
@@ -103,6 +129,66 @@ export default function SuperAdminPage() {
       minimumFractionDigits: 0
     }).format(amount);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[90vh] flex items-center justify-center p-6">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md bg-card border border-border shadow-2xl rounded-[32px] overflow-hidden"
+        >
+          <div className="bg-blue-600 p-8 text-white text-center space-y-2">
+            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-xl">
+              <ShieldCheck className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-black tracking-tight">Super Admin Portal</h2>
+            <p className="text-blue-100 text-sm font-medium">Restricted Access. Level 5 Clearance Required.</p>
+          </div>
+
+          <form onSubmit={handleAdminLogin} className="p-8 space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Admin Email</label>
+                <input 
+                  type="email"
+                  required
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  placeholder="admin@gmail.com"
+                  className="w-full px-5 py-3 bg-muted/50 border-none rounded-2xl focus:ring-2 ring-blue-500 transition-all font-medium"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Access Password</label>
+                <input 
+                  type="password"
+                  required
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full px-5 py-3 bg-muted/50 border-none rounded-2xl focus:ring-2 ring-blue-500 transition-all font-medium"
+                />
+              </div>
+            </div>
+
+            <button 
+              type="submit"
+              disabled={isLoginLoading}
+              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:scale-100"
+            >
+              {isLoginLoading ? "Verifying Credentials..." : "Unlock Platform Controls"}
+            </button>
+
+            <p className="text-center text-[10px] text-muted-foreground font-black uppercase tracking-tighter">
+              Session monitored and logged • DeSocialPlug LTD
+            </p>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
