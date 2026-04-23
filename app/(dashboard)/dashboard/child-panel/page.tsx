@@ -32,6 +32,54 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+function CountdownTimer({ expiryDate }: { expiryDate: string }) {
+  const [timeLeft, setTimeLeft] = useState<{ d: number, h: number, m: number, s: number } | null>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = new Date(expiryDate).getTime() - now;
+
+      if (distance < 0) {
+        setTimeLeft(null);
+        clearInterval(timer);
+        return;
+      }
+
+      setTimeLeft({
+        d: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        s: Math.floor((distance % (1000 * 60)) / 1000)
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [expiryDate]);
+
+  if (!timeLeft) return <span className="text-red-500 font-black">EXPIRED</span>;
+
+  return (
+    <div className="flex items-center gap-1.5 font-mono">
+      <div className="flex flex-col items-center">
+        <span className="text-xs font-black">{timeLeft.d}d</span>
+      </div>
+      <span className="opacity-30 text-[10px]">:</span>
+      <div className="flex flex-col items-center">
+        <span className="text-xs font-black">{timeLeft.h}h</span>
+      </div>
+      <span className="opacity-30 text-[10px]">:</span>
+      <div className="flex flex-col items-center">
+        <span className="text-xs font-black">{timeLeft.m}m</span>
+      </div>
+      <span className="opacity-30 text-[10px]">:</span>
+      <div className="flex flex-col items-center">
+        <span className="text-xs font-black text-blue-400">{timeLeft.s}s</span>
+      </div>
+    </div>
+  );
+}
+
 export default function ChildPanelPage() {
   const { formatAmount } = useCurrency();
   const router = useRouter();
@@ -185,10 +233,17 @@ export default function ChildPanelPage() {
 
                     <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
                       <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Next Renewal Date</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Next Renewal Date & Time</p>
                         <p className="text-sm font-bold flex items-center gap-2">
                           <Clock className="w-4 h-4 text-blue-400" />
-                          {existingPanel.expires_at ? new Date(existingPanel.expires_at).toLocaleDateString() : 'N/A'}
+                          {existingPanel.expires_at ? (
+                            <span className="flex flex-col">
+                              <span>{new Date(existingPanel.expires_at).toLocaleDateString()} at {new Date(existingPanel.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              <div className="mt-2 p-2 bg-white/5 rounded-lg border border-white/10 w-fit">
+                                <CountdownTimer expiryDate={existingPanel.expires_at} />
+                              </div>
+                            </span>
+                          ) : 'N/A'}
                         </p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
