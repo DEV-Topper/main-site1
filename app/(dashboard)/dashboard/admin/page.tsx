@@ -30,7 +30,7 @@ export default function SuperAdminPage() {
   const [panels, setPanels] = useState<ChildPanel[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'active' | 'rejected'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'active' | 'inactive'>('all');
   const [search, setSearch] = useState("");
   
   // Secondary Authentication State
@@ -258,7 +258,7 @@ export default function SuperAdminPage() {
       {/* Controls & Search */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card border border-border p-4 rounded-3xl shadow-sm">
         <div className="flex p-1 bg-muted/50 rounded-2xl w-full md:w-auto">
-          {['all', 'pending', 'active', 'rejected'].map((s) => (
+          {['all', 'pending', 'active', 'inactive'].map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s as any)}
@@ -379,7 +379,7 @@ export default function SuperAdminPage() {
                           panel.status === 'pending' ? 'bg-yellow-500' :
                           'bg-red-500'
                         }`} />
-                        {panel.status}
+                        {panel.status === 'rejected' ? 'inactive' : panel.status}
                       </span>
                     </td>
 
