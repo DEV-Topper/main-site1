@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Monitor, Shield, Zap, Globe, Cpu, Settings, Lock, CheckCircle2, AlertCircle, ArrowRight, Loader2, ChevronDown, Copy, Check, Clock } from "lucide-react";
+import { Monitor, Shield, Zap, Globe, Cpu, Settings, Lock, CheckCircle2, AlertCircle, ArrowRight, Loader2, ChevronDown, Copy, Check, Clock, History as HistoryIcon } from "lucide-react";
 import { useCurrency } from "@/context/CurrencyContext";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -222,13 +222,13 @@ export default function ChildPanelPage() {
                             }`}>
                             {existingPanel.status}
                           </span>
-                          <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500">Pro</span>
+                          <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500">Pro Monthly</span>
                         </div>
                         <h2 className="text-lg md:text-2xl font-black tracking-tight">{existingPanel.domain}</h2>
-                        <p className="text-blue-200/50 text-[9px] md:text-xs font-medium">Infrastructure Active</p>
+                        <p className="text-blue-200/50 text-[9px] md:text-xs font-medium">Managed Infrastructure</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-blue-300/50 mb-0.5">Price</p>
+                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-blue-300/50 mb-0.5">Billing</p>
                         <p className="text-lg md:text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
                       </div>
                     </div>
@@ -253,7 +253,7 @@ export default function ChildPanelPage() {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500">Auto-Renew</p>
+                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500">Auto-Renewal</p>
                         <button
                           onClick={handleToggleAutoRenew}
                           disabled={togglingRenew}
@@ -262,7 +262,7 @@ export default function ChildPanelPage() {
                               : 'bg-white/10 text-slate-300 hover:bg-white/20'
                             }`}
                         >
-                          {togglingRenew ? '...' : existingPanel.auto_renew ? 'ON' : 'OFF'}
+                          {togglingRenew ? '...' : existingPanel.auto_renew ? 'Enabled' : 'Disabled'}
                         </button>
                       </div>
                     </div>
@@ -274,14 +274,14 @@ export default function ChildPanelPage() {
                         <Shield className="w-3.5 h-3.5 md:w-5 md:h-5" />
                       </div>
                       <div>
-                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground">Panel Admin</p>
+                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Access</p>
                         <a 
                           href={`https://${existingPanel.domain}/admin`} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-[10px] md:text-sm font-bold text-primary hover:underline flex items-center gap-1"
                         >
-                          Admin Link
+                          {existingPanel.domain}/admin
                           <ArrowRight className="w-2.5 h-2.5" />
                         </a>
                       </div>
@@ -292,11 +292,62 @@ export default function ChildPanelPage() {
                         disabled={loading}
                         className="px-3 py-2 md:px-6 md:py-3 bg-primary text-primary-foreground rounded-lg md:rounded-xl text-[9px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
                       >
-                        Renew
+                        Renew Now
                       </button>
                     )}
                   </div>
                 </div>
+
+                {/* ─── BILLING HISTORY ─── */}
+                <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+                  <div className="p-5 border-b border-border flex items-center justify-between">
+                    <h3 className="font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-2">
+                      <HistoryIcon className="w-4 h-4 text-primary" />
+                      Billing History
+                    </h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-muted/50 text-[9px] md:text-[10px] uppercase font-black tracking-widest text-muted-foreground">
+                        <tr>
+                          <th className="px-6 py-4">Date</th>
+                          <th className="px-6 py-4">Period</th>
+                          <th className="px-6 py-4">Amount</th>
+                          <th className="px-6 py-4 text-right">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/50">
+                        {existingPanel.history && existingPanel.history.length > 0 ? (
+                          existingPanel.history.map((item: any, i: number) => (
+                            <tr key={i} className="hover:bg-muted/30 transition-colors">
+                              <td className="px-6 py-4 font-medium text-[11px] md:text-xs">
+                                {new Date(item.createdAt).toLocaleDateString()}
+                              </td>
+                              <td className="px-6 py-4 text-[11px] md:text-xs text-muted-foreground">
+                                {new Date(item.periodStart).toLocaleDateString()} - {new Date(item.periodEnd).toLocaleDateString()}
+                              </td>
+                              <td className="px-6 py-4 font-bold text-[11px] md:text-xs">
+                                {formatAmount(item.amount)}
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <span className="px-2 py-0.5 bg-green-500/10 text-green-500 rounded-full text-[9px] md:text-[10px] font-black uppercase">
+                                  {item.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground italic text-xs">
+                              No billing records found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
 
 
                 {/* DNS Instructions — Only show if not fully active */}
