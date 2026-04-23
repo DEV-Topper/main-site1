@@ -212,75 +212,73 @@ export default function ChildPanelPage() {
               <motion.div key="existing" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 
                 {/* Subscription Status Card */}
-                <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl">
-                  <div className="bg-gradient-to-r from-slate-900 to-blue-950 p-4 md:p-8 text-white relative">
-                    <div className="absolute top-0 right-0 p-8 opacity-10"><Cpu className="w-24 h-24" /></div>
+                <div className="bg-card border border-border rounded-[24px] md:rounded-3xl overflow-hidden shadow-xl">
+                  <div className="bg-gradient-to-r from-slate-900 to-blue-950 p-3 md:p-8 text-white relative">
+                    <div className="absolute top-0 right-0 p-4 md:p-8 opacity-10"><Cpu className="w-16 h-16 md:w-24 md:h-24" /></div>
                     <div className="flex items-start justify-between relative z-10">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${existingPanel.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-[8px] md:text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${existingPanel.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
                             }`}>
                             {existingPanel.status}
                           </span>
-                          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Pro Monthly</span>
+                          <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500">Pro</span>
                         </div>
-                        <h2 className="text-xl md:text-2xl font-black tracking-tight">{existingPanel.domain}</h2>
-                        <p className="text-blue-200/60 text-[10px] md:text-xs font-medium">Managed Infrastructure</p>
+                        <h2 className="text-lg md:text-2xl font-black tracking-tight">{existingPanel.domain}</h2>
+                        <p className="text-blue-200/50 text-[9px] md:text-xs font-medium">Infrastructure Active</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-blue-300/60 mb-1">Billing</p>
-                        <p className="text-xl md:text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
+                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-blue-300/50 mb-0.5">Price</p>
+                        <p className="text-lg md:text-2xl font-black">{formatAmount(existingPanel.subscription_price || 14287)}</p>
                       </div>
                     </div>
 
-                    <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
-                      <div className="space-y-1">
-                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Next Renewal</p>
-                        <div className="text-xs md:text-sm font-bold flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-3.5 h-3.5 text-blue-400" />
-                            {existingPanel.expires_at ? (
-                              <span>{new Date(existingPanel.expires_at).toLocaleDateString()} at {new Date(existingPanel.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                            ) : 'N/A'}
+                    <div className="mt-4 md:mt-8 grid grid-cols-2 gap-3 border-t border-white/10 pt-4 md:pt-6">
+                      <div className="space-y-0.5">
+                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500">Next Renewal</p>
+                        <div className="text-[11px] md:text-sm font-bold flex flex-col gap-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Clock className="w-3 h-3 text-blue-400" />
+                            <span className="text-[10px] md:text-sm">{existingPanel.expires_at ? new Date(existingPanel.expires_at).toLocaleDateString() : 'N/A'}</span>
                           </div>
                           {existingPanel.expires_at && (
-                            <div className="p-1.5 bg-white/5 rounded-lg border border-white/10 w-fit">
+                            <div className="p-1 md:p-1.5 bg-white/5 rounded-lg border border-white/10 w-fit scale-90 origin-left md:scale-100">
                               <CountdownTimer expiryDate={existingPanel.expires_at} />
                             </div>
                           )}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Auto-Renewal</p>
+                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-500">Auto-Renew</p>
                         <button
                           onClick={handleToggleAutoRenew}
                           disabled={togglingRenew}
-                          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase transition-all ${existingPanel.auto_renew
+                          className={`flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase transition-all ${existingPanel.auto_renew
                               ? 'bg-green-500 text-white shadow-lg shadow-green-500/20'
                               : 'bg-white/10 text-slate-300 hover:bg-white/20'
                             }`}
                         >
-                          {togglingRenew ? '...' : existingPanel.auto_renew ? 'Enabled' : 'Disabled'}
+                          {togglingRenew ? '...' : existingPanel.auto_renew ? 'ON' : 'OFF'}
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4 md:p-8 bg-card flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                        <Shield className="w-4 h-4 md:w-5 md:h-5" />
+                  <div className="p-3 md:p-8 bg-card flex items-center justify-between">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                        <Shield className="w-3.5 h-3.5 md:w-5 md:h-5" />
                       </div>
                       <div>
-                        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Access</p>
+                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground">Panel Admin</p>
                         <a 
                           href={`https://${existingPanel.domain}/admin`} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-xs md:text-sm font-bold text-primary hover:underline flex items-center gap-1.5"
+                          className="text-[10px] md:text-sm font-bold text-primary hover:underline flex items-center gap-1"
                         >
-                          {existingPanel.domain}/admin
-                          <ArrowRight className="w-3 h-3" />
+                          Admin Link
+                          <ArrowRight className="w-2.5 h-2.5" />
                         </a>
                       </div>
                     </div>
@@ -288,13 +286,14 @@ export default function ChildPanelPage() {
                       <button
                         onClick={handleManualRenew}
                         disabled={loading}
-                        className="px-4 py-2.5 md:px-6 md:py-3 bg-primary text-primary-foreground rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
+                        className="px-3 py-2 md:px-6 md:py-3 bg-primary text-primary-foreground rounded-lg md:rounded-xl text-[9px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
                       >
-                        {loading ? '...' : 'Renew Now'}
+                        Renew
                       </button>
                     )}
                   </div>
                 </div>
+
 
                 {/* DNS Instructions — Only show if not fully active */}
                 {existingPanel.status !== 'active' && (
