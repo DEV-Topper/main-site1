@@ -219,13 +219,15 @@ export default function ChildPanelPage() {
                           <p className="text-sm font-bold">{existingPanel.adminName || 'Admin'}</p>
                         </div>
                      </div>
-                     <button 
-                        onClick={handleManualRenew}
-                        disabled={loading}
-                        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
-                      >
-                       {loading ? 'Processing...' : 'Renew Now'}
-                     </button>
+                     {existingPanel.status === 'expired' && !existingPanel.auto_renew && (
+                       <button 
+                          onClick={handleManualRenew}
+                          disabled={loading}
+                          className="px-6 py-3 bg-primary text-primary-foreground rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
+                        >
+                         {loading ? 'Processing...' : 'Renew Now'}
+                       </button>
+                     )}
                   </div>
                 </div>
 
@@ -237,30 +239,49 @@ export default function ChildPanelPage() {
                   </div>
                   <div className="p-5 md:p-6 space-y-5">
                     <p className="text-sm text-slate-300">
-                      Point your domain to our infrastructure to take your panel live.
+                      Go to the place where you bought your domain (Namecheap, GoDaddy, Cloudflare, etc.) and add this record:
                     </p>
                     <div className="rounded-xl overflow-hidden border border-white/10">
                       <table className="w-full text-sm text-left">
                         <thead className="bg-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                           <tr>
                             <th className="px-4 py-3">Type</th>
-                            <th className="px-4 py-3">Host</th>
-                            <th className="px-4 py-3">Value</th>
+                            <th className="px-4 py-3">Name / Host</th>
+                            <th className="px-4 py-3">Value / Points To</th>
+                            <th className="px-4 py-3">TTL</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr className="border-t border-white/10">
                             <td className="px-4 py-3 font-mono text-blue-300 font-bold text-xs">CNAME</td>
-                            <td className="px-4 py-3 font-mono text-[10px]"><span className="text-yellow-300">@</span></td>
+                            <td className="px-4 py-3 font-mono text-[10px]"><span className="text-yellow-300">@</span> <span className="text-slate-500 text-[10px]">(or www)</span></td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 <code className="text-[10px] text-green-300 bg-white/5 px-2 py-0.5 rounded">cname.vercel-dns.com</code>
                                 <CopyButton text="cname.vercel-dns.com" />
                               </div>
                             </td>
+                            <td className="px-4 py-3 text-slate-400 text-[10px]">Auto</td>
                           </tr>
                         </tbody>
                       </table>
+                    </div>
+                    <div className="space-y-3">
+                      {[
+                        "Log into your domain registrar (Namecheap, GoDaddy, Cloudflare, etc.)",
+                        `Find the DNS settings for ${existingPanel.domain}`,
+                        "Add a new CNAME record: name = @ (or www), value = cname.vercel-dns.com",
+                        "Save the changes and wait up to 24 hours for DNS to propagate globally",
+                        "Once DNS is set and your panel is approved, customers can visit your domain!",
+                      ].map((text, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                          <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
+                          <p className="text-sm text-slate-300">{text}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-xs">
+                      ⚠️ DNS changes can take 24-48 hours to propagate globally.
                     </div>
                   </div>
                 </div>
@@ -311,6 +332,7 @@ export default function ChildPanelPage() {
               </motion.div>
 
             ) : (
+
               /* ─── NEW / REJECTED: Show form ─── */
               <motion.div
                 key="form"

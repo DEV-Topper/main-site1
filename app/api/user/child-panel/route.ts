@@ -66,7 +66,7 @@ export async function GET(req: Request) {
       status: panel.status,
       panelId: (panel as any)._id.toString(),
       createdAt: (panel as any).createdAt,
-      expires_at: (panel as any).expiresAt,
+      expires_at: (panel as any).expiresAt || new Date(new Date((panel as any).createdAt).getTime() + 30 * 24 * 60 * 60 * 1000),
       auto_renew: (panel as any).autoRenew,
       subscription_price: (panel as any).subscriptionPrice || 14287,
       history: history || []
