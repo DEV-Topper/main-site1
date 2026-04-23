@@ -17,23 +17,36 @@ export default function DashboardPage() {
   const [showPromo, setShowPromo] = useState(false);
 
   useEffect(() => {
-    // Check if user has dismissed the promo banner
-    const dismissedAt = localStorage.getItem('promo-banner-dismissed-at');
-
-    if (dismissedAt) {
-      const now = new Date().getTime();
-      const twentyFourHours = 24 * 60 * 60 * 1000;
-
-      // Show again if 24 hours have passed
-      if (now - parseInt(dismissedAt) > twentyFourHours) {
-        setShowPromo(true);
-        localStorage.removeItem('promo-banner-dismissed-at');
-      } else {
-        setShowPromo(false);
+    const checkPanelAndPromo = async () => {
+      // 1. Check if user already has a panel
+      try {
+        const res = await fetch('/api/user/child-panel');
+        const data = await res.json();
+        if (data.exists && data.status !== 'rejected') {
+          setShowPromo(false);
+          return; // Don't show promo if they already have a panel
+        }
+      } catch (err) {
+        console.error("Failed to check panel status", err);
       }
-    } else {
-      setShowPromo(true);
-    }
+
+      // 2. Fallback to localStorage check if no panel exists
+      const dismissedAt = localStorage.getItem('promo-banner-dismissed-at');
+      if (dismissedAt) {
+        const now = new Date().getTime();
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+        if (now - parseInt(dismissedAt) > twentyFourHours) {
+          setShowPromo(true);
+          localStorage.removeItem('promo-banner-dismissed-at');
+        } else {
+          setShowPromo(false);
+        }
+      } else {
+        setShowPromo(true);
+      }
+    };
+
+    checkPanelAndPromo();
   }, []);
 
   const dismissPromo = () => {
