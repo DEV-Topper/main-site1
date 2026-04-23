@@ -16,7 +16,6 @@ import {
   Terminal,
   Box,
   Monitor,
-  Shield,
 } from "lucide-react"
 import { useState } from "react"
 import SignOutButton from "./signout-button"
@@ -134,17 +133,6 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
               >
                 <Monitor className="w-4 h-4" />
                 <span>Child Panel</span>
-              </Link>
-              <Link
-                href="/dashboard/admin"
-                onClick={onClose}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === "/dashboard/admin"
-                    ? "text-white bg-blue-500/30"
-                    : "text-blue-200 hover:text-white hover:bg-blue-700/50"
-                  }`}
-              >
-                <Shield className="w-4 h-4" />
-                <span>Command Center</span>
               </Link>
             </div>
           )}
