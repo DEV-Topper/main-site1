@@ -423,12 +423,12 @@ export default function SuperAdminPage() {
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4 cursor-pointer" onClick={() => setSelectedPanel(panel)}>
                         <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 font-black relative">
-                          {panel.domain[0].toUpperCase()}
+                          {(panel.domain || "?")[0].toUpperCase()}
                           {panel.status === 'active' && <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background animate-pulse" />}
                         </div>
                         <div>
                           <p className="font-bold text-lg flex items-center gap-2 group-hover:text-blue-500 transition-colors">
-                            {panel.domain}
+                            {panel.domain || "Unknown Domain"}
                             <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                           </p>
                           <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
@@ -634,11 +634,11 @@ export default function SuperAdminPage() {
               <div className="p-8 border-b border-border bg-muted/20 flex items-center justify-between">
                 <div className="flex items-center gap-6">
                   <div className="w-16 h-16 rounded-[24px] bg-blue-600 text-white flex items-center justify-center text-2xl font-black shadow-lg shadow-blue-600/20">
-                    {selectedPanel.domain[0].toUpperCase()}
+                    {(selectedPanel.domain || "?")[0].toUpperCase()}
                   </div>
                   <div>
                     <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                      {selectedPanel.domain}
+                      {selectedPanel.domain || "Unknown Domain"}
                       <span className={`text-[10px] px-3 py-1 rounded-full uppercase tracking-widest ${selectedPanel.status === 'active' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                         {selectedPanel.status}
                       </span>
@@ -746,11 +746,11 @@ export default function SuperAdminPage() {
                             <div key={i} className="p-4 flex items-center justify-between hover:bg-muted/10">
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-black">
-                                  {user.username[0].toUpperCase()}
+                                  {(user.username || "?")[0].toUpperCase()}
                                 </div>
                                 <div>
-                                  <p className="text-sm font-bold">{user.username}</p>
-                                  <p className="text-[10px] text-muted-foreground font-medium">{user.email}</p>
+                                  <p className="text-sm font-bold">{user.username || "Anonymous"}</p>
+                                  <p className="text-[10px] text-muted-foreground font-medium">{user.email || "No Email"}</p>
                                 </div>
                               </div>
                               <div className="text-right">
