@@ -103,7 +103,12 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Invalid panelId or status' }, { status: 400, headers: corsHeaders });
     }
 
-    const panel = await ChildPanel.findByIdAndUpdate(panelId, { status }, { new: true });
+    const updateData: any = { status };
+    if (status === 'active') {
+      updateData.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
+
+    const panel = await ChildPanel.findByIdAndUpdate(panelId, updateData, { new: true });
     if (!panel) {
       return NextResponse.json({ error: 'Panel not found' }, { status: 404, headers: corsHeaders });
     }

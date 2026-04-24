@@ -92,7 +92,7 @@ export default function SuperAdminPage() {
   }, [filter, isAuthenticated]);
 
   const handleStatusChange = async (panelId: string, newStatus: string) => {
-    const secretKey = "dsp_superadmin_2025_secret_key_change_this";
+    const secretKey = "dsp_master_secret_2025_security_bypass";
     try {
       const res = await fetch('/api/admin/child-panels', {
         method: 'PATCH',
