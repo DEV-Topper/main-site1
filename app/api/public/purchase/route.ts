@@ -56,12 +56,24 @@ export async function POST(req: Request) {
     let unitPrice = account.price;
     const childPanel = await (mongoose.models.ChildPanel || mongoose.model('ChildPanel')).findOne({ userId: user._id });
     
+    let appliedDiscount = 0;
+
+    // 1. Check Panel Specific Discount
     if (childPanel && childPanel.discounts) {
-      const discountPercent = childPanel.discounts.get(accountId.toString()) || 0;
-      if (discountPercent > 0) {
-        unitPrice = account.price * (1 - discountPercent / 100);
-        console.log(`[Discount Applied] ${discountPercent}% for panel ${childPanel.domain}. New Unit Price: ${unitPrice}`);
+      appliedDiscount = childPanel.discounts.get(accountId.toString()) || 0;
+    }
+
+    // 2. Fallback to Global Discount if panel discount is 0
+    if (appliedDiscount === 0) {
+      const globalSettings = await (mongoose.models.GlobalSettings || mongoose.model('GlobalSettings')).findOne();
+      if (globalSettings && globalSettings.globalDiscounts) {
+        appliedDiscount = globalSettings.globalDiscounts.get(accountId.toString()) || 0;
       }
+    }
+
+    if (appliedDiscount > 0) {
+      unitPrice = account.price * (1 - appliedDiscount / 100);
+      console.log(`[Discount Applied] ${appliedDiscount}% for user ${user.username}. New Unit Price: ${unitPrice}`);
     }
 
     const totalCost = unitPrice * quantity;

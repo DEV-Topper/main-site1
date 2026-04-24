@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { 
-  Users, Globe, DollarSign, Search, CheckCircle, XCircle, 
+  Users, Globe, DollarSign, Search, CheckCircle, XCircle, X,
   Clock, ArrowRight, ExternalLink, RefreshCw, Filter, 
   ChevronDown, ShieldCheck, Zap, Activity, AlertCircle, Trash2
 } from "lucide-react";
@@ -47,6 +47,9 @@ export default function SuperAdminPage() {
   const [catalog, setCatalog] = useState<any[]>([]);
   const [isSavingDiscounts, setIsSavingDiscounts] = useState(false);
   const [renewingId, setRenewingId] = useState<string | null>(null);
+  const [isGlobalSettingsOpen, setIsGlobalSettingsOpen] = useState(false);
+  const [globalDiscounts, setGlobalDiscounts] = useState<Record<string, number>>({});
+  const [isSavingGlobal, setIsSavingGlobal] = useState(false);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +67,21 @@ export default function SuperAdminPage() {
         toast.error("Invalid Admin Credentials. Access Denied.");
         setIsLoginLoading(false);
       }, 800);
+    }
+  };
+
+  const fetchGlobalSettings = async () => {
+    const secretKey = "dsp_master_secret_2025_security_bypass";
+    try {
+      const res = await fetch('/api/admin/global-settings', {
+        headers: { 'x-super-admin-key': secretKey }
+      });
+      const data = await res.json();
+      if (data.success && data.settings) {
+        setGlobalDiscounts(data.settings.globalDiscounts || {});
+      }
+    } catch (err) {
+      console.error("Failed to fetch global settings");
     }
   };
 
@@ -108,6 +126,7 @@ export default function SuperAdminPage() {
     if (isAuthenticated) {
       fetchPanels();
       fetchCatalog();
+      fetchGlobalSettings();
     }
   }, [filter, isAuthenticated]);
 
@@ -199,6 +218,9 @@ export default function SuperAdminPage() {
   };
 
   const handleRenewSubscription = async (panelId: string, currentExpiry: string) => {
+    const confirmed = window.confirm("Are you sure you want to RENEW this subscription for another 30 days?");
+    if (!confirmed) return;
+
     const secretKey = "dsp_master_secret_2025_security_bypass";
     setRenewingId(panelId);
     try {
@@ -222,6 +244,32 @@ export default function SuperAdminPage() {
       toast.error("Failed to renew subscription");
     } finally {
       setRenewingId(null);
+    }
+  };
+
+  const handleUpdateGlobalDiscounts = async () => {
+    const secretKey = "dsp_master_secret_2025_security_bypass";
+    setIsSavingGlobal(true);
+    try {
+      const res = await fetch('/api/admin/global-settings', {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-super-admin-key': secretKey
+        },
+        body: JSON.stringify({ globalDiscounts })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Global discounts applied to all users!");
+        setIsGlobalSettingsOpen(false);
+      } else {
+        toast.error(data.error || "Update failed");
+      }
+    } catch (err) {
+      toast.error("Failed to update global discounts");
+    } finally {
+      setIsSavingGlobal(false);
     }
   };
 
@@ -384,6 +432,14 @@ export default function SuperAdminPage() {
           ))}
         </div>
         
+        <button 
+          onClick={() => setIsGlobalSettingsOpen(true)}
+          className="w-full md:w-auto px-6 py-3 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-2 shadow-xl"
+        >
+          <ShieldCheck className="w-4 h-4" />
+          Global Config
+        </button>
+
         <div className="relative w-full md:w-96">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input 
@@ -657,20 +713,20 @@ export default function SuperAdminPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Stats Grid - Fixed for mobile */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                   {[
                     { label: "Panel Revenue", value: formatAmount(selectedPanel.stats?.totalRevenue), icon: DollarSign, color: "text-green-500" },
                     { label: "Total Deposits", value: formatAmount(selectedPanel.stats?.totalDeposits), icon: Zap, color: "text-amber-500" },
                     { label: "Active Users", value: selectedPanel.stats?.totalUsers || 0, icon: Users, color: "text-blue-500" },
                     { label: "Time Left", value: getTimeRemaining(selectedPanel.expiresAt), icon: Clock, color: "text-indigo-500" },
                   ].map((s, i) => (
-                    <div key={i} className="bg-muted/30 p-5 rounded-2xl border border-border/50">
+                    <div key={i} className="bg-muted/30 p-4 md:p-5 rounded-2xl border border-border/50 flex flex-col justify-between h-full">
                       <div className="flex items-center justify-between mb-2">
-                        <s.icon className={`w-4 h-4 ${s.color}`} />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{s.label}</span>
+                        <s.icon className={`w-3.5 h-3.5 md:w-4 md:h-4 ${s.color}`} />
+                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground">{s.label}</span>
                       </div>
-                      <p className="text-xl font-black tracking-tight">{s.value}</p>
+                      <p className="text-sm md:text-xl font-black tracking-tight">{s.value}</p>
                     </div>
                   ))}
                 </div>
@@ -777,6 +833,103 @@ export default function SuperAdminPage() {
                     </button>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* GLOBAL SETTINGS MODAL */}
+      <AnimatePresence>
+        {isGlobalSettingsOpen && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isSavingGlobal && setIsGlobalSettingsOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-card border border-border shadow-2xl rounded-[32px] overflow-hidden flex flex-col max-h-[85vh]"
+            >
+              <div className="p-8 border-b border-border bg-muted/20 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-blue-600 rounded-2xl text-white shadow-lg">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black tracking-tight">Global Discount Config</h2>
+                    <p className="text-xs text-muted-foreground font-medium">Applied to ALL child panels unless a specific discount is set.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsGlobalSettingsOpen(false)}
+                  className="p-3 hover:bg-muted rounded-2xl transition-all"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
+                <div className="bg-blue-500/5 border border-blue-500/10 p-4 rounded-2xl flex items-start gap-4">
+                  <Activity className="w-5 h-5 text-blue-500 shrink-0" />
+                  <p className="text-xs font-medium text-blue-700/80 leading-relaxed">
+                    Note: Any panel with a <span className="font-black underline">specific discount</span> set will override these global values. Use this to set the baseline price for the entire network.
+                  </p>
+                </div>
+
+                <div className="bg-muted/20 border border-border rounded-2xl overflow-hidden divide-y divide-border/50">
+                  {catalog.map((log) => (
+                    <div key={log.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                      <div className="flex-1">
+                        <p className="text-sm font-bold">{log.platform} - {log.subcategory}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter">MSRP: {formatAmount(log.price)}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <input 
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={globalDiscounts[log.id] || ""}
+                            onChange={(e) => {
+                              const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+                              setGlobalDiscounts({ ...globalDiscounts, [log.id]: val });
+                            }}
+                            placeholder="0"
+                            className="w-20 px-3 py-2 bg-background border border-border rounded-lg text-xs font-bold focus:ring-2 ring-blue-500 outline-none"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground">%</span>
+                        </div>
+                        <div className="w-20 text-right">
+                          <p className="text-xs font-black text-blue-500">
+                            {formatAmount(log.price * (1 - (globalDiscounts[log.id] || 0) / 100))}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-8 bg-muted/20 border-t border-border flex gap-4">
+                <button 
+                  onClick={() => setIsGlobalSettingsOpen(false)}
+                  className="flex-1 py-4 bg-muted text-foreground rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-muted/80 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleUpdateGlobalDiscounts}
+                  disabled={isSavingGlobal}
+                  className="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:brightness-110 shadow-lg shadow-blue-600/20 disabled:opacity-50 transition-all"
+                >
+                  {isSavingGlobal ? "Saving Config..." : "Apply Global Baseline"}
+                </button>
               </div>
             </motion.div>
           </div>
