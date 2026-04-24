@@ -746,16 +746,16 @@ export default function SuperAdminPage() {
                             <div key={i} className="p-4 flex items-center justify-between hover:bg-muted/10">
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-black">
-                                  {(user.username || "?")[0].toUpperCase()}
+                                  {(user.full_name || user.username || user.email || "?")[0].toUpperCase()}
                                 </div>
                                 <div>
-                                  <p className="text-sm font-bold">{user.username || "Anonymous"}</p>
+                                  <p className="text-sm font-bold">{user.full_name || user.username || "Anonymous"}</p>
                                   <p className="text-[10px] text-muted-foreground font-medium">{user.email || "No Email"}</p>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-[9px] font-black text-muted-foreground uppercase">Spent</p>
-                                <p className="text-xs font-black text-foreground">{formatAmount(user.walletBalance || 0)} Bal</p>
+                                <p className="text-[9px] font-black text-muted-foreground uppercase">Spent/Balance</p>
+                                <p className="text-xs font-black text-foreground">{formatAmount(user.wallet_balance || user.walletBalance || 0)} Bal</p>
                               </div>
                             </div>
                           ))
