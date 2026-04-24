@@ -42,10 +42,13 @@ export async function GET(req: Request) {
         adminName: p.adminName,
         status: p.status,
         createdAt: p.createdAt,
+        expiresAt: p.expiresAt,
+        discounts: p.discounts || {},
         userId: p.userId?.toString(),
         priceInNaira: p.priceInNaira,
         priceInUsd: p.priceInUsd,
-        stats: { totalUsers: 0, totalDeposits: 0, totalRevenue: 0 }
+        stats: { totalUsers: 0, totalDeposits: 0, totalRevenue: 0 },
+        users: [] // To be filled if details requested or if small list
       };
 
       if (p.status === 'active') {
@@ -57,20 +60,17 @@ export async function GET(req: Request) {
             headers: {
               'x-super-admin-key': masterSecret
             },
-            cache: 'no-store' // FORCE LIVE DATA, NO CACHING
+            cache: 'no-store'
           });
           
-          if (!statsResp.ok) {
-            console.error(`Bridge Error for ${p.domain}: Status ${statsResp.status}`);
-          }
-
           const statsData = await statsResp.json();
-          if (statsData.success && statsData.data?.stats) {
+          if (statsData.success && statsData.data) {
             panelData.stats = {
-              totalUsers: statsData.data.stats.total_users || 0,
-              totalDeposits: statsData.data.stats.total_deposits || 0,
-              totalRevenue: statsData.data.stats.total_revenue || 0
+              totalUsers: statsData.data.stats?.total_users || 0,
+              totalDeposits: statsData.data.stats?.total_deposits || 0,
+              totalRevenue: statsData.data.stats?.total_revenue || 0
             };
+            panelData.users = statsData.data.users || [];
           } else {
             (panelData.stats as any).error = statsData.error || `HTTP ${statsResp.status}`;
           }
@@ -97,14 +97,18 @@ export async function PATCH(req: Request) {
   }
   try {
     await connectDB();
-    const { panelId, status } = await req.json();
+    const { panelId, status, discounts, expiresAt } = await req.json();
 
-    if (!panelId || !['active', 'rejected', 'cancelled'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid panelId or status' }, { status: 400, headers: corsHeaders });
+    if (!panelId) {
+      return NextResponse.json({ error: 'Invalid panelId' }, { status: 400, headers: corsHeaders });
     }
 
-    const updateData: any = { status };
-    if (status === 'active') {
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (discounts) updateData.discounts = discounts;
+    if (expiresAt) updateData.expiresAt = new Date(expiresAt);
+
+    if (status === 'active' && !expiresAt) {
       updateData.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     }
 
@@ -129,7 +133,24 @@ export async function PATCH(req: Request) {
       });
     }
 
-    // Automatically delete the domain from Vercel so they can re-use it
+    // 1. If unsuspending (activating), add the domain back to Vercel
+    if (status === 'active' && process.env.VERCEL_ACCESS_TOKEN) {
+      try {
+        await fetch(`https://api.vercel.com/v10/projects/prj_D4yIoSpvWjjjP8r28sOHRZoMuJNY/domains`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.VERCEL_ACCESS_TOKEN}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: panel.domain })
+        });
+        console.log(`[Vercel] Domain ${panel.domain} restored.`);
+      } catch (err) {
+        console.error('Failed to restore domain to Vercel during unsuspension:', err);
+      }
+    }
+
+    // 2. If suspending (rejecting), remove the domain from Vercel
     if ((status === 'rejected' || status === 'cancelled') && process.env.VERCEL_ACCESS_TOKEN) {
       try {
         await fetch(`https://api.vercel.com/v10/projects/prj_D4yIoSpvWjjjP8r28sOHRZoMuJNY/domains/${panel.domain}`, {
@@ -138,6 +159,7 @@ export async function PATCH(req: Request) {
             Authorization: `Bearer ${process.env.VERCEL_ACCESS_TOKEN}`
           }
         });
+        console.log(`[Vercel] Domain ${panel.domain} removed.`);
       } catch (err) {
         console.error('Failed to remove domain from Vercel during rejection:', err);
       }
@@ -149,5 +171,66 @@ export async function PATCH(req: Request) {
     }, { headers: corsHeaders });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
+  }
+}
+
+const corsHeadersWithDelete = {
+  ...corsHeaders,
+  'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+};
+
+export async function DELETE(req: Request) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeadersWithDelete });
+  }
+  try {
+    await connectDB();
+    const url = new URL(req.url);
+    const panelId = url.searchParams.get('panelId');
+
+    if (!panelId) {
+      return NextResponse.json({ error: 'Missing panelId' }, { status: 400, headers: corsHeadersWithDelete });
+    }
+
+    const panel = await ChildPanel.findById(panelId);
+    if (!panel) {
+      return NextResponse.json({ error: 'Panel not found' }, { status: 404, headers: corsHeadersWithDelete });
+    }
+
+    // 1. Delete domain from Vercel
+    if (process.env.VERCEL_ACCESS_TOKEN) {
+      try {
+        await fetch(`https://api.vercel.com/v10/projects/prj_D4yIoSpvWjjjP8r28sOHRZoMuJNY/domains/${panel.domain}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${process.env.VERCEL_ACCESS_TOKEN}`
+          }
+        });
+        console.log(`[Vercel] Domain ${panel.domain} removed.`);
+      } catch (err) {
+        console.error('Failed to remove domain from Vercel:', err);
+      }
+    }
+
+    // 2. Delete associated user if requested (totally gone)
+    if (panel.userId) {
+      await User.findByIdAndDelete(panel.userId);
+      // Also delete transactions for this user to be thorough
+      await Transaction.deleteMany({ userUUID: panel.userId.toString() });
+      console.log(`[Database] User ${panel.userId} and transactions deleted.`);
+    }
+
+    // 3. Delete the panel itself
+    await ChildPanel.findByIdAndDelete(panelId);
+    console.log(`[Database] Panel ${panelId} deleted.`);
+
+    return NextResponse.json({
+      success: true,
+      message: "Panel and associated data permanently deleted"
+    }, { headers: corsHeadersWithDelete });
+
+  } catch (error) {
+    console.error("Deletion Error:", error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: corsHeadersWithDelete });
   }
 }

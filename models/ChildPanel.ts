@@ -11,6 +11,7 @@ export interface IChildPanel extends Document {
   expiresAt: Date;
   autoRenew: boolean;
   status: 'pending' | 'active' | 'rejected' | 'cancelled' | 'expired';
+  discounts: Map<string, number>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,6 +64,11 @@ const ChildPanelSchema: Schema<IChildPanel> = new Schema(
       type: String,
       enum: ['pending', 'active', 'rejected', 'cancelled', 'expired'],
       default: 'pending',
+    },
+    discounts: {
+      type: Map,
+      of: Number,
+      default: {}
     },
   },
   {

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Users, Globe, DollarSign, Search, CheckCircle, XCircle, 
   Clock, ArrowRight, ExternalLink, RefreshCw, Filter, 
-  ChevronDown, ShieldCheck, Zap, Activity, AlertCircle
+  ChevronDown, ShieldCheck, Zap, Activity, AlertCircle, Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,10 +20,13 @@ interface ChildPanel {
   id: string;
   domain: string;
   adminName: string;
-  status: 'pending' | 'active' | 'rejected' | 'cancelled';
+  status: 'pending' | 'active' | 'rejected' | 'cancelled' | 'expired';
   createdAt: string;
+  expiresAt: string;
+  discounts: Record<string, number>;
   priceInNaira: number;
   stats: PanelStats;
+  users: any[];
 }
 
 export default function SuperAdminPage() {
@@ -38,6 +41,12 @@ export default function SuperAdminPage() {
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedPanel, setSelectedPanel] = useState<ChildPanel | null>(null);
+  const [catalog, setCatalog] = useState<any[]>([]);
+  const [isSavingDiscounts, setIsSavingDiscounts] = useState(false);
+  const [renewingId, setRenewingId] = useState<string | null>(null);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +64,16 @@ export default function SuperAdminPage() {
         toast.error("Invalid Admin Credentials. Access Denied.");
         setIsLoginLoading(false);
       }, 800);
+    }
+  };
+
+  const fetchCatalog = async () => {
+    try {
+      const res = await fetch('/api/accounts');
+      const data = await res.json();
+      if (data.success) setCatalog(data.accounts);
+    } catch (err) {
+      console.error("Failed to fetch catalog");
     }
   };
 
@@ -88,8 +107,19 @@ export default function SuperAdminPage() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchPanels();
+      fetchCatalog();
     }
   }, [filter, isAuthenticated]);
+
+  const getTimeRemaining = (expiryDate: string) => {
+    const total = Date.parse(expiryDate) - Date.now();
+    if (total <= 0) return "EXPIRED";
+    const days = Math.floor(total / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+    if (days > 0) return `${days}d ${hours}h left`;
+    const minutes = Math.floor((total / 1000 / 60) % 60);
+    return `${hours}h ${minutes}m left`;
+  };
 
   const handleStatusChange = async (panelId: string, newStatus: string) => {
     const secretKey = "dsp_master_secret_2025_security_bypass";
@@ -114,6 +144,85 @@ export default function SuperAdminPage() {
       toast.error("An error occurred");
     }
   };
+  
+  const handleDeletePanel = async (panelId: string) => {
+    const secretKey = "dsp_master_secret_2025_security_bypass";
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/child-panels?panelId=${panelId}`, {
+        method: 'DELETE',
+        headers: { 
+          'x-super-admin-key': secretKey
+        }
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        toast.success("Panel and user deleted permanently");
+        setPanels(prev => prev.filter(p => p.id !== panelId));
+        setConfirmDeleteId(null);
+      } else {
+        toast.error(data.error || "Deletion failed");
+      }
+    } catch (error) {
+      toast.error("An error occurred during deletion");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleUpdateDiscounts = async (panelId: string, newDiscounts: any) => {
+    const secretKey = "dsp_master_secret_2025_security_bypass";
+    setIsSavingDiscounts(true);
+    try {
+      const res = await fetch('/api/admin/child-panels', {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-super-admin-key': secretKey
+        },
+        body: JSON.stringify({ panelId, discounts: newDiscounts })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Discounts updated successfully");
+        fetchPanels(true);
+      } else {
+        toast.error(data.error || "Update failed");
+      }
+    } catch (err) {
+      toast.error("Failed to update discounts");
+    } finally {
+      setIsSavingDiscounts(false);
+    }
+  };
+
+  const handleRenewSubscription = async (panelId: string, currentExpiry: string) => {
+    const secretKey = "dsp_master_secret_2025_security_bypass";
+    setRenewingId(panelId);
+    try {
+      const newExpiry = new Date(new Date(currentExpiry).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const res = await fetch('/api/admin/child-panels', {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-super-admin-key': secretKey
+        },
+        body: JSON.stringify({ panelId, expiresAt: newExpiry, status: 'active' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Subscription renewed for 30 days");
+        fetchPanels(true);
+      } else {
+        toast.error(data.error || "Renewal failed");
+      }
+    } catch (err) {
+      toast.error("Failed to renew subscription");
+    } finally {
+      setRenewingId(null);
+    }
+  };
 
   const filteredPanels = panels.filter(p => 
     p.domain.toLowerCase().includes(search.toLowerCase()) || 
@@ -122,6 +231,7 @@ export default function SuperAdminPage() {
 
   const totalGlobalRevenue = panels.reduce((sum, p) => sum + (p.stats?.totalRevenue || 0), 0);
   const totalGlobalUsers = panels.reduce((sum, p) => sum + (p.stats?.totalUsers || 0), 0);
+  const totalGlobalDeposits = panels.reduce((sum, p) => sum + (p.stats?.totalDeposits || 0), 0);
   const activePanelsCount = panels.filter(p => p.status === 'active').length;
 
   const formatAmount = (amount: number) => {
@@ -228,11 +338,12 @@ export default function SuperAdminPage() {
       </header>
 
       {/* Global Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: "Global Network Revenue", value: formatAmount(totalGlobalRevenue), icon: DollarSign, color: "bg-green-500", shadow: "shadow-green-500/20" },
+          { label: "Global Network Turnover", value: formatAmount(totalGlobalRevenue), icon: DollarSign, color: "bg-green-500", shadow: "shadow-green-500/20" },
+          { label: "Total Network Deposits", value: formatAmount(totalGlobalDeposits), icon: Zap, color: "bg-amber-500", shadow: "shadow-amber-500/20" },
           { label: "Total Managed Users", value: totalGlobalUsers.toLocaleString(), icon: Users, color: "bg-blue-500", shadow: "shadow-blue-500/20" },
-          { label: "Active Child Panels", value: activePanelsCount, icon: Globe, color: "bg-indigo-500", shadow: "shadow-indigo-500/20" },
+          { label: "Live Child Panels", value: activePanelsCount, icon: Globe, color: "bg-indigo-500", shadow: "shadow-indigo-500/20" },
         ].map((stat, i) => (
           <motion.div 
             key={i}
@@ -245,10 +356,10 @@ export default function SuperAdminPage() {
             <div className="flex items-start justify-between">
               <div className="space-y-1">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</p>
-                <p className="text-3xl font-black">{stat.value}</p>
+                <p className="text-2xl font-black">{stat.value}</p>
               </div>
-              <div className={`p-3 ${stat.color} rounded-2xl text-white`}>
-                <stat.icon className="w-6 h-6" />
+              <div className={`p-2.5 ${stat.color} rounded-xl text-white`}>
+                <stat.icon className="w-5 h-5" />
               </div>
             </div>
           </motion.div>
@@ -291,7 +402,7 @@ export default function SuperAdminPage() {
               <tr className="bg-muted/30 border-b border-border">
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Child Panel</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Live Stats</th>
-                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Registration</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Expiration</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
               </tr>
@@ -308,18 +419,15 @@ export default function SuperAdminPage() {
                     className="hover:bg-muted/20 transition-colors group"
                   >
                     <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 font-black">
+                      <div className="flex items-center gap-4 cursor-pointer" onClick={() => setSelectedPanel(panel)}>
+                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 font-black relative">
                           {panel.domain[0].toUpperCase()}
+                          {panel.status === 'active' && <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background animate-pulse" />}
                         </div>
                         <div>
-                          <p className="font-bold text-lg flex items-center gap-2">
+                          <p className="font-bold text-lg flex items-center gap-2 group-hover:text-blue-500 transition-colors">
                             {panel.domain}
-                            {panel.status === 'active' && (
-                              <a href={`https://${panel.domain}`} target="_blank" className="text-muted-foreground hover:text-blue-500">
-                                <ExternalLink className="w-4 h-4" />
-                              </a>
-                            )}
+                            <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                           </p>
                           <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
                             Owner: <span className="text-foreground">{panel.adminName}</span>
@@ -363,9 +471,17 @@ export default function SuperAdminPage() {
                       )}
                     </td>
 
-                    <td className="px-8 py-6">
-                      <p className="text-sm font-bold">{new Date(panel.createdAt).toLocaleDateString()}</p>
-                      <p className="text-[10px] text-muted-foreground font-medium uppercase">{new Date(panel.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    <td className="px-8 py-6 text-center">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <p className={`text-xs font-black uppercase tracking-wider ${Date.parse(panel.expiresAt) < Date.now() ? 'text-red-500' : 'text-foreground'}`}>
+                          {new Date(panel.expiresAt).toLocaleDateString()}
+                        </p>
+                        <p className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
+                          Date.parse(panel.expiresAt) < Date.now() ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'
+                        }`}>
+                          {getTimeRemaining(panel.expiresAt)}
+                        </p>
+                      </div>
                     </td>
 
                     <td className="px-8 py-6">
@@ -409,6 +525,21 @@ export default function SuperAdminPage() {
                             Suspend
                           </button>
                         )}
+                        {(panel.status === 'rejected' || panel.status === 'cancelled') && (
+                          <button 
+                            onClick={() => handleStatusChange(panel.id, 'active')}
+                            className="px-4 py-2 bg-green-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-green-500/20"
+                          >
+                            Unsuspend
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => setConfirmDeleteId(panel.id)}
+                          className="p-2.5 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-95 group/del"
+                          title="Delete Panel Permanently"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </motion.tr>
@@ -430,6 +561,225 @@ export default function SuperAdminPage() {
           )}
         </div>
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {confirmDeleteId && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isDeleting && setConfirmDeleteId(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-card border border-border shadow-2xl rounded-[32px] p-8 space-y-6 text-center"
+            >
+              <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500">
+                <AlertCircle className="w-10 h-10" />
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black tracking-tight">Irreversible Deletion</h3>
+                <p className="text-muted-foreground text-sm font-medium">
+                  This will permanently delete the domain from <span className="font-bold text-foreground">Vercel</span> and remove the <span className="font-bold text-foreground">Admin account</span> entirely. This cannot be undone.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={() => handleDeletePanel(confirmDeleteId)}
+                  disabled={isDeleting}
+                  className="w-full py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-red-500/20 disabled:opacity-50"
+                >
+                  {isDeleting ? "Wiping Data..." : "Yes, Delete Everything"}
+                </button>
+                <button 
+                  onClick={() => setConfirmDeleteId(null)}
+                  disabled={isDeleting}
+                  className="w-full py-4 bg-muted text-foreground rounded-2xl font-black uppercase tracking-widest transition-all active:scale-[0.98] border border-border"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* DETAILED PANEL VIEW MODAL */}
+      <AnimatePresence>
+        {selectedPanel && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isSavingDiscounts && setSelectedPanel(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-5xl bg-card border border-border shadow-2xl rounded-[32px] overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              {/* Modal Header */}
+              <div className="p-8 border-b border-border bg-muted/20 flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-[24px] bg-blue-600 text-white flex items-center justify-center text-2xl font-black shadow-lg shadow-blue-600/20">
+                    {selectedPanel.domain[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                      {selectedPanel.domain}
+                      <span className={`text-[10px] px-3 py-1 rounded-full uppercase tracking-widest ${selectedPanel.status === 'active' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                        {selectedPanel.status}
+                      </span>
+                    </h2>
+                    <p className="text-muted-foreground font-medium flex items-center gap-2">
+                      Managing {selectedPanel.adminName}'s Child Panel • Subscribed until {new Date(selectedPanel.expiresAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedPanel(null)}
+                  className="p-3 bg-muted hover:bg-muted/80 rounded-2xl transition-all active:scale-90"
+                >
+                  <XCircle className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  {[
+                    { label: "Panel Revenue", value: formatAmount(selectedPanel.stats.totalRevenue), icon: DollarSign, color: "text-green-500" },
+                    { label: "Total Deposits", value: formatAmount(selectedPanel.stats.totalDeposits), icon: Zap, color: "text-amber-500" },
+                    { label: "Active Users", value: selectedPanel.stats.totalUsers, icon: Users, color: "text-blue-500" },
+                    { label: "Time Left", value: getTimeRemaining(selectedPanel.expiresAt), icon: Clock, color: "text-indigo-500" },
+                  ].map((s, i) => (
+                    <div key={i} className="bg-muted/30 p-5 rounded-2xl border border-border/50">
+                      <div className="flex items-center justify-between mb-2">
+                        <s.icon className={`w-4 h-4 ${s.color}`} />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{s.label}</span>
+                      </div>
+                      <p className="text-xl font-black tracking-tight">{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                  {/* Discount Management */}
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <h3 className="text-xl font-black tracking-tight">API Log Discounts</h3>
+                        <p className="text-xs text-muted-foreground font-medium">Set % discount deducted from panel balance upon purchase.</p>
+                      </div>
+                      <button 
+                        onClick={() => handleUpdateDiscounts(selectedPanel.id, selectedPanel.discounts)}
+                        disabled={isSavingDiscounts}
+                        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all"
+                      >
+                        {isSavingDiscounts ? "Saving..." : "Save Discounts"}
+                      </button>
+                    </div>
+
+                    <div className="bg-muted/20 border border-border rounded-2xl overflow-hidden">
+                      <div className="max-h-[400px] overflow-y-auto scrollbar-hide divide-y divide-border/50">
+                        {catalog.map((log) => (
+                          <div key={log.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                            <div className="flex-1">
+                              <p className="text-sm font-bold">{log.platform} - {log.subcategory}</p>
+                              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter">Original: {formatAmount(log.price)}</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="relative">
+                                <input 
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={selectedPanel.discounts[log.id] || ""}
+                                  onChange={(e) => {
+                                    const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+                                    setSelectedPanel({
+                                      ...selectedPanel,
+                                      discounts: { ...selectedPanel.discounts, [log.id]: val }
+                                    });
+                                  }}
+                                  placeholder="0"
+                                  className="w-20 px-3 py-2 bg-background border border-border rounded-lg text-xs font-bold focus:ring-2 ring-blue-500 outline-none"
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground">%</span>
+                              </div>
+                              <div className="w-24 text-right">
+                                <p className="text-[9px] font-black text-muted-foreground uppercase tracking-tighter leading-none mb-1">New Price</p>
+                                <p className="text-xs font-black text-green-500">
+                                  {formatAmount(log.price * (1 - (selectedPanel.discounts[log.id] || 0) / 100))}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* User List */}
+                  <div className="space-y-6">
+                    <div className="space-y-1">
+                      <h3 className="text-xl font-black tracking-tight">Panel Users</h3>
+                      <p className="text-xs text-muted-foreground font-medium">Monitoring the users registered on this child panel.</p>
+                    </div>
+
+                    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+                      <div className="max-h-[400px] overflow-y-auto scrollbar-hide divide-y divide-border/50">
+                        {selectedPanel.users && selectedPanel.users.length > 0 ? (
+                          selectedPanel.users.map((user: any, i: number) => (
+                            <div key={i} className="p-4 flex items-center justify-between hover:bg-muted/10">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-xs font-black">
+                                  {user.username[0].toUpperCase()}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold">{user.username}</p>
+                                  <p className="text-[10px] text-muted-foreground font-medium">{user.email}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-[9px] font-black text-muted-foreground uppercase">Spent</p>
+                                <p className="text-xs font-black text-foreground">{formatAmount(user.walletBalance || 0)} Bal</p>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-10 text-center text-muted-foreground italic text-sm">
+                            No users registered yet.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={() => handleRenewSubscription(selectedPanel.id, selectedPanel.expiresAt)}
+                      disabled={renewingId === selectedPanel.id}
+                      className="w-full py-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-black uppercase tracking-widest transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-xl"
+                    >
+                      <RefreshCw className={`w-5 h-5 ${renewingId === selectedPanel.id ? 'animate-spin' : ''}`} />
+                      {renewingId === selectedPanel.id ? "Renewing..." : "Renew Subscription (30 Days)"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Floating Action Hint */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10 backdrop-blur-xl z-50">

@@ -4,6 +4,7 @@ import Account from '@/models/Account';
 import Purchase from '@/models/Purchase';
 import Transaction from '@/models/Transaction';
 import User from '@/models/User';
+import mongoose from 'mongoose';
 
 export async function POST(req: Request) {
   try {
@@ -51,7 +52,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const totalCost = account.price * quantity;
+    // Check for Child Panel Discounts
+    let unitPrice = account.price;
+    const childPanel = await (mongoose.models.ChildPanel || mongoose.model('ChildPanel')).findOne({ userId: user._id });
+    
+    if (childPanel && childPanel.discounts) {
+      const discountPercent = childPanel.discounts.get(accountId.toString()) || 0;
+      if (discountPercent > 0) {
+        unitPrice = account.price * (1 - discountPercent / 100);
+        console.log(`[Discount Applied] ${discountPercent}% for panel ${childPanel.domain}. New Unit Price: ${unitPrice}`);
+      }
+    }
+
+    const totalCost = unitPrice * quantity;
     if (user.walletBalance < totalCost) {
       return NextResponse.json(
         { error: 'Insufficient balance' },
