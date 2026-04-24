@@ -739,13 +739,44 @@ export default function SuperAdminPage() {
                         <h3 className="text-xl font-black tracking-tight">API Log Discounts</h3>
                         <p className="text-xs text-muted-foreground font-medium">Set % discount deducted from panel balance upon purchase.</p>
                       </div>
-                      <button 
-                        onClick={() => handleUpdateDiscounts(selectedPanel.id, selectedPanel.discounts)}
-                        disabled={isSavingDiscounts}
-                        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all"
-                      >
-                        {isSavingDiscounts ? "Saving..." : "Save Discounts"}
-                      </button>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center bg-muted px-4 py-1.5 rounded-xl border border-border/50 gap-3">
+                          <span className="text-[10px] font-black uppercase text-muted-foreground">Bulk %:</span>
+                          <input 
+                            type="number"
+                            id="bulk-discount-panel"
+                            placeholder="0"
+                            className="w-12 bg-transparent text-xs font-black outline-none border-none p-0 focus:ring-0"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                const val = parseInt((e.target as HTMLInputElement).value) || 0;
+                                const newDiscounts = { ...selectedPanel.discounts };
+                                catalog.forEach(log => newDiscounts[log.id] = val);
+                                setSelectedPanel({ ...selectedPanel, discounts: newDiscounts });
+                              }
+                            }}
+                          />
+                          <button 
+                            onClick={() => {
+                              const input = document.getElementById('bulk-discount-panel') as HTMLInputElement;
+                              const val = parseInt(input.value) || 0;
+                              const newDiscounts = { ...selectedPanel.discounts };
+                              catalog.forEach(log => newDiscounts[log.id] = val);
+                              setSelectedPanel({ ...selectedPanel, discounts: newDiscounts });
+                            }}
+                            className="text-[9px] font-black uppercase text-blue-600 hover:text-blue-700 transition-colors"
+                          >
+                            Apply to All
+                          </button>
+                        </div>
+                        <button 
+                          onClick={() => handleUpdateDiscounts(selectedPanel.id, selectedPanel.discounts)}
+                          disabled={isSavingDiscounts}
+                          className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 disabled:opacity-50 transition-all"
+                        >
+                          {isSavingDiscounts ? "Saving..." : "Save Discounts"}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="bg-muted/20 border border-border rounded-2xl overflow-hidden">
@@ -857,13 +888,44 @@ export default function SuperAdminPage() {
               className="relative w-full max-w-2xl bg-card border border-border shadow-2xl rounded-[32px] overflow-hidden flex flex-col max-h-[85vh]"
             >
               <div className="p-8 border-b border-border bg-muted/20 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-600 rounded-2xl text-white shadow-lg">
-                    <ShieldCheck className="w-6 h-6" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-600 rounded-2xl text-white shadow-lg">
+                      <ShieldCheck className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-black tracking-tight">Global Discount Config</h2>
+                      <p className="text-xs text-muted-foreground font-medium">Applied to ALL child panels unless a specific discount is set.</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-black tracking-tight">Global Discount Config</h2>
-                    <p className="text-xs text-muted-foreground font-medium">Applied to ALL child panels unless a specific discount is set.</p>
+                  <div className="flex items-center bg-muted px-4 py-1.5 rounded-xl border border-border/50 gap-3">
+                    <span className="text-[10px] font-black uppercase text-muted-foreground">Bulk %:</span>
+                    <input 
+                      type="number"
+                      id="bulk-discount-global"
+                      placeholder="0"
+                      className="w-12 bg-transparent text-xs font-black outline-none border-none p-0 focus:ring-0"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const val = parseInt((e.target as HTMLInputElement).value) || 0;
+                          const newDiscounts = { ...globalDiscounts };
+                          catalog.forEach(log => newDiscounts[log.id] = val);
+                          setGlobalDiscounts(newDiscounts);
+                        }
+                      }}
+                    />
+                    <button 
+                      onClick={() => {
+                        const input = document.getElementById('bulk-discount-global') as HTMLInputElement;
+                        const val = parseInt(input.value) || 0;
+                        const newDiscounts = { ...globalDiscounts };
+                        catalog.forEach(log => newDiscounts[log.id] = val);
+                        setGlobalDiscounts(newDiscounts);
+                      }}
+                      className="text-[9px] font-black uppercase text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      Apply to All
+                    </button>
                   </div>
                 </div>
                 <button 

@@ -47,6 +47,12 @@ export async function GET(req: Request) {
     // Fetch accounts WITH bulkLogs included
     const accounts = await Account.find(query).select('+bulkLogs').lean();
 
+    // Fetch Child Panel context for discounts
+    const ChildPanel = (await import("@/models/ChildPanel")).default;
+    const GlobalSettings = (await import("@/models/GlobalSettings")).default;
+    const childPanel = await ChildPanel.findOne({ userId: user._id });
+    const globalSettings = await GlobalSettings.findOne();
+
     // Group the data: { [platform]: { [subcategory]: [ items... ] } }
     const groupedData: Record<string, Record<string, any[]>> = {};
 
@@ -61,11 +67,32 @@ export async function GET(req: Request) {
         groupedData[plat][sub] = [];
       }
 
+      // Apply Discounts
+      let finalPrice = acc.price || 0;
+      let appliedDiscount = 0;
+
+      if (childPanel && childPanel.discounts) {
+        const d = childPanel.discounts as any;
+        appliedDiscount = typeof d.get === 'function' ? d.get(acc._id.toString()) : d[acc._id.toString()];
+      }
+
+      if ((!appliedDiscount || appliedDiscount === 0) && globalSettings && globalSettings.globalDiscounts) {
+        const gd = globalSettings.globalDiscounts as any;
+        const globalDisc = typeof gd.get === 'function' ? gd.get(acc._id.toString()) : gd[acc._id.toString()];
+        appliedDiscount = globalDisc || 0;
+      }
+
+      appliedDiscount = Number(appliedDiscount) || 0;
+
+      if (appliedDiscount > 0) {
+        finalPrice = (acc.price || 0) * (1 - appliedDiscount / 100);
+      }
+
       groupedData[plat][sub].push({
         itemId: acc._id,
         type: acc.type || '',
         name: acc.account || acc.olaz || '',
-        price: acc.price || 0,
+        price: finalPrice,
         followers: acc.followers || 0,
         logsCount: acc.logs || 0,
         availableLogsCount: acc.bulkLogs ? acc.bulkLogs.length : 0,
