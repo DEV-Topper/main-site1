@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import Account from "@/models/Account";
+import ChildPanel from "@/models/ChildPanel";
+import GlobalSettings from "@/models/GlobalSettings";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,7 +28,7 @@ export async function GET(req: Request) {
 
   try {
     await connectDB();
-    const user = await User.findOne({ apiKey });
+    const user = await User.findOne({ apiKey }).lean();
     if (!user) {
       return NextResponse.json({ error: "Invalid API Key" }, { status: 401, headers: corsHeaders });
     }
@@ -44,14 +46,21 @@ export async function GET(req: Request) {
       query.subcategory = { $regex: subcategory, $options: 'i' };
     }
 
-    // Fetch accounts WITH bulkLogs included
-    const accounts = await Account.find(query).select('+bulkLogs').lean();
+    // Fetch accounts, child panel, and global settings in parallel
+    const [accounts, childPanel, globalSettings] = await Promise.all([
+      Account.find(query).select('+bulkLogs').lean(),
+      ChildPanel.findOne({ userId: user._id }),
+      GlobalSettings.findOne()
+    ]);
 
-    // Fetch Child Panel context for discounts
-    const ChildPanel = (await import("@/models/ChildPanel")).default;
-    const GlobalSettings = (await import("@/models/GlobalSettings")).default;
-    const childPanel = await ChildPanel.findOne({ userId: user._id });
-    const globalSettings = await GlobalSettings.findOne();
+    // Pre-process discounts for reliable lookup
+    const panelDiscounts = childPanel?.discounts instanceof Map 
+      ? Object.fromEntries(childPanel.discounts) 
+      : (childPanel?.discounts || {});
+      
+    const globalDiscounts = globalSettings?.globalDiscounts instanceof Map 
+      ? Object.fromEntries(globalSettings.globalDiscounts) 
+      : (globalSettings?.globalDiscounts || {});
 
     // Group the data: { [platform]: { [subcategory]: [ items... ] } }
     const groupedData: Record<string, Record<string, any[]>> = {};
@@ -69,17 +78,13 @@ export async function GET(req: Request) {
 
       // Apply Discounts
       let finalPrice = acc.price || 0;
-      let appliedDiscount = 0;
+      const itemIdStr = acc._id.toString();
+      
+      let appliedDiscount = panelDiscounts[itemIdStr] || 0;
 
-      if (childPanel && childPanel.discounts) {
-        const d = childPanel.discounts as any;
-        appliedDiscount = typeof d.get === 'function' ? d.get(acc._id.toString()) : d[acc._id.toString()];
-      }
-
-      if ((!appliedDiscount || appliedDiscount === 0) && globalSettings && globalSettings.globalDiscounts) {
-        const gd = globalSettings.globalDiscounts as any;
-        const globalDisc = typeof gd.get === 'function' ? gd.get(acc._id.toString()) : gd[acc._id.toString()];
-        appliedDiscount = globalDisc || 0;
+      // Fallback to global discount if panel-specific is missing
+      if (!appliedDiscount || appliedDiscount === 0) {
+        appliedDiscount = globalDiscounts[itemIdStr] || 0;
       }
 
       appliedDiscount = Number(appliedDiscount) || 0;
