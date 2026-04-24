@@ -373,8 +373,19 @@ export default function ChildPanelPage() {
                           </thead>
                           <tbody>
                             <tr className="border-t border-white/10">
+                              <td className="px-4 py-3 font-mono text-blue-300 font-bold text-xs">A Record</td>
+                              <td className="px-4 py-3 font-mono text-[10px]"><span className="text-yellow-300">@</span></td>
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                  <code className="text-[10px] text-green-300 bg-white/5 px-2 py-0.5 rounded">76.76.21.21</code>
+                                  <CopyButton text="76.76.21.21" />
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-slate-400 text-[10px]">Auto</td>
+                            </tr>
+                            <tr className="border-t border-white/10">
                               <td className="px-4 py-3 font-mono text-blue-300 font-bold text-xs">CNAME</td>
-                              <td className="px-4 py-3 font-mono text-[10px]"><span className="text-yellow-300">@</span> <span className="text-slate-500 text-[10px]">(or www)</span></td>
+                              <td className="px-4 py-3 font-mono text-[10px]"><span className="text-yellow-300">www</span></td>
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-2">
                                   <code className="text-[10px] text-green-300 bg-white/5 px-2 py-0.5 rounded">cname.vercel-dns.com</code>
@@ -388,10 +399,11 @@ export default function ChildPanelPage() {
                       </div>
                       <div className="space-y-3">
                         {[
-                          "Log into your domain registrar (Namecheap, GoDaddy, Cloudflare, etc.)",
+                          "Log into your domain registrar (Hostinger, Namecheap, GoDaddy, etc.)",
                           `Find the DNS settings for ${existingPanel.domain}`,
-                          "Add a new CNAME record: name = @ (or www), value = cname.vercel-dns.com",
-                          "Save the changes and wait up to 24 hours for DNS to propagate globally",
+                          "Add an A Record: name = @, value = 76.76.21.21",
+                          "Add a CNAME record: name = www, value = cname.vercel-dns.com",
+                          "Save the changes and wait for DNS to propagate globally",
                           "Once DNS is set and your panel is approved, customers can visit your domain!",
                         ].map((text, i) => (
                           <div key={i} className="flex items-start gap-3">
