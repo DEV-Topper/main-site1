@@ -112,8 +112,9 @@ export default function SuperAdminPage() {
   }, [filter, isAuthenticated]);
 
   const getTimeRemaining = (expiryDate: string) => {
+    if (!expiryDate) return "N/A";
     const total = Date.parse(expiryDate) - Date.now();
-    if (total <= 0) return "EXPIRED";
+    if (isNaN(total) || total <= 0) return "EXPIRED";
     const days = Math.floor(total / (1000 * 60 * 60 * 24));
     const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
     if (days > 0) return `${days}d ${hours}h left`;
@@ -234,12 +235,13 @@ export default function SuperAdminPage() {
   const totalGlobalDeposits = panels.reduce((sum, p) => sum + (p.stats?.totalDeposits || 0), 0);
   const activePanelsCount = panels.filter(p => p.status === 'active').length;
 
-  const formatAmount = (amount: number) => {
+  const formatAmount = (amount: any) => {
+    const val = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency: 'NGN',
       minimumFractionDigits: 0
-    }).format(amount);
+    }).format(val);
   };
 
   if (!isAuthenticated) {
@@ -658,9 +660,9 @@ export default function SuperAdminPage() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   {[
-                    { label: "Panel Revenue", value: formatAmount(selectedPanel.stats.totalRevenue), icon: DollarSign, color: "text-green-500" },
-                    { label: "Total Deposits", value: formatAmount(selectedPanel.stats.totalDeposits), icon: Zap, color: "text-amber-500" },
-                    { label: "Active Users", value: selectedPanel.stats.totalUsers, icon: Users, color: "text-blue-500" },
+                    { label: "Panel Revenue", value: formatAmount(selectedPanel.stats?.totalRevenue), icon: DollarSign, color: "text-green-500" },
+                    { label: "Total Deposits", value: formatAmount(selectedPanel.stats?.totalDeposits), icon: Zap, color: "text-amber-500" },
+                    { label: "Active Users", value: selectedPanel.stats?.totalUsers || 0, icon: Users, color: "text-blue-500" },
                     { label: "Time Left", value: getTimeRemaining(selectedPanel.expiresAt), icon: Clock, color: "text-indigo-500" },
                   ].map((s, i) => (
                     <div key={i} className="bg-muted/30 p-5 rounded-2xl border border-border/50">
@@ -704,12 +706,12 @@ export default function SuperAdminPage() {
                                   type="number"
                                   min="0"
                                   max="100"
-                                  value={selectedPanel.discounts[log.id] || ""}
+                                  value={(selectedPanel.discounts || {})[log.id] || ""}
                                   onChange={(e) => {
                                     const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
                                     setSelectedPanel({
                                       ...selectedPanel,
-                                      discounts: { ...selectedPanel.discounts, [log.id]: val }
+                                      discounts: { ...(selectedPanel.discounts || {}), [log.id]: val }
                                     });
                                   }}
                                   placeholder="0"
@@ -720,7 +722,7 @@ export default function SuperAdminPage() {
                               <div className="w-24 text-right">
                                 <p className="text-[9px] font-black text-muted-foreground uppercase tracking-tighter leading-none mb-1">New Price</p>
                                 <p className="text-xs font-black text-green-500">
-                                  {formatAmount(log.price * (1 - (selectedPanel.discounts[log.id] || 0) / 100))}
+                                  {formatAmount(log.price * (1 - ((selectedPanel.discounts || {})[log.id] || 0) / 100))}
                                 </p>
                               </div>
                             </div>
