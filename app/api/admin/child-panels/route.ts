@@ -47,7 +47,7 @@ export async function GET(req: Request) {
         createdAt: p.createdAt,
         expiresAt: p.expiresAt,
         discounts: p.discounts || {},
-        userId: p.userId?.toString(),
+        userId: p.userId,
         priceInNaira: p.priceInNaira,
         priceInUsd: p.priceInUsd,
         stats: { totalUsers: 0, totalDeposits: 0, totalRevenue: 0 },
