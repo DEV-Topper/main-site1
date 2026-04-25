@@ -204,14 +204,19 @@ export default function SuperAdminPage() {
         body: JSON.stringify({ panelId, discounts: newDiscounts })
       });
       const data = await res.json();
+      
+      console.log(`[Admin] Discount Update Response (Status: ${res.status}):`, data);
+
       if (data.success) {
         toast.success("Discounts updated successfully");
         fetchPanels(true);
       } else {
+        console.error("[Admin] Update Failed:", data.error);
         toast.error(data.error || "Update failed");
       }
-    } catch (err) {
-      toast.error("Failed to update discounts");
+    } catch (err: any) {
+      console.error("[Admin] Network/Critical Error:", err);
+      toast.error("Failed to update discounts: " + err.message);
     } finally {
       setIsSavingDiscounts(false);
     }
