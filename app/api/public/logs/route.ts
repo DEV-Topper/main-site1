@@ -49,18 +49,33 @@ export async function GET(req: Request) {
     // Fetch accounts, child panel, and global settings in parallel
     const [accounts, childPanel, globalSettings] = await Promise.all([
       Account.find(query).select('+bulkLogs').lean(),
-      ChildPanel.findOne({ userId: user._id }),
+      ChildPanel.findOne({ 
+        $or: [
+          { userId: user._id }, 
+          { userId: user._id.toString() }
+        ] 
+      }),
       GlobalSettings.findOne()
     ]);
 
     // Pre-process discounts for reliable lookup
-    const panelDiscounts = childPanel?.discounts instanceof Map 
-      ? Object.fromEntries(childPanel.discounts) 
-      : (childPanel?.discounts || {});
+    let panelDiscounts: Record<string, number> = {};
+    if (childPanel?.discounts) {
+      if (childPanel.discounts instanceof Map) {
+        panelDiscounts = Object.fromEntries(childPanel.discounts);
+      } else {
+        panelDiscounts = childPanel.discounts;
+      }
+    }
       
-    const globalDiscounts = globalSettings?.globalDiscounts instanceof Map 
-      ? Object.fromEntries(globalSettings.globalDiscounts) 
-      : (globalSettings?.globalDiscounts || {});
+    let globalDiscounts: Record<string, number> = {};
+    if (globalSettings?.globalDiscounts) {
+      if (globalSettings.globalDiscounts instanceof Map) {
+        globalDiscounts = Object.fromEntries(globalSettings.globalDiscounts);
+      } else {
+        globalDiscounts = globalSettings.globalDiscounts;
+      }
+    }
 
     // Group the data: { [platform]: { [subcategory]: [ items... ] } }
     const groupedData: Record<string, Record<string, any[]>> = {};
