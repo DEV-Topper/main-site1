@@ -33,7 +33,7 @@ export async function GET(req: Request) {
     const status = url.searchParams.get('status');
     const query = status ? { status } : {};
     const panels = await ChildPanel.find(query)
-      .populate('userId', 'full_name email')
+      .populate('userId', 'username email')
       .sort({ createdAt: -1 })
       .lean();
 

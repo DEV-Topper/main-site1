@@ -21,7 +21,7 @@ interface ChildPanel {
   domain: string;
   adminName: string;
   userId: {
-    full_name: string;
+    username: string;
     email: string;
   };
   status: 'pending' | 'active' | 'rejected' | 'cancelled' | 'expired';
@@ -731,7 +731,7 @@ export default function SuperAdminPage() {
                       </span>
                     </h2>
                     <p className="text-muted-foreground font-medium flex items-center gap-2">
-                      Owner: {selectedPanel.userId?.full_name || "Unknown"} ({selectedPanel.userId?.email || "No Email"}) • Started: {new Date(selectedPanel.createdAt).toLocaleDateString()}
+                      Owner: {selectedPanel.userId?.username || "Unknown"} ({selectedPanel.userId?.email || "No Email"}) • Started: {new Date(selectedPanel.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
