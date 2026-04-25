@@ -266,7 +266,25 @@ export default function SuperAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Global discounts applied to all users!");
+        toast.success("Global baseline updated");
+
+        // Option to push to all panels
+        if (window.confirm("Would you like to push these global discounts to ALL existing panels immediately? This will overwrite individual panel discounts for these logs.")) {
+           const panelsRes = await fetch('/api/admin/child-panels/bulk-sync', {
+             method: 'POST',
+             headers: { 
+               'Content-Type': 'application/json',
+               'x-super-admin-key': secretKey
+             },
+             body: JSON.stringify({ discounts: globalDiscounts })
+           });
+           const pushData = await panelsRes.json();
+           if (pushData.success) {
+             toast.success("Applied to all panels");
+             fetchPanels(true);
+           }
+        }
+        
         setIsGlobalSettingsOpen(false);
       } else {
         toast.error(data.error || "Update failed");
@@ -772,6 +790,20 @@ export default function SuperAdminPage() {
                             className="text-[9px] font-black uppercase text-blue-600 hover:text-blue-700 transition-colors"
                           >
                             Apply to All
+                          <button 
+                            onClick={() => {
+                              const newDiscounts = { ...selectedPanel.discounts };
+                              catalog.forEach(log => {
+                                if (globalDiscounts[log.id]) {
+                                  newDiscounts[log.id] = globalDiscounts[log.id];
+                                }
+                              });
+                              setSelectedPanel({ ...selectedPanel, discounts: newDiscounts });
+                              toast.success("Synced with Global Baseline");
+                            }}
+                            className="text-[9px] font-black uppercase text-amber-600 hover:text-amber-700 transition-colors"
+                          >
+                            Sync Baseline
                           </button>
                         </div>
                         <button 
@@ -848,7 +880,7 @@ export default function SuperAdminPage() {
                                 <div className="text-right">
                                   <p className="text-[9px] font-black text-muted-foreground uppercase">Spent / Balance</p>
                                   <p className="text-xs font-black text-foreground">
-                                    ₦{(user.total_spent || user.totalSpent || 0).toLocaleString()} / {formatAmount(user.wallet_balance || user.walletBalance || 0)}
+                                    ₦{(user.spending || user.total_spending || user.total_spent || user.totalSpent || 0).toLocaleString()} / {formatAmount(user.wallet_balance || user.walletBalance || 0)}
                                   </p>
                                 </div>
                             </div>
