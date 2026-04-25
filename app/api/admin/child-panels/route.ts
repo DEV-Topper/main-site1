@@ -32,7 +32,10 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const status = url.searchParams.get('status');
     const query = status ? { status } : {};
-    const panels = await ChildPanel.find(query).sort({ createdAt: -1 }).lean();
+    const panels = await ChildPanel.find(query)
+      .populate('userId', 'full_name email')
+      .sort({ createdAt: -1 })
+      .lean();
 
     // Enrich active panels with live stats from their Supabase instance via bridge
     const enrichedPanels = await Promise.all(panels.map(async (p: any) => {

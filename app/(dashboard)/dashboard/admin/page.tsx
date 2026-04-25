@@ -20,6 +20,10 @@ interface ChildPanel {
   id: string;
   domain: string;
   adminName: string;
+  userId: {
+    full_name: string;
+    email: string;
+  };
   status: 'pending' | 'active' | 'rejected' | 'cancelled' | 'expired';
   createdAt: string;
   expiresAt: string;
@@ -222,25 +226,29 @@ export default function SuperAdminPage() {
     }
   };
 
-  const handleRenewSubscription = async (panelId: string, currentExpiry: string) => {
-    const confirmed = window.confirm("Are you sure you want to RENEW this subscription for another 30 days?");
+  const handleRenewSubscription = async (panelId: string) => {
+    const confirmed = window.confirm("Are you sure you want to RENEW this subscription? This will RESET the expiry to 30 days from today.");
     if (!confirmed) return;
 
     const secretKey = "dsp_master_secret_2025_security_bypass";
     setRenewingId(panelId);
     try {
-      const newExpiry = new Date(new Date(currentExpiry).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
       const res = await fetch('/api/admin/child-panels', {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
           'x-super-admin-key': secretKey
         },
-        body: JSON.stringify({ panelId, expiresAt: newExpiry, status: 'active' })
+        body: JSON.stringify({ 
+          panelId, 
+          status: 'active',
+          // HARD RESET TO 30 DAYS FROM TODAY
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() 
+        })
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Subscription renewed for 30 days");
+        toast.success("Subscription reset to 30 days");
         fetchPanels(true);
       } else {
         toast.error(data.error || "Renewal failed");
@@ -723,7 +731,7 @@ export default function SuperAdminPage() {
                       </span>
                     </h2>
                     <p className="text-muted-foreground font-medium flex items-center gap-2">
-                      {selectedPanel.adminName}'s Child Panel • Started: {new Date(selectedPanel.createdAt).toLocaleDateString()} • Expires: {new Date(selectedPanel.expiresAt).toLocaleDateString()}
+                      Owner: {selectedPanel.userId?.full_name || "Unknown"} ({selectedPanel.userId?.email || "No Email"}) • Started: {new Date(selectedPanel.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -895,7 +903,7 @@ export default function SuperAdminPage() {
                     </div>
 
                     <button 
-                      onClick={() => handleRenewSubscription(selectedPanel.id, selectedPanel.expiresAt)}
+                      onClick={() => handleRenewSubscription(selectedPanel.id)}
                       disabled={renewingId === selectedPanel.id}
                       className="w-full py-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-black uppercase tracking-widest transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-xl"
                     >
