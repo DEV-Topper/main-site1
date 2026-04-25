@@ -47,12 +47,15 @@ export async function GET(req: Request) {
     }
 
     // Fetch accounts, child panel, and global settings in parallel
+    const requestDomain = req.headers.get("x-dsp-domain") || "";
+    
     const [accounts, childPanel, globalSettings] = await Promise.all([
       Account.find(query).select('+bulkLogs').lean(),
       ChildPanel.findOne({ 
         $or: [
           { userId: user._id }, 
-          { userId: user._id.toString() }
+          { userId: user._id.toString() },
+          { domain: { $regex: requestDomain, $options: 'i' } }
         ] 
       }),
       GlobalSettings.findOne()
