@@ -845,10 +845,12 @@ export default function SuperAdminPage() {
                                   <p className="text-[10px] text-muted-foreground font-medium">{user.email || "No Email"}</p>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <p className="text-[9px] font-black text-muted-foreground uppercase">Spent/Balance</p>
-                                <p className="text-xs font-black text-foreground">{formatAmount(user.wallet_balance || user.walletBalance || 0)} Bal</p>
-                              </div>
+                                <div className="text-right">
+                                  <p className="text-[9px] font-black text-muted-foreground uppercase">Spent / Balance</p>
+                                  <p className="text-xs font-black text-foreground">
+                                    ₦{(user.total_spent || user.totalSpent || 0).toLocaleString()} / {formatAmount(user.wallet_balance || user.walletBalance || 0)}
+                                  </p>
+                                </div>
                             </div>
                           ))
                         ) : (
