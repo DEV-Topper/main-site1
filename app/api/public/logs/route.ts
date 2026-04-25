@@ -123,7 +123,17 @@ export async function GET(req: Request) {
       });
     });
 
-    return NextResponse.json(groupedData, { headers: corsHeaders });
+    return NextResponse.json({
+      success: true,
+      debug: {
+        userId: user._id,
+        panelFound: !!childPanel,
+        panelDiscountsCount: Object.keys(panelDiscounts).length,
+        globalDiscountsCount: Object.keys(globalDiscounts).length,
+        appliedAnyDiscounts: accounts.some(acc => (panelDiscounts[acc._id.toString()] || globalDiscounts[acc._id.toString()]) > 0)
+      },
+      ...groupedData
+    }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching public logs API:', error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
