@@ -8,7 +8,7 @@ import GlobalSettings from "@/models/GlobalSettings";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, x-dsp-domain',
 };
 
 export async function OPTIONS() {
@@ -47,15 +47,17 @@ export async function GET(req: Request) {
     }
 
     // Fetch accounts, child panel, and global settings in parallel
-    const requestDomain = req.headers.get("x-dsp-domain") || "";
-    
+    // Fallback search by domain name if API key owner doesn't match
+    const rawDomain = req.headers.get("x-dsp-domain") || "";
+    const cleanDomain = rawDomain.replace(/^www\./i, '');
+
     const [accounts, childPanel, globalSettings] = await Promise.all([
       Account.find(query).select('+bulkLogs').lean(),
       ChildPanel.findOne({ 
         $or: [
           { userId: user._id }, 
           { userId: user._id.toString() },
-          { domain: { $regex: requestDomain, $options: 'i' } }
+          { domain: { $regex: cleanDomain, $options: 'i' } }
         ] 
       }),
       GlobalSettings.findOne()
@@ -126,17 +128,8 @@ export async function GET(req: Request) {
       });
     });
 
-    return NextResponse.json({
-      success: true,
-      debug: {
-        userId: user._id,
-        panelFound: !!childPanel,
-        panelDiscountsCount: Object.keys(panelDiscounts).length,
-        globalDiscountsCount: Object.keys(globalDiscounts).length,
-        appliedAnyDiscounts: accounts.some(acc => (panelDiscounts[acc._id.toString()] || globalDiscounts[acc._id.toString()]) > 0)
-      },
-      ...groupedData
-    }, { headers: corsHeaders });
+    // We return ONLY the platforms to keep child panel parsing simple
+    return NextResponse.json(groupedData, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching public logs API:', error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
