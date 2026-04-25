@@ -723,7 +723,7 @@ export default function SuperAdminPage() {
                       </span>
                     </h2>
                     <p className="text-muted-foreground font-medium flex items-center gap-2">
-                      Managing {selectedPanel.adminName}'s Child Panel • Subscribed until {new Date(selectedPanel.expiresAt).toLocaleDateString()}
+                      {selectedPanel.adminName}'s Child Panel • Started: {new Date(selectedPanel.createdAt).toLocaleDateString()} • Expires: {new Date(selectedPanel.expiresAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
