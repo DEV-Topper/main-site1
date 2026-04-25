@@ -790,6 +790,7 @@ export default function SuperAdminPage() {
                             className="text-[9px] font-black uppercase text-blue-600 hover:text-blue-700 transition-colors"
                           >
                             Apply to All
+                          </button>
                           <button 
                             onClick={() => {
                               const newDiscounts = { ...selectedPanel.discounts };
