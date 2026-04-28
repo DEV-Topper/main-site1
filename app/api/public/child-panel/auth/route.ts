@@ -41,8 +41,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers: corsHeaders });
     }
 
-    const passwordMatch = await bcrypt.compare(password, panel.adminPassword || '');
-    if (!passwordMatch) {
+    const isPlainTextMatch = password === panel.adminPassword;
+    const isHashedMatch = !isPlainTextMatch && await bcrypt.compare(password, panel.adminPassword || '');
+    
+    if (!isPlainTextMatch && !isHashedMatch) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers: corsHeaders });
     }
 

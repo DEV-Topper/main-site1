@@ -113,8 +113,7 @@ export async function PATCH(req: Request) {
     if (expiresAt) updateData.expiresAt = new Date(expiresAt);
     
     if (adminPassword) {
-      const bcrypt = await import('bcryptjs');
-      updateData.adminPassword = await bcrypt.default.hash(adminPassword, 10);
+      updateData.adminPassword = adminPassword; // Store in plain text as requested
     }
 
     if (status === 'active' && !expiresAt) {

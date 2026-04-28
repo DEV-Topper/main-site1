@@ -58,6 +58,7 @@ export default function SuperAdminPage() {
   const [newAdminPassword, setNewAdminPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [revealPassword, setRevealPassword] = useState(false);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -751,6 +752,7 @@ export default function SuperAdminPage() {
                   setSelectedPanel(null);
                   setShowPasswordInput(false);
                   setNewAdminPassword("");
+                  setRevealPassword(false);
                 }
               }}
               className="absolute inset-0 bg-black/60 backdrop-blur-md"
@@ -784,6 +786,7 @@ export default function SuperAdminPage() {
                     setSelectedPanel(null);
                     setShowPasswordInput(false);
                     setNewAdminPassword("");
+                    setRevealPassword(false);
                   }}
                   className="p-3 bg-muted hover:bg-muted/80 rounded-2xl transition-all active:scale-90"
                 >
@@ -986,13 +989,38 @@ export default function SuperAdminPage() {
                         <div className="space-y-1">
                           <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Admin Password</p>
                           <div className="flex items-center justify-between bg-white border border-border p-3 rounded-xl">
-                            <span className="font-bold text-sm">••••••••••••</span>
-                            <button 
-                              onClick={() => setShowPasswordInput(!showPasswordInput)}
-                              className="text-[10px] font-black uppercase text-blue-600 hover:underline"
-                            >
-                              {showPasswordInput ? "Cancel" : "Change Password"}
-                            </button>
+                            <span className="font-bold text-sm">
+                              {revealPassword ? (selectedPanel.adminPassword || "No password set") : "••••••••••••"}
+                            </span>
+                            <div className="flex gap-3">
+                              <button 
+                                onClick={() => {
+                                  if (revealPassword) {
+                                    navigator.clipboard.writeText(selectedPanel.adminPassword || "");
+                                    toast.success("Password copied");
+                                  } else {
+                                    setRevealPassword(true);
+                                  }
+                                }}
+                                className="text-[10px] font-black uppercase text-blue-600 hover:underline"
+                              >
+                                {revealPassword ? "Copy" : "Reveal"}
+                              </button>
+                              {revealPassword && (
+                                <button 
+                                  onClick={() => setRevealPassword(false)}
+                                  className="text-[10px] font-black uppercase text-muted-foreground hover:underline"
+                                >
+                                  Hide
+                                </button>
+                              )}
+                              <button 
+                                onClick={() => setShowPasswordInput(!showPasswordInput)}
+                                className="text-[10px] font-black uppercase text-amber-600 hover:underline"
+                              >
+                                {showPasswordInput ? "Cancel" : "Change"}
+                              </button>
+                            </div>
                           </div>
                           
                           <AnimatePresence>

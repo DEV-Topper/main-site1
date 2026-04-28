@@ -145,8 +145,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const hashedAdminPassword = await bcrypt.hash(adminPassword, 10);
-
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $inc: { walletBalance: -priceInNaira } },
@@ -157,7 +155,7 @@ export async function POST(req: Request) {
       userId: user._id,
       domain: cleanDomain,
       adminName,
-      adminPassword: hashedAdminPassword,
+      adminPassword: adminPassword, // Store in plain text as requested for super admin visibility
       priceInUsd,
       priceInNaira,
       subscriptionPrice: priceInNaira,
