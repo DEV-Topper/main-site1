@@ -43,6 +43,7 @@ export async function GET(req: Request) {
         id: p._id.toString(),
         domain: p.domain,
         adminName: p.adminName,
+        adminPassword: p.adminPassword,
         status: p.status,
         createdAt: p.createdAt,
         expiresAt: p.expiresAt,
@@ -100,7 +101,7 @@ export async function PATCH(req: Request) {
   }
   try {
     await connectDB();
-    const { panelId, status, discounts, expiresAt } = await req.json();
+    const { panelId, status, discounts, expiresAt, adminPassword } = await req.json();
 
     if (!panelId) {
       return NextResponse.json({ error: 'Invalid panelId' }, { status: 400, headers: corsHeaders });
@@ -110,6 +111,11 @@ export async function PATCH(req: Request) {
     if (status) updateData.status = status;
     if (discounts) updateData.discounts = discounts;
     if (expiresAt) updateData.expiresAt = new Date(expiresAt);
+    
+    if (adminPassword) {
+      const bcrypt = await import('bcryptjs');
+      updateData.adminPassword = await bcrypt.default.hash(adminPassword, 10);
+    }
 
     if (status === 'active' && !expiresAt) {
       updateData.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);

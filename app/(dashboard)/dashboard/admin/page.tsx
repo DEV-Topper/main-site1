@@ -31,6 +31,7 @@ interface ChildPanel {
   priceInNaira: number;
   stats: PanelStats;
   users: any[];
+  adminPassword?: string;
 }
 
 export default function SuperAdminPage() {
@@ -54,6 +55,9 @@ export default function SuperAdminPage() {
   const [isGlobalSettingsOpen, setIsGlobalSettingsOpen] = useState(false);
   const [globalDiscounts, setGlobalDiscounts] = useState<Record<string, number>>({});
   const [isSavingGlobal, setIsSavingGlobal] = useState(false);
+  const [newAdminPassword, setNewAdminPassword] = useState("");
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -301,6 +305,40 @@ export default function SuperAdminPage() {
       toast.error("Failed to update global discounts");
     } finally {
       setIsSavingGlobal(false);
+    }
+  };
+
+  const handleUpdateAdminPassword = async (panelId: string) => {
+    if (!newAdminPassword) {
+      toast.error("Please enter a new password");
+      return;
+    }
+    
+    const secretKey = "dsp_master_secret_2025_security_bypass";
+    setIsUpdatingPassword(true);
+    try {
+      const res = await fetch('/api/admin/child-panels', {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-super-admin-key': secretKey
+        },
+        body: JSON.stringify({ panelId, adminPassword: newAdminPassword })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        toast.success("Admin password updated successfully");
+        setNewAdminPassword("");
+        setShowPasswordInput(false);
+        fetchPanels(true);
+      } else {
+        toast.error(data.error || "Update failed");
+      }
+    } catch (err) {
+      toast.error("Failed to update password");
+    } finally {
+      setIsUpdatingPassword(false);
     }
   };
 
@@ -708,7 +746,13 @@ export default function SuperAdminPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => !isSavingDiscounts && setSelectedPanel(null)}
+              onClick={() => {
+                if (!isSavingDiscounts) {
+                  setSelectedPanel(null);
+                  setShowPasswordInput(false);
+                  setNewAdminPassword("");
+                }
+              }}
               className="absolute inset-0 bg-black/60 backdrop-blur-md"
             />
             <motion.div 
@@ -736,7 +780,11 @@ export default function SuperAdminPage() {
                   </div>
                 </div>
                 <button 
-                  onClick={() => setSelectedPanel(null)}
+                  onClick={() => {
+                    setSelectedPanel(null);
+                    setShowPasswordInput(false);
+                    setNewAdminPassword("");
+                  }}
                   className="p-3 bg-muted hover:bg-muted/80 rounded-2xl transition-all active:scale-90"
                 >
                   <XCircle className="w-6 h-6" />
@@ -910,6 +958,90 @@ export default function SuperAdminPage() {
                       <RefreshCw className={`w-5 h-5 ${renewingId === selectedPanel.id ? 'animate-spin' : ''}`} />
                       {renewingId === selectedPanel.id ? "Renewing..." : "Renew Subscription (30 Days)"}
                     </button>
+
+                    {/* Admin Access / Support Credentials */}
+                    <div className="bg-blue-600/5 border border-blue-600/20 rounded-[24px] p-6 space-y-4">
+                      <div className="flex items-center gap-3 text-blue-600">
+                        <ShieldCheck className="w-5 h-5" />
+                        <h3 className="text-lg font-black tracking-tight">Admin Support Access</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Admin Username</p>
+                          <div className="flex items-center justify-between bg-white border border-border p-3 rounded-xl">
+                            <span className="font-bold text-sm">{selectedPanel.adminName}</span>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(selectedPanel.adminName);
+                                toast.success("Username copied");
+                              }}
+                              className="text-[10px] font-black uppercase text-blue-600 hover:underline"
+                            >
+                              Copy
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Admin Password</p>
+                          <div className="flex items-center justify-between bg-white border border-border p-3 rounded-xl">
+                            <span className="font-bold text-sm">••••••••••••</span>
+                            <button 
+                              onClick={() => setShowPasswordInput(!showPasswordInput)}
+                              className="text-[10px] font-black uppercase text-blue-600 hover:underline"
+                            >
+                              {showPasswordInput ? "Cancel" : "Change Password"}
+                            </button>
+                          </div>
+                          
+                          <AnimatePresence>
+                            {showPasswordInput && (
+                              <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="pt-2 flex gap-2"
+                              >
+                                <input 
+                                  type="text"
+                                  placeholder="Enter new password..."
+                                  value={newAdminPassword}
+                                  onChange={(e) => setNewAdminPassword(e.target.value)}
+                                  className="flex-1 px-4 py-2 bg-white border border-border rounded-xl text-xs font-medium focus:ring-2 ring-blue-500 outline-none"
+                                />
+                                <button 
+                                  onClick={() => handleUpdateAdminPassword(selectedPanel.id)}
+                                  disabled={isUpdatingPassword}
+                                  className="px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-blue-700 disabled:opacity-50 transition-all"
+                                >
+                                  {isUpdatingPassword ? "..." : "Set"}
+                                </button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Panel Login Link</p>
+                          <a 
+                            href={`https://${selectedPanel.domain}/login`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between bg-white border border-border p-3 rounded-xl group hover:border-blue-500 transition-all"
+                          >
+                            <span className="font-bold text-sm text-blue-600 truncate mr-2">https://{selectedPanel.domain}/login</span>
+                            <ExternalLink className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <p className="text-[9px] text-muted-foreground font-medium italic">
+                          * Use these credentials to log in to the child panel as the owner for troubleshooting. Passwords are hashed and cannot be retrieved, only updated.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
