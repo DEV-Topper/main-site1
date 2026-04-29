@@ -59,6 +59,7 @@ export default function SuperAdminPage() {
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [revealPassword, setRevealPassword] = useState(false);
+  const [isRevenueBreakdownOpen, setIsRevenueBreakdownOpen] = useState(false);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -460,7 +461,15 @@ export default function SuperAdminPage() {
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: "Global Network Turnover", value: formatAmount(totalGlobalRevenue), icon: DollarSign, color: "bg-green-500", shadow: "shadow-green-500/20" },
+          { 
+            label: "Total Admin Balance", 
+            value: formatAmount(totalGlobalRevenue), 
+            icon: DollarSign, 
+            color: "bg-green-500", 
+            shadow: "shadow-green-500/20",
+            onClick: () => setIsRevenueBreakdownOpen(true),
+            clickable: true
+          },
           { label: "Total Network Deposits", value: formatAmount(totalGlobalDeposits), icon: Zap, color: "bg-amber-500", shadow: "shadow-amber-500/20" },
           { label: "Total Managed Users", value: totalGlobalUsers.toLocaleString(), icon: Users, color: "bg-blue-500", shadow: "shadow-blue-500/20" },
           { label: "Live Child Panels", value: activePanelsCount, icon: Globe, color: "bg-indigo-500", shadow: "shadow-indigo-500/20" },
@@ -470,18 +479,28 @@ export default function SuperAdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className={`bg-card border border-border p-6 rounded-3xl shadow-xl ${stat.shadow} relative overflow-hidden group`}
+            onClick={stat.onClick}
+            className={`bg-card border border-border p-6 rounded-3xl shadow-xl ${stat.shadow} relative overflow-hidden group ${stat.clickable ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all' : ''}`}
           >
             <div className={`absolute -right-4 -top-4 w-24 h-24 ${stat.color} opacity-[0.03] rounded-full group-hover:scale-150 transition-transform duration-700`} />
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                  {stat.clickable && <ArrowRight className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors" />}
+                </div>
                 <p className="text-2xl font-black">{stat.value}</p>
               </div>
               <div className={`p-2.5 ${stat.color} rounded-xl text-white`}>
                 <stat.icon className="w-5 h-5" />
               </div>
             </div>
+            {stat.clickable && (
+              <div className="mt-4 flex items-center gap-1.5 text-[10px] font-black uppercase text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span>View Breakdown</span>
+                <ArrowRight className="w-3 h-3" />
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
@@ -578,7 +597,7 @@ export default function SuperAdminPage() {
                           ) : (
                             <div className="flex gap-4">
                               <div className="text-center">
-                                <p className="text-[9px] font-black uppercase text-muted-foreground">Revenue</p>
+                                <p className="text-[9px] font-black uppercase text-muted-foreground">Balance</p>
                                 <p className="font-bold text-green-500">{formatAmount(panel.stats?.totalRevenue || 0)}</p>
                               </div>
                               <div className="text-center border-x border-border px-4">
@@ -798,7 +817,7 @@ export default function SuperAdminPage() {
                 {/* Stats Grid - Fixed for mobile */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                   {[
-                    { label: "Panel Revenue", value: formatAmount(selectedPanel.stats?.totalRevenue), icon: DollarSign, color: "text-green-500" },
+                    { label: "Panel Balance", value: formatAmount(selectedPanel.stats?.totalRevenue), icon: DollarSign, color: "text-green-500" },
                     { label: "Total Deposits", value: formatAmount(selectedPanel.stats?.totalDeposits), icon: Zap, color: "text-amber-500" },
                     { label: "Active Users", value: selectedPanel.stats?.totalUsers || 0, icon: Users, color: "text-blue-500" },
                     { label: "Time Left", value: getTimeRemaining(selectedPanel.expiresAt), icon: Clock, color: "text-indigo-500" },
@@ -1199,6 +1218,89 @@ export default function SuperAdminPage() {
                   className="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:brightness-110 shadow-lg shadow-blue-600/20 disabled:opacity-50 transition-all"
                 >
                   {isSavingGlobal ? "Saving Config..." : "Apply Global Baseline"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* REVENUE BREAKDOWN MODAL */}
+      <AnimatePresence>
+        {isRevenueBreakdownOpen && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsRevenueBreakdownOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-card border border-border shadow-2xl rounded-[32px] overflow-hidden flex flex-col max-h-[85vh]"
+            >
+              <div className="p-8 border-b border-border bg-muted/20 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-green-500 rounded-2xl text-white shadow-lg">
+                    <DollarSign className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black tracking-tight">Balance Breakdown</h2>
+                    <p className="text-xs text-muted-foreground font-medium">Detailed revenue distribution across all child panels.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsRevenueBreakdownOpen(false)}
+                  className="p-3 hover:bg-muted rounded-2xl transition-all"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
+                <div className="grid grid-cols-1 gap-4">
+                  {panels
+                    .filter(p => (p.stats?.totalRevenue || 0) > 0)
+                    .sort((a, b) => (b.stats?.totalRevenue || 0) - (a.stats?.totalRevenue || 0))
+                    .map((panel) => (
+                      <div key={panel.id} className="bg-muted/30 border border-border/50 p-6 rounded-3xl flex items-center justify-between hover:bg-muted/50 transition-all group">
+                        <div className="space-y-1">
+                          <p className="text-sm font-black tracking-tight group-hover:text-blue-600 transition-colors">{panel.domain}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{panel.adminName}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-black text-green-500">{formatAmount(panel.stats?.totalRevenue || 0)}</p>
+                          <p className="text-[10px] font-black uppercase text-muted-foreground">
+                            {((panel.stats?.totalRevenue || 0) / (totalGlobalRevenue || 1) * 100).toFixed(1)}% of total
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  
+                  {panels.filter(p => (p.stats?.totalRevenue || 0) > 0).length === 0 && (
+                    <div className="py-20 text-center space-y-4">
+                      <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto">
+                        <AlertCircle className="w-10 h-10 text-muted-foreground" />
+                      </div>
+                      <p className="text-muted-foreground font-medium">No revenue generated yet.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-8 bg-muted/20 border-t border-border flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Aggregate Total</p>
+                  <p className="text-2xl font-black text-foreground">{formatAmount(totalGlobalRevenue)}</p>
+                </div>
+                <button 
+                  onClick={() => setIsRevenueBreakdownOpen(false)}
+                  className="px-8 py-4 bg-foreground text-background rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-xl"
+                >
+                  Close View
                 </button>
               </div>
             </motion.div>
