@@ -23,7 +23,6 @@ interface ChildPanel {
   userId: {
     username: string;
     email: string;
-    walletBalance?: number;
   };
   status: 'pending' | 'active' | 'rejected' | 'cancelled' | 'expired';
   createdAt: string;
@@ -60,7 +59,6 @@ export default function SuperAdminPage() {
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [revealPassword, setRevealPassword] = useState(false);
-  const [isBalancesModalOpen, setIsBalancesModalOpen] = useState(false);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -353,7 +351,6 @@ export default function SuperAdminPage() {
   const totalGlobalRevenue = panels.reduce((sum, p) => sum + (p.stats?.totalRevenue || 0), 0);
   const totalGlobalUsers = panels.reduce((sum, p) => sum + (p.stats?.totalUsers || 0), 0);
   const totalGlobalDeposits = panels.reduce((sum, p) => sum + (p.stats?.totalDeposits || 0), 0);
-  const totalGlobalAdminBalances = panels.reduce((sum, p) => sum + (p.userId?.walletBalance || 0), 0);
   const activePanelsCount = panels.filter(p => p.status === 'active').length;
 
   const formatAmount = (amount: any) => {
@@ -461,11 +458,10 @@ export default function SuperAdminPage() {
       </header>
 
       {/* Global Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
           { label: "Global Network Turnover", value: formatAmount(totalGlobalRevenue), icon: DollarSign, color: "bg-green-500", shadow: "shadow-green-500/20" },
           { label: "Total Network Deposits", value: formatAmount(totalGlobalDeposits), icon: Zap, color: "bg-amber-500", shadow: "shadow-amber-500/20" },
-          { label: "Admin Account Balances", value: formatAmount(totalGlobalAdminBalances), icon: DollarSign, color: "bg-emerald-500", shadow: "shadow-emerald-500/20", onClick: () => setIsBalancesModalOpen(true) },
           { label: "Total Managed Users", value: totalGlobalUsers.toLocaleString(), icon: Users, color: "bg-blue-500", shadow: "shadow-blue-500/20" },
           { label: "Live Child Panels", value: activePanelsCount, icon: Globe, color: "bg-indigo-500", shadow: "shadow-indigo-500/20" },
         ].map((stat, i) => (
@@ -474,8 +470,7 @@ export default function SuperAdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            onClick={stat.onClick}
-            className={`bg-card border border-border p-6 rounded-3xl shadow-xl ${stat.shadow} relative overflow-hidden group ${stat.onClick ? 'cursor-pointer hover:scale-[1.02] transition-all' : ''}`}
+            className={`bg-card border border-border p-6 rounded-3xl shadow-xl ${stat.shadow} relative overflow-hidden group`}
           >
             <div className={`absolute -right-4 -top-4 w-24 h-24 ${stat.color} opacity-[0.03] rounded-full group-hover:scale-150 transition-transform duration-700`} />
             <div className="flex items-start justify-between">
@@ -1205,78 +1200,6 @@ export default function SuperAdminPage() {
                 >
                   {isSavingGlobal ? "Saving Config..." : "Apply Global Baseline"}
                 </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-      
-      {/* ADMIN BALANCES MODAL */}
-      <AnimatePresence>
-        {isBalancesModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsBalancesModalOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-card border border-border shadow-2xl rounded-[32px] overflow-hidden flex flex-col max-h-[80vh]"
-            >
-              <div className="p-8 border-b border-border bg-muted/20 flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
-                    <DollarSign className="w-6 h-6 text-emerald-500" />
-                    Admin Account Balances
-                  </h2>
-                  <p className="text-muted-foreground text-sm font-medium">Total funds currently held by all child panel admins.</p>
-                </div>
-                <button 
-                  onClick={() => setIsBalancesModalOpen(false)}
-                  className="p-3 bg-muted hover:bg-muted/80 rounded-2xl transition-all active:scale-90"
-                >
-                  <XCircle className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-8 space-y-4 scrollbar-hide">
-                <div className="grid gap-4">
-                  {panels.sort((a, b) => (b.userId?.walletBalance || 0) - (a.userId?.walletBalance || 0)).map((panel) => (
-                    <div key={panel.id} className="flex items-center justify-between p-5 bg-muted/30 border border-border rounded-2xl hover:bg-muted/50 transition-all">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 font-black">
-                          {(panel.domain || "?")[0].toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm">{panel.domain}</p>
-                          <p className="text-[10px] text-muted-foreground uppercase font-black">{panel.adminName}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-black text-emerald-500">{formatAmount(panel.userId?.walletBalance || 0)}</p>
-                        <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest">Available Balance</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                {panels.length === 0 && (
-                  <div className="py-10 text-center">
-                    <p className="text-muted-foreground">No admin accounts found.</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-8 bg-muted/20 border-t border-border">
-                <div className="flex items-center justify-between px-2">
-                  <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total Global Liquidity</span>
-                  <span className="text-xl font-black text-foreground">{formatAmount(totalGlobalAdminBalances)}</span>
-                </div>
               </div>
             </motion.div>
           </div>
