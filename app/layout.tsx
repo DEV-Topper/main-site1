@@ -8,6 +8,7 @@ import './globals.css';
 import { Suspense } from 'react';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { ThemeProvider } from '@/components/theme-provider';
+import { InfiniteLoaderOverlay } from '@/components/InfiniteLoaderOverlay';
 
 // ✅ Global SEO Metadata
 export const metadata: Metadata = {
@@ -135,6 +136,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <CurrencyProvider>
+            <InfiniteLoaderOverlay />
             <Suspense fallback={null}>{children}</Suspense>
             <Analytics />
 
