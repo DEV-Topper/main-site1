@@ -97,7 +97,7 @@ export default function DashboardPage() {
                 <div className="space-y-4 max-w-2xl">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold uppercase tracking-wider">
                     <Zap className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                    New Partnership Features
+                    New Partnership Featuress
                   </div>
                   <h2 className="text-2xl md:text-3xl font-bold leading-tight">
                     API & Child Panel Solutions
